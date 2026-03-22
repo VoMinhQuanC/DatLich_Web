@@ -1,0 +1,41 @@
+// File: app/routes/core/bookingRoutes.js
+const express = require('express');
+const router = express.Router();
+
+// Gọi Controller tương ứng
+const bookingController = require('../../controllers/core/bookingController');
+// Gọi Middleware Check Token
+const { authenticateToken } = require('../auth/authRoutes');
+
+// =====================================
+// API DÀNH CHO ADMIN
+// =====================================
+router.get('/appointments', authenticateToken, bookingController.getAllAppointments);
+router.get('/admin/deleted-appointments', authenticateToken, bookingController.getDeletedAppointments);
+router.post('/admin/appointments/:id/restore', authenticateToken, bookingController.restoreAppointment);
+router.get('/admin/dashboard', authenticateToken, bookingController.getAdminDashboard);
+
+// =====================================
+// API DÀNH CHO NGƯỜI DÙNG CHUNG
+// =====================================
+router.get('/my-appointments', authenticateToken, bookingController.getMyAppointments);
+router.get('/my-vehicles', authenticateToken, bookingController.getMyVehicles);
+router.get('/mechanics', authenticateToken, bookingController.getMechanics);
+router.get('/services', bookingController.getServices); // Không cần token (để hiển thị danh sách)
+router.get('/available-slots', bookingController.getAvailableSlots); 
+
+// =====================================
+// API TƯƠNG TÁC VỚI LỊCH HẸN (CRUD & PAYMENTS)
+// =====================================
+router.get('/appointments/:id', authenticateToken, bookingController.getAppointmentById);
+router.post('/appointments', authenticateToken, bookingController.createAppointment);
+router.put('/appointments/:id', authenticateToken, bookingController.updateAppointment);
+router.delete('/appointments/:id/delete', authenticateToken, bookingController.deleteAppointmentSoft);
+router.post('/appointments/:id/cancel', authenticateToken, bookingController.cancelAppointment);
+router.post('/appointments/:id/payment', authenticateToken, bookingController.createAppointmentPayment);
+
+// Các endpoint tạo booking/payment khác
+router.post('/create', authenticateToken, bookingController.createAppointmentUser);
+router.post('/payments/create', authenticateToken, bookingController.createPayment);
+
+module.exports = router;

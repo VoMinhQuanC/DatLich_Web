@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đặt lịch - VQTBIKE</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- FontAwesome (Icon) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/booking-history.css">
+    <link rel="stylesheet" href="css/notification.css">
+    <script src="js/common-header.js"></script>
+    <script src="js/config.js"></script>
+    
+    <!-- CSS bổ sung cho các nút filter -->
+    <style>
+    .status-filter-buttons {
+        margin-bottom: 15px;
+    }
+
+    .status-filter-buttons .btn-group {
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .status-filter-buttons .btn {
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+
+    .status-filter-buttons .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+    }
+
+    .status-filter-buttons .btn.active {
+        font-weight: bold;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+    }
+
+    @media (max-width: 768px) {
+        .status-filter-buttons .btn-group {
+            justify-content: flex-start;
+        }
+    }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="container-fluid py-2" style="background-color: #fac36a; color: #b71c1c;">
+        <div class="container">
+            <div class="row align-items-center justify-content-between">
+                <!-- Logo -->
+                <div class="col-md-3 d-flex align-items-center">
+                    <a href="/" class="d-flex align-items-center text-decoration-none" style="color: #b71c1c;">
+                        <img src="images/logo1.png" alt="Logo" style="height: 50px;" class="me-2">
+                        <h4 class="m-0 fw-bold"><span style="color: #b71c1c;">VQT</span>BIKE</h4>
+                    </a>
+                </div>
+
+                <!-- Slogan -->
+                <div class="col-md-6 text-center">
+                    <div class="fw-bold fs-3 fst-italic" style="color: #b71c1c;">
+                        "Xe hỏng có VQT – Phục vụ tận nơi, nhanh chóng, uy tín"
+                    </div>
+                </div>
+
+                <!-- Thông tin liên hệ -->
+                <div class="col-md-3 text-end d-flex justify-content-end align-items-center gap-4 flex-wrap">
+                    <!-- Giờ mở cửa -->
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-clock text-danger fs-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold small">Giờ mở cửa</div>
+                            <div class="text-danger fw-bold small">7:00 - 20:00</div>
+                        </div>
+                    </div>
+
+                    <!-- Hỗ trợ -->
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-phone text-danger fs-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold small">Hỗ trợ</div>
+                            <div class="text-danger fw-bold small">0333 787 207</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger sticky-top">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/gioithieu"><i class="fas fa-info-circle me-1"></i>Giới thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dichvu"><i class="fas fa-tools me-1"></i>Dịch vụ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/suaxetainha"><i class="fas fa-car me-1"></i>Sửa xe tại nhà</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/booking"><i class="fas fa-calendar-check me-1"></i>Đặt lịch</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tintuc"><i class="fas fa-newspaper me-1"></i>Tin tức</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/lienhe"><i class="fas fa-phone me-1"></i>Liên hệ</a></li>
+
+                    <!-- Kính lúp tìm kiếm -->
+                    <li class="nav-item position-relative" id="search-container">
+                        <button class="btn btn-outline-light ms-3" onclick="toggleSearch()">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <form id="searchForm" class="d-none position-absolute mt-2" style="right: 0; z-index: 1000; width: 250px;">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm dịch vụ">
+                                <button class="btn btn-danger"><i class="fa fa-search"></i></button>
+                            </div>
+                        </form>
+                    </li>
+
+                    <!-- Nút Đăng nhập -->
+                    <li class="nav-item d-flex align-items-center ms-3" id="authButtons">
+                        <a href="/login" class="btn btn-outline-light btn-sm">Đăng nhập</a>
+                    </li>
+
+                    <!-- Dropdown người dùng -->
+                    <li class="nav-item dropdown d-flex align-items-center ms-3" id="userInfoHeader" style="display: none;">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar-small" id="userAvatarSmall"></div>
+                            <span id="userNameSmall"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="/profile">Thông tin tài khoản</a></li>
+                            <li><a class="dropdown-item active" href="/booking-history">Lịch sử đặt lịch</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Nội dung trang Lịch sử đặt lịch -->
+    <div class="container mt-5">
+        <h2 class="section-title text-center">Lịch sử đặt lịch</h2>
+        <p class="text-center mb-4">Xem và quản lý các lịch hẹn sửa xe của bạn</p>
+        
+        <!-- Thông báo khi chưa đăng nhập -->
+        <div id="loginRequiredAlert" class="alert alert-warning text-center" style="display: none;">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Vui lòng <a href="/login" class="text-decoration-underline fw-bold">đăng nhập</a> để xem lịch sử đặt lịch
+        </div>
+        
+        <!-- Danh sách lịch hẹn - Hiển thị khi đã đăng nhập -->
+        <div id="bookingHistoryContainer" style="display: none;">
+            <!-- THAY THẾ PHẦN DROPDOWN BẰNG CÁC NÚT FILTER -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="status-filter-buttons">
+                        <span class="me-2 fw-medium">Lọc theo trạng thái:</span>
+                        <div class="btn-group" role="group" aria-label="Lọc trạng thái">
+                            <button type="button" class="btn btn-outline-secondary active" data-status="all">
+                                <i class="bi bi-grid-3x3-gap me-1"></i> Tất cả
+                            </button>
+                            <button type="button" class="btn btn-outline-warning" data-status="Pending">
+                                <i class="bi bi-hourglass-split me-1"></i> Chờ xác nhận
+                            </button>
+                            <button type="button" class="btn btn-outline-success" data-status="Confirmed">
+                                <i class="bi bi-check-circle me-1"></i> Đã xác nhận
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-status="Completed">
+                                <i class="bi bi-trophy me-1"></i> Hoàn thành
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" data-status="Canceled">
+                                <i class="bi bi-x-circle me-1"></i> Đã hủy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="/booking" class="btn btn-danger">
+                        <i class="bi bi-plus-circle me-1"></i> Đặt lịch mới
+                    </a>
+                </div>
+            </div>
+            
+            <div class="booking-list" id="bookingList">
+                <!-- Danh sách lịch hẹn sẽ được hiển thị ở đây -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                    <p class="mt-2">Đang tải lịch sử đặt lịch...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Chi tiết lịch hẹn -->
+    <div class="modal fade" id="bookingDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết lịch hẹn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="bookingDetailContent">
+                    <!-- Nội dung chi tiết sẽ được hiển thị ở đây -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2">Đang tải thông tin chi tiết...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" id="cancelBookingBtn" style="display: none;">Hủy lịch hẹn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đánh giá dịch vụ -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đánh giá dịch vụ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <input type="hidden" id="reviewAppointmentId">
+                        
+                        <div class="mb-3 text-center">
+                            <div class="rating">
+                                <i class="bi bi-star rating-star" data-rating="1"></i>
+                                <i class="bi bi-star rating-star" data-rating="2"></i>
+                                <i class="bi bi-star rating-star" data-rating="3"></i>
+                                <i class="bi bi-star rating-star" data-rating="4"></i>
+                                <i class="bi bi-star rating-star" data-rating="5"></i>
+                            </div>
+                            <div class="rating-text mt-2">Hãy chọn số sao để đánh giá</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reviewComment" class="form-label">Nhận xét của bạn</label>
+                            <textarea class="form-control" id="reviewComment" rows="4" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" id="submitReviewBtn">Gửi đánh giá</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận hủy lịch hẹn -->
+    <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận hủy lịch hẹn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn hủy lịch hẹn này?</p>
+                    <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không, giữ lại</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancelBtn">
+                        <span class="spinner-border spinner-border-sm" id="cancelSpinner" style="display: none;"></span>
+                        Có, hủy lịch hẹn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đăng nhập / Đăng ký -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body modal-auth">
+                    <!-- Thông báo -->
+                    <div class="alert alert-danger" id="errorAlert" style="display: none;"></div>
+                    <div class="alert alert-success" id="successAlert" style="display: none;"></div>
+                    
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs nav-fill" id="authTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab">
+                                Đăng nhập
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab">
+                                Đăng ký
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Tab content -->
+                    <div class="tab-content" id="authTabContent">
+                        <!-- Đăng nhập form -->
+                        <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                            <div class="user-info p-4 text-center" id="userInfo" style="display: none;">
+                                <div class="user-avatar" id="userAvatar">U</div>
+                                <h4 id="userName">Người dùng</h4>
+                                <p class="text-muted" id="userEmail">user@example.com</p>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="/profile" class="btn btn-outline-primary">Thông tin tài khoản</a>
+                                    <a href="/booking-history" class="btn btn-outline-primary">Lịch sử đặt lịch</a>
+                                    <button class="btn btn-danger" id="modalLogoutBtn">Đăng xuất</button>
+                                </div>
+                            </div>
+                            
+                            <form id="loginForm" class="p-4">
+                                <div class="mb-3">
+                                    <label for="loginEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="loginEmail" placeholder="Nhập email của bạn" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="loginPassword" class="form-label">Mật khẩu</label>
+                                    <input type="password" class="form-control" id="loginPassword" placeholder="Nhập mật khẩu" required>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-danger" id="loginBtn">
+                                        <span class="spinner-border spinner-border-sm loading-spinner" id="loginSpinner" style="display: none;"></span>
+                                        Đăng nhập
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Đăng ký form -->
+                        <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
+                            <form id="registerForm" class="p-4">
+                                <div class="mb-3">
+                                    <label for="regFullName" class="form-label">Họ và tên</label>
+                                    <input type="text" class="form-control" id="regFullName" placeholder="Nhập họ và tên của bạn" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="regEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="regEmail" placeholder="Nhập email của bạn" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="regPhone" class="form-label">Số điện thoại</label>
+                                    <input type="tel" class="form-control" id="regPhone" placeholder="Nhập số điện thoại của bạn" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="regPassword" class="form-label">Mật khẩu</label>
+                                    <input type="password" class="form-control" id="regPassword" placeholder="Nhập mật khẩu" required>
+                                    <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="regConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                                    <input type="password" class="form-control" id="regConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                    <label class="form-check-label" for="agreeTerms">
+                                        Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a>
+                                    </label>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-danger" id="registerBtn">
+                                        <span class="spinner-border spinner-border-sm loading-spinner" id="registerSpinner" style="display: none;"></span>
+                                        Đăng ký
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">VỀ CHÚNG TÔI</h5>
+                    <p>Dịch vụ sửa xe chuyên nghiệp, uy tín tại TP.HCM. Cam kết chất lượng dịch vụ và sự hài lòng của khách hàng.
+                        Hệ thống lớn quy tụ các thợ sửa xe máy hàng đầu thường trực làm việc, liên tục được đào tạo kỹ thuật chuyên sâu, trong đó có nhiều thợ chuyên xe SH, xe tay ga cao cấp, xe côn tay và xe phân khối lớn.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#" class="text-white me-3" title="Facebook"><i class="fa-brands fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-white me-3" title="Twitter"><i class="fa-brands fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 class="text mb-3">LIÊN HỆ</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Địa chỉ: 396 Xa lộ Hà Nội, Phường Tân Phú, Thủ Đức, Hồ Chí Minh, Việt Nam</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i> Hotline: <a href="tel:0333787207" class="text-white">0333 787 207</a></li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> Email: <a href="mailto:info@abc.com" class="text-white">info@abc.com</a></li>
+                        <li class="mb-2"><i class="fas fa-clock me-2"></i> Giờ làm việc: 7h30 - 18h30 (T2 - T7)</li>
+                    </ul>
+                </div>
+ 
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">ĐĂNG KÝ NHẬN KHUYẾN MÃI</h5>
+                    <form>
+                        <div class="mb-3">
+                        <input type="email" class="form-control" placeholder="Email của bạn">
+                        </div>
+                        <div class="mb-3">
+                        <input type="tel" class="form-control" placeholder="Số điện thoại">
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">Đăng ký ngay</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Vị trí cửa hàng -->
+            <div class="container-fluid px-0 mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3 px-3">VỊ TRÍ CỬA HÀNG</h5>
+                    <div class="map-container ratio" style="--bs-aspect-ratio: 30%;">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.6391651634016!2d106.76522777587614!3d10.840909658014147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175273aa7f042e3%3A0x77d617282b979ad5!2zMzk2IFhhIGzhu5FuIEjDoCBOb-G7iSwgVMOibiBQaMO6LCBUaOG7pyDEkOG7i25nLCBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1713071546252!5m2!1svi!2s" 
+                        allowfullscreen="" 
+                        loading="lazy"></iframe>
+                    </div>
+                    <div class="text-end mt-2 px-3">
+                        <a href="https://maps.google.com/?q=396+Xa+lộ+Hà+Nội,Tân+Phú,Thủ+Đức" 
+                        target="_blank" 
+                        class="text-danger small">
+                        <i class="fas fa-expand me-1"></i> Xem bản đồ lớn hơn
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 bg-secondary">
+    
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2025 <strong>VQTBIKE</strong>. Bảo lưu mọi quyền.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0">Vui lòng không sao chép nếu như chưa có văn phản chấp thuận.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Nút lên đầu trang -->
+    <a href="#" class="back-to-top" id="backToTopBtn">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main JS -->
+    <script src="js/index.js"></script>
+    <!-- Booking History JS -->
+    <script src="js/config.js"></script>
+    <script src="js/booking-history.js"></script>
+
+    <!-- Notification JS -->    
+    <script src="js/notification.js"></script>
+
+    <script>
+        const backToTopBtn = document.getElementById("backToTopBtn");
+
+        window.onscroll = function () {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopBtn.style.display = "flex";
+            } else {
+                backToTopBtn.style.display = "none";
+            }
+        };
+
+        backToTopBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function toggleSearch() {
+            const searchForm = document.getElementById("searchForm");
+            searchForm.classList.toggle("d-none");
+        }
+    </script>
+</body>
+</html>

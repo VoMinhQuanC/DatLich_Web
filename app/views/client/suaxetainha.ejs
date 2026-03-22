@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SỬA XE TẠI NHÀ - VQTBIKE</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/owlcarousel/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="assets/owlcarousel/assets/owl.theme.default.min.css">
+    <script src="assets/vendors/jquery.min.js"></script>
+    <script src="assets/owlcarousel/owl.carousel.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/suaxetainha.css">
+    <link rel="stylesheet" href="css/notification.css">
+
+    <!-- Main JS -->
+    <script src="js/index.js"></script>
+    
+    <script src="js/common-header.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" href="images/favicon.png" type="image/png">
+    <style>
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 10px 0;
+            }
+
+            .header-container h4 {
+                font-size: 20px;
+            }
+
+            .header-container .btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+    
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="container-fluid py-2" style="background-color: #fac36a; color: #b71c1c;">
+  <div class="container">
+    <div class="row align-items-center justify-content-between">
+
+      <!-- Logo -->
+      <div class="col-md-3 d-flex align-items-center">
+        <a href="/" class="d-flex align-items-center text-decoration-none" style="color: #b71c1c;">
+          <img src="images/logo1.png" alt="Logo" style="height: 50px;" class="me-2">
+          <h4 class="m-0 fw-bold"><span style="color: #b71c1c;">VQT</span>BIKE</h4>
+        </a>
+      </div>
+
+      <!-- Slogan -->
+      <div class="col-md-6 text-center">
+        <div class="fw-bold fs-3 fst-italic" style="color: #b71c1c;">
+          "Xe hỏng có VQT – Phục vụ tận nơi, nhanh chóng, uy tín"
+        </div>
+      </div>
+
+      <!-- Thông tin liên hệ -->
+      <div class="col-md-3 text-end d-flex justify-content-end align-items-center gap-4 flex-wrap">
+
+        <!-- Giờ mở cửa -->
+        <div class="d-flex align-items-center gap-2">
+          <i class="fa-solid fa-clock text-danger fs-3"></i>
+          <div class="text-start">
+            <div class="fw-bold small">Giờ mở cửa</div>
+            <div class="text-danger fw-bold small">7:00 - 20:00</div>
+          </div>
+        </div>
+
+        <!-- Hỗ trợ -->
+        <div class="d-flex align-items-center gap-2">
+          <i class="fa-solid fa-phone text-danger fs-3"></i>
+          <div class="text-start">
+            <div class="fw-bold small">Hỗ trợ</div>
+            <div class="text-danger fw-bold small">0333 787 207</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger sticky-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link " href="/"><i class="fas fa-home me-1"></i> Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="/gioithieu"><i class="fas fa-info-circle me-1"></i>Giới thiệu</a></li>
+        <li class="nav-item"><a class="nav-link" href="/dichvu"><i class="fas fa-tools me-1"></i>Dịch vụ</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/suaxetainha"><i class="fas fa-car me-1"></i>Sửa xe tại nhà</a></li>
+        <li class="nav-item"><a class="nav-link" href="/booking"><i class="fas fa-calendar-check me-1"></i>Đặt lịch</a></li>
+        <li class="nav-item"><a class="nav-link" href="/tintuc"><i class="fas fa-newspaper me-1"></i>Tin tức</a></li>
+        <li class="nav-item"><a class="nav-link" href="/lienhe"><i class="fas fa-phone me-1"></i>Liên hệ</a></li>
+
+        <!-- Kính lúp tìm kiếm -->
+        <li class="nav-item position-relative" id="search-container">
+          <button class="btn btn-outline-light ms-3" onclick="toggleSearch()">
+            <i class="fa fa-search"></i>
+          </button>
+          <form id="searchForm" class="d-none position-absolute mt-2" style="right: 0; z-index: 1000; width: 250px;">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Tìm kiếm dịch vụ">
+              <button class="btn btn-danger"><i class="fa fa-search"></i></button>
+            </div>
+          </form>
+        </li>
+
+        <!-- Nút Đăng nhập -->
+        <li class="nav-item d-flex align-items-center ms-3" id="authButtons">
+          <a href="/login" class="btn btn-outline-light btn-sm">Đăng nhập</a>
+        </li>
+
+        <!-- Dropdown người dùng -->
+        <li class="nav-item dropdown d-flex align-items-center ms-3" id="userInfoHeader" style="display: none;">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="user-avatar-small" id="userAvatarSmall"></div>
+            <span id="userNameSmall"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="/profile">Thông tin tài khoản</a></li>
+            <li><a class="dropdown-item" href="/booking-history">Lịch sử đặt lịch</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Đăng xuất</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+ <section class="service-hero">
+  <div class="container">
+    <div class="row text-center text-white">
+      <div class="col-12 mb-3">
+        <h1 class="hero-title">DỊCH VỤ SỬA XE TẠI NHÀ</h1>
+        <p class="hero-subtitle">Tiện lợi - Nhanh chóng - Chuyên nghiệp ngay tại nhà bạn</p>
+      </div>
+    </div>
+
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <div id="map-container">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15672.1918071189!2d106.7588497!3d10.883957500000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175276dd7775f21%3A0x8431545f055ba591!2zMzk2IFhhIGzhu5kgSMOgIE7hu5lpLCBQaMaw4budbmcgVMOibiBQaMO6LCBUaOG7pyDEkOG7qWMsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1748375350035!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+
+      <div class="col-lg-6 text-center text-white">
+        <div class="contact-info mb-4">
+          <a href="tel:0333787207" class="btn btn-warning btn-lg call-btn">
+            <i class="fas fa-phone"></i> Gọi ngay 0333.787.207
+          </a>
+        </div>
+
+        <div class="share-location">
+          <p class="location-text">Gặp sự cố? Hãy chia sẻ vị trí để chúng tôi đến nhanh hơn!</p>
+          <button onclick="getLocation()" class="btn btn-warning location-btn">📍 Chia sẻ vị trí của tôi</button>
+          <p id="location-output" class="mt-2 small location-output"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function getLocation() {
+  const output = document.getElementById("location-output");
+  if (!navigator.geolocation) {
+    output.innerHTML = "Trình duyệt không hỗ trợ định vị vị trí.";
+    return;
+  }
+  output.innerHTML = "⏳ Đang lấy vị trí...";
+  
+  navigator.geolocation.getCurrentPosition((position) => {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+    output.innerHTML = `✅ Vị trí hiện tại: <a href="${googleMapsLink}" target="_blank">Xem trên Google Maps</a>`;
+  }, () => {
+    output.innerHTML = "❌ Không thể lấy vị trí. Vui lòng bật GPS và thử lại.";
+  });
+}
+</script>
+
+<style>
+.service-hero {
+  background: url('images/suaxetainha.jpg') no-repeat center center;
+  background-size: cover;
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.service-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.container {
+  position: relative;
+}
+
+.hero-title {
+  font-weight: bold;
+  font-size: 3.5rem;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.call-btn, .location-btn {
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+#map-container {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#map-iframe {
+  width: 100%;
+  height: 400px;
+  border: 0;
+}
+</style>
+
+
+
+
+
+  <!-- Services Section -->
+  <section class="py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">DỊCH VỤ SỬA XE TẠI NHÀ</h2>
+        <p class="text-muted">Chúng tôi cung cấp đầy đủ các dịch vụ sửa chữa, bảo dưỡng ngay tại nhà bạn</p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="service-card card h-100">
+            <img src="images/suaxetainha2.jpg" class="card-img-top" alt="Sửa chữa khẩn cấp">
+            <div class="card-body">
+              <h5 class="card-title text-danger">SỬA CHỮA KHẨN CẤP</h5>
+              <p class="card-text">
+                - Xe không nổ máy<br>
+                - Hỏng lốp, xịt lốp<br>
+                - Rò rỉ dầu nhớt<br>
+                - Hệ thống điện gặp sự cố
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="service-card card h-100">
+            <img src="images/suaxetainha3.jpg" class="card-img-top" alt="Bảo dưỡng định kỳ">
+            <div class="card-body">
+              <h5 class="card-title text-danger">BẢO DƯỠNG ĐỊNH KỲ</h5>
+              <p class="card-text">
+                - Thay nhớt động cơ<br>
+                - Thay lọc gió, lọc nhớt<br>
+                - Kiểm tra hệ thống phanh<br>
+                - Vệ sinh bộ lọc nhiên liệu
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="service-card card h-100">
+            <img src="images/suaxetainha4.jpg" class="card-img-top" alt="Thay thế phụ tùng">
+            <div class="card-body">
+              <h5 class="card-title text-danger">THAY THẾ PHỤ TÙNG</h5>
+              <p class="card-text">
+                - Thay bugi, ắc quy<br>
+                - Thay dây curoa, bộ lọc<br>
+                - Thay phanh (má, dầu)<br>
+                - Thay bộ đề, bộ ly hợp
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">LỢI ÍCH KHI SỬ DỤNG DỊCH VỤ</h2>
+        <p class="text-muted">Những lý do bạn nên chọn dịch vụ sửa xe tại nhà của chúng tôi</p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-md-3">
+          <div class="benefit-item text-center">
+            <div class="benefit-icon"><i class="fas fa-clock"></i></div>
+            <h5>Tiết kiệm thời gian</h5>
+            <p>Không cần di chuyển, chờ đợi, tiết kiệm thời gian cho bạn</p>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="benefit-item text-center">
+            <div class="benefit-icon"><i class="fas fa-tools"></i></div>
+            <h5>Dụng cụ đầy đủ</h5>
+            <p>Kỹ thuật viên mang theo đầy đủ dụng cụ chuyên dụng</p>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="benefit-item text-center">
+            <div class="benefit-icon"><i class="fas fa-shield-alt"></i></div>
+            <h5>Bảo hành dài hạn</h5>
+            <p>Bảo hành dịch vụ lên đến 6 tháng</p>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="benefit-item text-center">
+            <div class="benefit-icon"><i class="fas fa-dollar-sign"></i></div>
+            <h5>Giá cả hợp lý</h5>
+            <p>Báo giá trước khi sửa chữa, không phát sinh chi phí</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Steps Section -->
+  <section class="py-5" id="booking">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">QUY TRÌNH ĐẶT LỊCH SỬA XE TẠI NHÀ</h2>
+        <p class="text-muted">Chỉ với 4 bước đơn giản để sử dụng dịch vụ của chúng tôi</p>
+      </div>
+      
+      <div class="booking-steps">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="step-item">
+              <h4>Tiếp nhận yêu cầu</h4>
+              <p>Gọi điện/zalo theo số <strong>0333.787.207</strong> hoặc đặt lịch trực tuyến qua website. Cung cấp thông tin về tình trạng xe và địa chỉ.</p>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="step-item">
+              <h4>Báo giá & xác nhận</h4>
+              <p>Nhân viên sẽ kiểm tra và báo giá chi tiết dịch vụ. Xác nhận thời gian kỹ thuật viên đến và các hạng mục cần sửa chữa.</p>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="step-item">
+              <h4>Triển khai dịch vụ</h4>
+              <p>Kỹ thuật viên đến tận nhà với đầy đủ dụng cụ và phụ tùng (nếu cần). Thực hiện sửa chữa theo yêu cầu.</p>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="step-item">
+              <h4>Bàn giao & thanh toán</h4>
+              <p>Kiểm tra và bàn giao xe sau khi hoàn thành. Thanh toán trực tiếp hoặc chuyển khoản. Xuất hóa đơn điện tử.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="promo-banner text-center">
+          <h3 class="mb-3">ƯU ĐÃI ĐẶC BIỆT KHI ĐẶT LỊCH ONLINE</h3>
+          <p class="mb-4">
+              Giảm ngay <span class="fw-bold">10%</span> cho lần đặt lịch đầu tiên và 
+              <span class="fw-bold">miễn phí</span> kiểm tra tổng thể xe
+          </p>
+          <p class="contact-info">Liên hệ với chúng tôi để biết thêm chi tiết qua số <strong>0333 787 207</strong></p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">CÂU HỎI THƯỜNG GẶP</h2>
+      </div>
+      
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+              Dịch vụ sửa xe tại nhà có đảm bảo chất lượng như ở xưởng không?
+            </button>
+          </h2>
+          <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Hoàn toàn đảm bảo. Kỹ thuật viên của chúng tôi được đào tạo bài bản và mang theo đầy đủ dụng cụ chuyên dụng. 
+              Các dịch vụ tại nhà vẫn được bảo hành như tại xưởng.
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+              Thời gian kỹ thuật viên đến nhà trong bao lâu?
+            </button>
+          </h2>
+          <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Thông thường trong vòng 1-2 giờ sau khi xác nhận đặt lịch (tùy khu vực). 
+              Đối với trường hợp khẩn cấp, chúng tôi ưu tiên xử lý trong thời gian sớm nhất.
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+              Giá dịch vụ tại nhà có cao hơn tại xưởng không?
+            </button>
+          </h2>
+          <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Chúng tôi chỉ tính thêm phí di chuyển tùy theo khoảng cách (tối đa 50.000đ). 
+              Giá dịch vụ vẫn giữ nguyên như tại xưởng và được báo giá trước khi thực hiện.
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+              Có thể đặt lịch ngoài giờ hành chính không?
+            </button>
+          </h2>
+          <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Có. Chúng tôi phục vụ từ 7h sáng đến 9h tối tất cả các ngày trong tuần, kể cả thứ 7 và chủ nhật. 
+              Ngoài khung giờ này vẫn có thể hỗ trợ với phụ phí ngoài giờ.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial Section -->
+  <section class="py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">KHÁCH HÀNG NÓI VỀ DỊCH VỤ</h2>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex mb-3">
+                <img src="images/suaxetainha5.png" class="rounded-circle me-3" width="60" height="60" alt="Khách hàng">
+                <div>
+                  <h5 class="mb-1">Anh Nguyễn Văn A</h5>
+                  <p class="text-muted small">Quận Thủ Đức</p>
+                </div>
+              </div>
+              <p class="card-text">"Tôi rất hài lòng với dịch vụ thay phanh tại nhà. Kỹ thuật viên đến đúng giờ, làm việc chuyên nghiệp và giá cả hợp lý."</p>
+              <div class="text-warning">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex mb-3">
+                <img src="images/suaxetainha6.jpg" class="rounded-circle me-3" width="60" height="60" alt="Khách hàng">
+                <div>
+                  <h5 class="mb-1">Chị Trần Thị B</h5>
+                  <p class="text-muted small">Quận 2</p>
+                </div>
+              </div>
+              <p class="card-text">"Xe tôi bị hỏng giữa đường, gọi điện được hỗ trợ ngay. 15 phút sau có kỹ thuật viên đến xử lý. Cảm ơn đội ngũ rất nhiều!"</p>
+              <div class="text-warning">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex mb-3">
+                <img src="images/suaxetainha7.jpg" class="rounded-circle me-3" width="60" height="60" alt="Khách hàng">
+                <div>
+                  <h5 class="mb-1">Anh Lê Văn C</h5>
+                  <p class="text-muted small">Quận 9</p>
+                </div>
+              </div>
+              <p class="card-text">"Dịch vụ bảo dưỡng tại nhà rất tiện lợi, không phải mang xe đi xa. Nhân viên tư vấn nhiệt tình, làm xong còn dọn dẹp sạch sẽ."</p>
+              <div class="text-warning">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- Call to Action -->
+  <section class="py-5 bg-danger text-white">
+    <div class="container text-center">
+      <h2 class="mb-4">BẠN CẦN SỬA XE NGAY BÂY GIỜ?</h2>
+      <p class="lead mb-5">Liên hệ ngay với chúng tôi để được hỗ trợ nhanh nhất</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="tel:0333787207" class="btn btn-light btn-lg px-4"><i class="fas fa-phone me-2"></i>Gọi ngay 0333.787.207</a>
+        <a href="/booking" class="btn btn-outline-light btn-lg px-4"><i class="fas fa-calendar-check me-2"></i>Đặt lịch trực tuyến</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+    <footer class="bg-dark text-white py-4 ">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">VỀ CHÚNG TÔI</h5>
+                    <p>Dịch vụ sửa xe chuyên nghiệp, uy tín tại TP.HCM. Cam kết chất lượng dịch vụ và sự hài lòng của khách hàng.
+                        Hệ thống lớn quy tụ các thợ sửa xe máy hàng đầu thường trực làm việc, liên tục được đào tạo kỹ thuật chuyên sâu, trong đó có nhiều thợ chuyên xe SH, xe tay ga cao cấp, xe côn tay và xe phân khối lớn.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#" class="text-white me-3" title="Facebook"><i class="fa-brands fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-white me-3" title="Twitter"><i class="fa-brands fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 class="text mb-3">LIÊN HỆ</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Địa chỉ: 396 Xa lộ Hà Nội, Phường Tân Phú, Thủ Đức, Hồ Chí Minh, Việt Nam</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i> Hotline: <a href="tel:0333787207" class="text-white">0333 787 207</a></li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> Email: <a href="mailto:info@abc.com" class="text-white">info@abc.com</a></li>
+                        <li class="mb-2"><i class="fas fa-clock me-2"></i> Giờ làm việc: 7h30 - 18h30 (T2 - T7)</li>
+                    </ul>
+                </div>
+ 
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">ĐĂNG KÝ NHẬN KHUYẾN MÃI</h5>
+                    <form>
+                        <div class="mb-3">
+                        <input type="email" class="form-control" placeholder="Email của bạn">
+                        </div>
+                        <div class="mb-3">
+                        <input type="tel" class="form-control" placeholder="Số điện thoại">
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">Đăng ký ngay</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Vị trí cửa hàng -->
+            <div class="container-fluid px-0 mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3 px-3">VỊ TRÍ CỬA HÀNG</h5>
+                    <div class="map-container ratio" style="--bs-aspect-ratio: 30%;"> <!-- Giảm tỷ lệ từ 16:9 xuống 30% -->
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4271298585622!2d106.782119975839!3d10.855081757736341!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175276dd7775f21%3A0x8431545f055ba591!2zMzk2IFhhIGzhu5kgSMOgIE7hu5lpLCBQaMaw4budbmcgVMOibiBQaMO6LCBUaOG7pyDEkOG7qWMsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1748376139652!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <div class="text-end mt-2 px-3">
+                        <a href="https://maps.google.com/?q=396+Xa+lộ+Hà+Nội,Tân+Phú,Thủ+Đức" 
+                        target="_blank" 
+                        class="text-danger small">
+                        <i class="fas fa-expand me-1"></i> Xem bản đồ lớn hơn
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 bg-secondary">
+    
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2025 <strong>VQTBIKE</strong>. Bảo lưu mọi quyền.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0"> Vui lòng không sao chép nếu như chưa có văn phản chấp thuận.</p>
+            </div>
+        </div>
+    </footer>
+
+     <!-- Bootstrap JS -->
+    <a href="#" class="back-to-top" id="backToTopBtn">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <script>
+        const backToTopBtn = document.getElementById("backToTopBtn");
+
+        window.onscroll = function () {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopBtn.style.display = "flex";
+            } else {
+                backToTopBtn.style.display = "none";
+            }
+        };
+
+        backToTopBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+
+    <script>
+        $('.owl-carousel').owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 2,
+                },
+                600: {
+                    items: 3,
+                },
+                1000: {
+                    items: 4,
+                    loop: false
+                }
+            }
+        });
+    </script>
+  
+
+    <div class="hotline-container">
+        <a href="tel:0333787207" class="hotline-button">
+          <i class="fa fa-phone"></i> 0333.787.207
+        </a>
+    </div>
+
+  <!-- Chatbot đơn giản -->
+    <div id="chatbot-icon" class="chatbot-icon" onclick="toggleChatbot()">
+        <i class="fa-solid fa-comment fa-lg"></i>
+    </div>
+
+    <!-- Cửa sổ Chatbot -->
+    <div id="chatbot-container" class="chatbot-container">
+        <div class="chatbot-header">
+            <h5>Chatbot Hỗ Trợ</h5>
+            <button class="btn-close" onclick="toggleChatbot()"></button>
+        </div>
+        <div class="chatbot-body">
+            <div class="chat-message bot-message">
+                Xin chào! Tôi có thể giúp gì cho bạn hôm nay?
+            </div>
+            <div class="quick-questions">
+                <div class="quick-question" onclick="sendQuickQuestion('Giờ làm việc của bạn?')">Giờ làm việc</div>
+                <div class="quick-question" onclick="sendQuickQuestion('Tôi muốn đặt lịch hẹn')">Đặt lịch hẹn</div>
+                <div class="quick-question" onclick="sendQuickQuestion('Địa chỉ cửa hàng')">Địa chỉ</div>
+                <div class="quick-question" onclick="sendQuickQuestion('Bảng giá dịch vụ')">Bảng giá</div>
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chat-input" class="form-control" placeholder="Nhập tin nhắn...">
+            <button class="btn btn-primary" onclick="sendMessage()">Gửi</button>
+        </div>
+    </div>
+    
+    <!-- Chatbot JS -->
+    <script src="js/chatbot.js"></script>
+    
+    <!-- Notification JS -->    
+    <script src="js/notification.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/chatbot.css">
+</body>
+</html>

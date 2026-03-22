@@ -1,0 +1,370 @@
+/* admin-schedules.css - CSS cho trang quản lý lịch làm việc */
+
+/* ===== LAYOUT & COMPONENTS ===== */
+/* Điều chỉnh vị trí và hiển thị thông báo */
+.alert {
+    position: relative;
+    z-index: 1030; /* Đặt z-index cao hơn dashboard */
+    margin: 10px 15px 15px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    max-width: calc(100% - 30px);
+    width: auto;
+}
+
+.alert .btn-close {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+/* Điều chỉnh header của Dashboard để không ghi đè */
+.d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+    position: relative;
+    z-index: 1020; /* Thấp hơn thông báo */
+    margin-top: 15px; /* Tạo thêm không gian ở trên */
+}
+
+/* Styling cho card */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 0.75rem 1.25rem;
+}
+
+/* Avatar placeholder */
+.avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+/* ===== WEEKLY SCHEDULE TABLE ===== */
+/* Styling cho bảng lịch trình tuần */
+#weeklyScheduleTable {
+    table-layout: fixed;
+    font-size: 0.9rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#weeklyScheduleTable th, 
+#weeklyScheduleTable td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.4rem;
+    position: relative;
+    border: 1px solid #dee2e6;
+}
+
+#weeklyScheduleTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding-top: 20px !important; /* Thêm padding để có chỗ cho nhãn "Hôm nay" */
+}
+
+/* Time slot indicator in weekly schedule */
+.time-slot {
+    background-color: #e3f2fd;
+    border-radius: 4px;
+    padding: 5px;
+    margin: 2px 0;
+    font-size: 0.75rem;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.time-slot:hover {
+    background-color: #bbdefb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.time-slot .slot-time {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Cell không có lịch */
+.no-schedule {
+    color: #adb5bd;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Styling cho ngày hiện tại */
+.today-column {
+    position: relative;
+    background-color: rgba(13, 110, 253, 0.1) !important;
+    font-weight: bold;
+}
+
+/* Thêm nhãn "Hôm nay" */
+.today-indicator {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #0d6efd;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    z-index: 5;
+    white-space: nowrap;
+    height: 18px;
+    line-height: 14px;
+}
+
+.today-cell {
+    background-color: rgba(13, 110, 253, 0.05);
+    border: 1px solid #0d6efd;
+}
+
+/* Hiển thị nút thao tác */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* ===== WEEKLY NAVIGATION ===== */
+/* Style cho widget điều hướng tuần */
+.week-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.current-week-display {
+    font-weight: 500;
+    font-size: 1rem;
+    background-color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+/* ===== DATATABLE STYLES ===== */
+/* Style cho bảng danh sách lịch làm việc */
+#schedulesTable th, 
+#schedulesTable td {
+    vertical-align: middle !important;
+}
+
+/* DataTables customization */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #0d6efd !important;
+    color: white !important;
+    border: 1px solid #0d6efd !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f8f9fa !important;
+    color: #0d6efd !important;
+}
+
+/* ===== MODAL ALL MECHANICS ===== */
+/* CSS cho modal xem tất cả kỹ thuật viên dạng bảng tuần */
+#allMechanicsModal .modal-dialog {
+    max-width: 95%;
+}
+
+#allMechanicsModal .modal-body {
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: calc(90vh - 130px);
+}
+
+#allMechanicsModal .modal-content {
+    max-height: 90vh;
+}
+
+#allMechanicsModal .table {
+    margin-bottom: 0;
+}
+
+/* CSS cho các ô lịch trong bảng tuần của modal */
+#modalWeeklyScheduleTable {
+    border-collapse: collapse;
+}
+
+#modalWeeklyScheduleTable th,
+#modalWeeklyScheduleTable td {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+    padding: 0.5rem;
+}
+
+#modalWeeklyScheduleTable td {
+    height: 60px;
+}
+
+#modalWeeklyScheduleTable th {
+    text-align: center;
+    position: relative;
+}
+
+/* Cột đầu tiên cố định chiều rộng */
+#modalWeeklyScheduleTable th:first-child,
+#modalWeeklyScheduleTable td:first-child {
+    width: 180px;
+    background-color: #f8f9fa;
+    font-weight: 500;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
+}
+
+/* Đánh dấu cột ngày hiện tại trong modal */
+#modalWeeklyScheduleTable .today-column {
+    background-color: rgba(13, 110, 253, 0.1);
+    position: relative;
+}
+
+#modalWeeklyScheduleTable .today-indicator {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bs-primary);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    z-index: 1;
+}
+
+/* CSS cho các ô có lịch làm việc trong modal */
+#modalWeeklyScheduleTable .time-slot {
+    background-color: rgba(13, 110, 253, 0.2);
+    border-radius: 4px;
+    padding: 5px 8px;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#modalWeeklyScheduleTable .time-slot:hover {
+    background-color: rgba(13, 110, 253, 0.3);
+}
+
+#modalWeeklyScheduleTable .slot-time {
+    font-weight: 500;
+}
+
+/* CSS cho ô ngày hiện tại trong modal */
+#modalWeeklyScheduleTable .today-cell {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+    #weeklyScheduleTable, #modalWeeklyScheduleTable {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.8rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .schedule-view-tabs {
+        margin-top: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+/* Đảm bảo modal hiển thị đúng thứ tự z-index */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal {
+    z-index: 1050 !important;
+}
+
+/* Đảm bảo modal không bị chồng lên nhau */
+.modal-open .modal + .modal-backdrop {
+    z-index: 1060 !important;
+}
+
+.modal-open .modal + .modal-backdrop + .modal {
+    z-index: 1070 !important;
+}
+
+/* Làm nổi bật time-slot khi hover để dễ nhận biết */
+#modalWeeklyScheduleTable .time-slot {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#modalWeeklyScheduleTable .time-slot:hover {
+    background-color: rgba(13, 110, 253, 0.4);
+    transform: scale(1.05);
+}
+
+
+}

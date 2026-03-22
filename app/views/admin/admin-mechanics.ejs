@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Kỹ thuật viên - Admin Dashboard</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/notification-admin.css">
+    <link rel="stylesheet" href="css/admin-mechanics.css">
+   
+    <script src="js/common-header.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapsed">
+                <div class="position-sticky">
+                    <div class="text-center py-4 mb-3">
+                        <img src="images/maintenance.png" alt="Logo" width="50" height="50">
+                        <h5 class="text-white mt-2">Trang Admin</h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin" id="dashboard-link">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Tổng quan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-services" id="services-link">
+                                <i class="bi bi-tools me-2"></i>
+                                Quản lý Dịch vụ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-booking" id="bookings-link">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                Quản lý Đặt lịch
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-users" id="users-link">
+                                <i class="bi bi-people me-2"></i>
+                                Quản lý Tài khoản
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin-mechanics" id="mechanics-link">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Quản lý Kỹ thuật viên
+                            </a>
+                        </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="/admin-revenue" id="revenue-link">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                Thống kê Doanh thu
+                            </a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-schedules" id="schedules-link">
+                                <i class="bi bi-calendar-week me-2"></i>
+                                Quản lý Lịch làm việc
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-attendance" id="attendance-link">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Chấm công
+                            </a>
+                        </li>
+
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="#" id="logout-link">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Quản lý Kỹ thuật viên</h1>
+                    <div class="user-info d-flex align-items-center gap-3">
+                        <span id="adminName">Admin</span>
+                        
+                        <div class="dropdown">
+                            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar-placeholder" id="avatarPlaceholder"></div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
+                                <li><a class="dropdown-item" href="/">Trang chủ</a></li>
+                                <li><a class="dropdown-item" href="/profile">Thông tin tài khoản</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/" id="dropdown-logout">Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Notification Bell - AFTER AVATAR -->
+                        <div class="notification-bell">
+                            <button class="bell-button" id="notificationBell">
+                                <svg class="bell-icon" viewBox="0 0 24 24">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                            </button>
+                            
+                            <div class="notification-dropdown" id="notificationDropdown">
+                                <div class="dropdown-header">
+                                    <h3>Thông báo</h3>
+                                </div>
+                                
+                                <div class="notification-tabs">
+                                    <button class="tab-button active" data-tab="all">Tất cả</button>
+                                    <button class="tab-button" data-tab="unread">
+                                        Chưa đọc <span class="tab-count" id="unreadTabCount"></span>
+                                    </button>
+                                </div>
+                                
+                                <div class="notifications-list" id="notificationsList">
+                                    <div class="loading" id="loadingState">
+                                        <div class="spinner"></div>
+                                        <p>Đang tải...</p>
+                                    </div>
+                                    
+                                    <div class="empty-state" id="emptyState" style="display: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                        </svg>
+                                        <p>Không có thông báo</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-footer">
+                                    <button class="mark-all-read" id="markAllRead">
+                                        Đánh dấu tất cả đã đọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông báo -->
+                <div class="alert alert-success alert-dismissible fade show" id="successAlert" style="display: none;" role="alert">
+                    <span id="successMessage"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" id="errorAlert" style="display: none;" role="alert">
+                    <span id="errorMessage"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Thống kê tổng quan -->
+                <div class="row mb-4 justify-content-center">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card h-100 py-2 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <i class="bi bi-people text-primary fs-1"></i>
+                                </div>
+                                <div class="text-xs text-muted mb-1">Tổng kỹ thuật viên</div>
+                                <div class="h3 mb-0 font-weight-bold" id="totalMechanics">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card h-100 py-2 shadow-sm border-warning" id="leaveRequestCard" style="cursor: pointer;" title="Click để xem đơn xin nghỉ">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <i class="bi bi-calendar-x text-warning fs-1"></i>
+                                </div>
+                                <div class="text-xs text-muted mb-1">Đơn xin nghỉ</div>
+                                <div class="h3 mb-0 font-weight-bold text-warning" id="pendingLeaveCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card h-100 py-2 shadow-sm border-info" id="editRequestCard" style="cursor: pointer;" title="Click để xem đơn xin sửa lịch">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <i class="bi bi-pencil-square text-info fs-1"></i>
+                                </div>
+                                <div class="text-xs text-muted mb-1">Đơn xin sửa lịch</div>
+                                <div class="h3 mb-0 font-weight-bold text-info" id="pendingEditCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card h-100 py-2 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <i class="bi bi-calendar-check text-success fs-1"></i>
+                                </div>
+                                <div class="text-xs text-muted mb-1">KTV nghỉ hôm nay</div>
+                                <div class="h3 mb-0 font-weight-bold text-success" id="todayLeaveCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc và nút thêm mới -->
+                <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title">Tìm kiếm kỹ thuật viên</h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-warning" id="manageLeaveBtn">
+                                <i class="bi bi-calendar-x me-1"></i> Đơn xin nghỉ
+                                <span class="badge bg-danger ms-1" id="leaveRequestBadge" style="display: none;">0</span>
+                            </button>
+                            <button class="btn btn-primary" id="addMechanicBtn">
+                                <i class="bi bi-plus-circle me-1"></i> Thêm kỹ thuật viên
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="searchName" placeholder="Tên kỹ thuật viên, email hoặc số điện thoại">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">-- Trạng thái --</option>
+                                <option value="1">Đang hoạt động</option>
+                                <option value="0">Không hoạt động</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" id="searchBtn">
+                                <i class="bi bi-search me-1"></i> Tìm kiếm
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100" id="resetBtn">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Đặt lại
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Thêm phần hiển thị kết quả tìm kiếm -->
+                    <div id="resultsInfo" class="mt-2" style="display: none;">
+                        <small class="text-muted">Tìm thấy <span id="resultCount">0</span> kỹ thuật viên</small>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Danh sách kỹ thuật viên -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h5 class="m-0 font-weight-bold">Danh sách kỹ thuật viên</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="mechanicsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Ảnh</th>
+                                        <th>Tên kỹ thuật viên</th>
+                                        <th>Email</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mechanicsList">
+                                    <!-- Dữ liệu kỹ thuật viên sẽ được thêm bằng JavaScript -->
+                                    <tr>
+                                        <td colspan="7" class="text-center py-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                            <p class="mt-2">Đang tải danh sách kỹ thuật viên...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa kỹ thuật viên -->
+    <div class="modal fade" id="mechanicModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mechanicModalTitle">Thêm kỹ thuật viên mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="mechanicForm">
+                        <input type="hidden" id="mechanicId">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="fullName" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="phoneNumber" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="phoneNumber" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="text-center mb-3">
+                                    <div class="profile-pic-wrapper">
+                                        <div id="profilePicPreview" class="profile-pic">
+                                            <img src="images/avatar-placeholder.jpg" id="profileImage" alt="Ảnh đại diện">
+                                        </div>
+                                        <label class="btn btn-outline-primary btn-sm mt-2" for="profilePicUpload">
+                                            <i class="bi bi-upload me-1"></i> Tải ảnh lên
+                                        </label>
+                                        <input type="file" id="profilePicUpload" class="d-none" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="specialization" class="form-label">Chuyên môn</label>
+                                    <input type="text" class="form-control" id="specialization" placeholder="VD: Sửa điện, Máy Honda...">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="experience" class="form-label">Số năm kinh nghiệm</label>
+                                    <input type="number" class="form-control" id="experience" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="certificationsInput" class="form-label">Chứng chỉ (phân cách bằng dấu phẩy)</label>
+                            <input type="text" class="form-control" id="certificationsInput" placeholder="VD: Chứng chỉ Honda, Yamaha...">
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Mật khẩu <span class="text-danger" id="passwordRequired">*</span></label>
+                                    <input type="password" class="form-control" id="password">
+                                    <small class="form-text text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="status">
+                                        <option value="1">Đang hoạt động</option>
+                                        <option value="0">Không hoạt động</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveMechanicBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                        Lưu kỹ thuật viên
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chi tiết kỹ thuật viên -->
+    <div class="modal fade" id="mechanicDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thông tin chi tiết kỹ thuật viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <img src="images/avatar-placeholder.jpg" id="detailProfileImage" class="img-fluid rounded" alt="Ảnh đại diện">
+                            <div class="mt-2">
+                                <span class="badge bg-success" id="detailStatus">Đang hoạt động</span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 id="detailFullName">Tên kỹ thuật viên</h4>
+                            <p id="detailSpecialization" class="text-muted">Chuyên môn: </p>
+                            
+                            <div class="mb-3">
+                                <strong><i class="bi bi-envelope me-2"></i>Email:</strong>
+                                <span id="detailEmail"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong><i class="bi bi-telephone me-2"></i>Số điện thoại:</strong>
+                                <span id="detailPhone"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong><i class="bi bi-briefcase me-2"></i>Kinh nghiệm:</strong>
+                                <span id="detailExperience"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong><i class="bi bi-award me-2"></i>Chứng chỉ:</strong>
+                                <div id="detailCertifications" class="mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Thống kê công việc</h5>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <h3 id="detailPendingJobs">0</h3>
+                                        <p class="text-muted mb-0">Lịch hẹn đang chờ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5>Ghi chú</h5>
+                        <p id="detailNotes" class="border p-3 rounded">Không có ghi chú</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="editFromDetailBtn">
+                        <i class="bi bi-pencil me-1"></i> Chỉnh sửa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa kỹ thuật viên <strong id="deleteMechanicName"></strong>?</p>
+                    <p class="text-danger">Lưu ý: Hành động này sẽ xóa vĩnh viễn kỹ thuật viên này và không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="deleteSpinner"></span>
+                        Xác nhận xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Quản lý đơn xin nghỉ -->
+    <div class="modal fade" id="leaveRequestModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="bi bi-calendar-x me-2"></i>
+                        Quản lý đơn xin nghỉ
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="leaveRequestTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-pane" type="button">
+                                <i class="bi bi-hourglass-split me-1"></i>
+                                Chờ duyệt <span class="badge bg-warning text-dark" id="pendingTabCount">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-pane" type="button">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Đã duyệt <span class="badge bg-success" id="approvedTabCount">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-pane" type="button">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Đã từ chối <span class="badge bg-danger" id="rejectedTabCount">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Filter by date range -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Từ ngày</label>
+                            <input type="date" class="form-control" id="leaveFromDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Đến ngày</label>
+                            <input type="date" class="form-control" id="leaveToDate">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-outline-primary w-100" id="filterLeaveBtn">
+                                <i class="bi bi-filter me-1"></i> Lọc
+                            </button>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" id="resetLeaveFilterBtn">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Đặt lại
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab content -->
+                    <div class="tab-content" id="leaveRequestTabContent">
+                        <!-- Pending Tab -->
+                        <div class="tab-pane fade show active" id="pending-pane" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="pendingLeaveTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>KTV</th>
+                                            <th>Ngày xin</th>
+                                            <th>Ca làm</th>
+                                            <th>Lý do</th>
+                                            <th>Ngày gửi</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingLeaveBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">Đang tải...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Approved Tab -->
+                        <div class="tab-pane fade" id="approved-pane" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="approvedLeaveTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>KTV</th>
+                                            <th>Ngày nghỉ</th>
+                                            <th>Ca làm</th>
+                                            <th>Lý do</th>
+                                            <th>Ngày duyệt</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="approvedLeaveBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">Đang tải...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Rejected Tab -->
+                        <div class="tab-pane fade" id="rejected-pane" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="rejectedLeaveTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>KTV</th>
+                                            <th>Ngày nghỉ</th>
+                                            <th>Ca làm</th>
+                                            <th>Lý do</th>
+                                            <th>Ngày từ chối</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rejectedLeaveBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">Đang tải...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thống kê -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="bi bi-bar-chart me-2"></i>Thống kê nghỉ phép</h6>
+                                    <div class="row text-center">
+                                        <div class="col-md-4">
+                                            <div class="border-end">
+                                                <h4 class="text-warning mb-0" id="statPending">0</h4>
+                                                <small class="text-muted">Chờ duyệt</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="border-end">
+                                                <h4 class="text-success mb-0" id="statApproved">0</h4>
+                                                <small class="text-muted">Đã duyệt</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h4 class="text-danger mb-0" id="statRejected">0</h4>
+                                            <small class="text-muted">Đã từ chối</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Admin Mechanics JS -->
+    <script src="js/config.js"></script>
+    <script src="js/admin-mechanics.js"></script>
+    <!-- Notification Bell Script -->
+    <script src="js/notification-admin.js"></script>
+</body>
+</html>

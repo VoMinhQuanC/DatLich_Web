@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Dịch vụ - Admin Dashboard</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/notification-admin.css">
+    <link rel="stylesheet" href="css/admin-services.css">
+    <!-- Common Header JS -->
+    <script src="js/common-header.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapsed">
+                <div class="position-sticky">
+                    <div class="text-center py-4 mb-3">
+                        <img src="images/maintenance.png" alt="Logo" width="50" height="50">
+                        <h5 class="text-white mt-2">Trang Admin</h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin" id="dashboard-link">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Tổng quan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin-services" id="services-link">
+                                <i class="bi bi-tools me-2"></i>
+                                Quản lý Dịch vụ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-booking" id="bookings-link">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                Quản lý Đặt lịch
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-users" id="users-link">
+                                <i class="bi bi-people me-2"></i>
+                                Quản lý Tài khoản
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-mechanics" id="mechanics-link">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Quản lý Kỹ thuật viên
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-revenue" id="revenue-link">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                Thống kê Doanh thu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-schedules" id="schedules-link">
+                                <i class="bi bi-calendar-week me-2"></i>
+                                Quản lý Lịch làm việc
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-attendance" id="attendance-link">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Chấm công
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="#" id="logout-link">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Phần header -->
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Quản lý Dịch vụ</h1>
+                    <div class="user-info d-flex align-items-center gap-3">
+                        <span id="adminName">Admin</span>
+                        
+                        <div class="dropdown">
+                            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar-placeholder" id="avatarPlaceholder"></div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
+                                <li><a class="dropdown-item" href="/">Trang chủ</a></li>
+                                <li><a class="dropdown-item" href="/profile">Thông tin tài khoản</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/" id="dropdown-logout">Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Notification Bell - AFTER AVATAR -->
+                        <div class="notification-bell">
+                            <button class="bell-button" id="notificationBell">
+                                <svg class="bell-icon" viewBox="0 0 24 24">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                            </button>
+                            
+                            <div class="notification-dropdown" id="notificationDropdown">
+                                <div class="dropdown-header">
+                                    <h3>Thông báo</h3>
+                                </div>
+                                
+                                <div class="notification-tabs">
+                                    <button class="tab-button active" data-tab="all">Tất cả</button>
+                                    <button class="tab-button" data-tab="unread">
+                                        Chưa đọc <span class="tab-count" id="unreadTabCount"></span>
+                                    </button>
+                                </div>
+                                
+                                <div class="notifications-list" id="notificationsList">
+                                    <div class="loading" id="loadingState">
+                                        <div class="spinner"></div>
+                                        <p>Đang tải...</p>
+                                    </div>
+                                    
+                                    <div class="empty-state" id="emptyState" style="display: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                        </svg>
+                                        <p>Không có thông báo</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-footer">
+                                    <button class="mark-all-read" id="markAllRead">
+                                        Đánh dấu tất cả đã đọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Thông báo -->
+                <div class="alert alert-success" id="successAlert" style="display: none;"></div>
+                <div class="alert alert-danger" id="errorAlert" style="display: none;"></div>
+
+                <!-- Nút thêm dịch vụ mới -->
+                <div class="mb-3">
+                    <button class="btn btn-primary" id="addServiceBtn">
+                        <i class="bi bi-plus-circle me-1"></i> Thêm dịch vụ mới
+                    </button>
+                </div>
+
+                <!-- Bảng dịch vụ -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h5 class="m-0 font-weight-bold">Danh sách dịch vụ</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="servicesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Hình ảnh</th>
+                                        <th>Tên dịch vụ</th>
+                                        <th>Mô tả</th>
+                                        <th>Giá</th>
+                                        <th>Thời gian (phút)</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="servicesList">
+                                    <!-- Dữ liệu dịch vụ sẽ được load vào đây -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Dịch vụ -->
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="serviceModalTitle">Thêm dịch vụ mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="serviceForm">
+                        <input type="hidden" id="serviceId">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="serviceName" class="form-label">Tên dịch vụ <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="serviceName" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="servicePrice" class="form-label">Giá dịch vụ (VNĐ) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="servicePrice" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="serviceDescription" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="serviceDescription" rows="4"></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="serviceTime" class="form-label">Thời gian dự kiến (phút) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="serviceTime" min="1" required>
+                                
+                                <div class="preview-container mt-2">
+                                    <label class="form-label">Hình ảnh dịch vụ</label>
+                                    <div class="text-center border p-3 mb-2">
+                                        <img id="serviceImagePreview" src="/images/service-placeholder.jpg" alt="Preview" 
+                                            onerror="this.onerror=null; this.src='/images/service-placeholder.jpg';"
+                                            style="max-height: 150px; max-width: 100%;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="serviceImage" class="form-label">Chọn hình ảnh mới</label>
+                            <input class="form-control" type="file" id="serviceImage" accept="image/*">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveServiceBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                        Lưu dịch vụ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa dịch vụ <span id="deleteServiceName" class="fw-bold"></span>?</p>
+                    <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="deleteSpinner"></span>
+                        Xác nhận xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Admin Services JS -->
+    <script src="js/config.js"></script>
+    <script src="js/admin-services.js"></script>
+    <!-- Notification Bell Script -->
+    <script src="js/notification-admin.js"></script>
+</body>
+</html>

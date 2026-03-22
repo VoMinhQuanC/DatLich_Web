@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Bell Demo</title>
+    
+    <style>
+        /* Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F3F4F6;
+            padding: 20px;
+        }
+        
+        /* Navbar Demo */
+        .navbar {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .navbar-left h1 {
+            font-size: 20px;
+            color: #111827;
+        }
+        
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3B82F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Info Panel */
+        .info-panel {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .info-panel h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+        
+        .token-info {
+            background: #F9FAFB;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .token-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .token-status.success {
+            background: #D1FAE5;
+            color: #059669;
+        }
+        
+        .token-status.error {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        button.test-btn {
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        
+        button.test-btn:hover {
+            background: #2563EB;
+        }
+        
+        /* Include bell CSS here */
+        .notification-bell {
+            position: relative;
+            display: inline-block;
+        }
+
+        .bell-button {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bell-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .bell-icon {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+            color: #374151;
+        }
+
+        .badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: #EF4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 380px;
+            max-height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notification-dropdown.show {
+            display: flex;
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .dropdown-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: #3B82F6;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .mark-all-read:hover {
+            background-color: #EFF6FF;
+        }
+
+        .notification-tabs {
+            display: flex;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-button.active {
+            color: #3B82F6;
+            border-bottom-color: #3B82F6;
+        }
+
+        .tab-count {
+            display: inline-block;
+            background-color: #EF4444;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 4px;
+        }
+
+        .notifications-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #E5E7EB;
+            border-top-color: #3B82F6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            margin-top: 12px;
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            color: #D1D5DB;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+
+        .notification-item {
+            display: flex;
+            padding: 16px 20px;
+            border-bottom: 1px solid #F3F4F6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .notification-item.unread {
+            background-color: #EFF6FF;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #3B82F6;
+        }
+
+        .notification-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .notification-icon.success { background-color: #D1FAE5; color: #059669; }
+        .notification-icon.warning { background-color: #FEF3C7; color: #D97706; }
+        .notification-icon.error { background-color: #FEE2E2; color: #DC2626; }
+        .notification-icon.info { background-color: #DBEAFE; color: #2563EB; }
+
+        .notification-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 4px 0;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #6B7280;
+            margin: 0;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 4px;
+        }
+
+        .dropdown-footer {
+            border-top: 1px solid #E5E7EB;
+            padding: 12px 20px;
+            text-align: center;
+        }
+
+        .view-all-link {
+            color: #3B82F6;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <h1>🔧 Admin Panel - Sửa Xe Nhanh</h1>
+        </div>
+        <div class="navbar-right">
+            <!-- Bell Icon -->
+            <div class="notification-bell">
+                <button class="bell-button" id="notificationBell">
+                    <svg class="bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="badge" id="notificationBadge" style="display: none;">0</span>
+                </button>
+
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="dropdown-header">
+                        <h3>Thông báo</h3>
+                        <button class="mark-all-read" id="markAllRead">Đánh dấu đã đọc</button>
+                    </div>
+
+                    <div class="notification-tabs">
+                        <button class="tab-button active" data-tab="all">Tất cả</button>
+                        <button class="tab-button" data-tab="unread">
+                            Chưa đọc <span class="tab-count" id="unreadTabCount"></span>
+                        </button>
+                    </div>
+
+                    <div class="notifications-list" id="notificationsList">
+                        <div class="loading" id="loadingState">
+                            <div class="spinner"></div>
+                            <p>Đang tải...</p>
+                        </div>
+
+                        <div class="empty-state" id="emptyState" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <p>Không có thông báo</p>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-footer">
+                        <a href="#" class="view-all-link">Xem tất cả thông báo</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avatar -->
+            <div class="user-avatar">A</div>
+        </div>
+    </nav>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h2>🔐 Authentication Status</h2>
+        <div id="tokenInfo" class="token-info">Checking token...</div>
+        <div style="margin-top: 12px;">
+            <button class="test-btn" onclick="testAPI()">Test API</button>
+            <button class="test-btn" onclick="setDemoToken()">Set Demo Token</button>
+            <button class="test-btn" onclick="clearToken()">Clear Token</button>
+        </div>
+    </div>
+
+    <script>
+        // Config
+        const API_URL = 'https://suaxeweb-production.up.railway.app';
+        let currentTab = 'all';
+
+        // Check token on load
+        window.addEventListener('DOMContentLoaded', function() {
+            checkToken();
+            initBell();
+        });
+
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const info = document.getElementById('tokenInfo');
+            
+            if (token) {
+                info.innerHTML = `
+                    <span class="token-status success">✓ Token Found</span><br>
+                    <small>${token.substring(0, 30)}...</small>
+                `;
+            } else {
+                info.innerHTML = `
+                    <span class="token-status error">✗ No Token</span><br>
+                    <small>Click "Set Demo Token" để test</small>
+                `;
+            }
+        }
+
+        function setDemoToken() {
+            // Token demo - thay bằng token thật từ login
+            const demoToken = prompt('Nhập admin token:');
+            if (demoToken) {
+                localStorage.setItem('token', demoToken);
+                checkToken();
+                alert('Token đã lưu! Reload trang để test.');
+                location.reload();
+            }
+        }
+
+        function clearToken() {
+            localStorage.removeItem('token');
+            checkToken();
+            alert('Token đã xóa!');
+        }
+
+        async function testAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Vui lòng set token trước!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/notifications`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                console.log('API Response:', data);
+                alert('Check console (F12) để xem response!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Bell initialization
+        function initBell() {
+            const bell = document.getElementById('notificationBell');
+            const dropdown = document.getElementById('notificationDropdown');
+            
+            bell.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+                if (dropdown.classList.contains('show')) {
+                    loadNotifications();
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.notification-bell')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+
+            // Tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentTab = this.dataset.tab;
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    loadNotifications();
+                });
+            });
+
+            // Mark all read
+            document.getElementById('markAllRead').addEventListener('click', markAllAsRead);
+
+            // Load initial
+            updateUnreadCount();
+        }
+
+        async function loadNotifications() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showEmptyState('Vui lòng đăng nhập');
+                return;
+            }
+
+            try {
+                showLoading();
+                const unreadOnly = currentTab === 'unread';
+                const response = await fetch(`${API_URL}/api/notifications?limit=5&unread=${unreadOnly}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    renderNotifications(data.data);
+                } else {
+                    showEmptyState(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showEmptyState('Không thể tải thông báo');
+            }
+        }
+
+        function renderNotifications(notifications) {
+            hideLoading();
+            if (!notifications || notifications.length === 0) {
+                showEmptyState('Không có thông báo');
+                return;
+            }
+
+            const list = document.getElementById('notificationsList');
+            list.innerHTML = notifications.map(n => `
+                <div class="notification-item ${n.IsRead ? '' : 'unread'}">
+                    <div class="notification-icon ${n.IconType || 'info'}">
+                        ${getIcon(n.IconType)}
+                    </div>
+                    <div class="notification-content">
+                        <p class="notification-title">${n.Title}</p>
+                        <p class="notification-message">${n.Message}</p>
+                        <p class="notification-time">${formatTime(n.CreatedAt)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateUnreadCount() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/notifications/unread-count`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                const count = data.unreadCount || 0;
+                
+                const badge = document.getElementById('notificationBadge');
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error updating count:', error);
+            }
+        }
+
+        async function markAllAsRead() {
+            const token = localStorage.getItem('token');
+            try {
+                await fetch(`${API_URL}/api/notifications/read-all`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadNotifications();
+                updateUnreadCount();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showEmptyState(msg) {
+            hideLoading();
+            const empty = document.getElementById('emptyState');
+            empty.style.display = 'flex';
+            empty.querySelector('p').textContent = msg;
+        }
+
+        function formatTime(date) {
+            const d = new Date(date);
+            const now = new Date();
+            const diff = Math.floor((now - d) / 60000);
+            
+            if (diff < 1) return 'Vừa xong';
+            if (diff < 60) return `${diff} phút trước`;
+            if (diff < 1440) return `${Math.floor(diff/60)} giờ trước`;
+            return `${Math.floor(diff/1440)} ngày trước`;
+        }
+
+        function getIcon(type) {
+            const icons = {
+                success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg>',
+                info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/></svg>'
+            };
+            return icons[type] || icons.info;
+        }
+
+        // Poll every 30s
+        setInterval(updateUnreadCount, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê Doanh thu - Admin Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Flatpickr (Date picker) CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- ExcelJS for Excel export -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <!-- Thêm phông chữ Roboto cho PDF -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- CSS chung Admin -->
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/notification-admin.css">
+    <!-- CSS riêng cho trang Doanh thu -->
+    <link rel="stylesheet" href="css/admin-revenue.css">
+
+    <script src="js/common-header.js"></script>
+    
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapsed">
+                <div class="position-sticky">
+                    <div class="text-center py-4 mb-3">
+                        <img src="images/maintenance.png" alt="Logo" width="50" height="50">
+                        <h5 class="text-white mt-2">Trang Admin</h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin" id="dashboard-link">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Tổng quan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-services" id="services-link">
+                                <i class="bi bi-tools me-2"></i>
+                                Quản lý Dịch vụ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-booking" id="bookings-link">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                Quản lý Đặt lịch
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-users" id="users-link">
+                                <i class="bi bi-people me-2"></i>
+                                Quản lý Tài khoản
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-mechanics" id="mechanics-link">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Quản lý Kỹ thuật viên
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin-revenue" id="revenue-link">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                Thống kê Doanh thu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-schedules" id="schedules-link">
+                                <i class="bi bi-calendar-week me-2"></i>
+                                Quản lý Lịch làm việc
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin-attendance" id="attendance-link">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Chấm công
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="#" id="logout-link">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Thống kê Doanh thu</h1>
+                    <div class="user-info d-flex align-items-center gap-3">
+                        <span id="adminName">Admin</span>
+                        
+                        <div class="dropdown">
+                            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar-placeholder" id="avatarPlaceholder"></div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
+                                <li><a class="dropdown-item" href="/">Trang chủ</a></li>
+                                <li><a class="dropdown-item" href="/profile">Thông tin tài khoản</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/" id="dropdown-logout">Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Notification Bell - AFTER AVATAR -->
+                        <div class="notification-bell">
+                            <button class="bell-button" id="notificationBell">
+                                <svg class="bell-icon" viewBox="0 0 24 24">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                            </button>
+                            
+                            <div class="notification-dropdown" id="notificationDropdown">
+                                <div class="dropdown-header">
+                                    <h3>Thông báo</h3>
+                                </div>
+                                
+                                <div class="notification-tabs">
+                                    <button class="tab-button active" data-tab="all">Tất cả</button>
+                                    <button class="tab-button" data-tab="unread">
+                                        Chưa đọc <span class="tab-count" id="unreadTabCount"></span>
+                                    </button>
+                                </div>
+                                
+                                <div class="notifications-list" id="notificationsList">
+                                    <div class="loading" id="loadingState">
+                                        <div class="spinner"></div>
+                                        <p>Đang tải...</p>
+                                    </div>
+                                    
+                                    <div class="empty-state" id="emptyState" style="display: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                        </svg>
+                                        <p>Không có thông báo</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-footer">
+                                    <button class="mark-all-read" id="markAllRead">
+                                        Đánh dấu tất cả đã đọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông báo -->
+                <div class="alert alert-success alert-dismissible fade show" id="successAlert" style="display: none;" role="alert">
+                    <span id="successMessage"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" id="errorAlert" style="display: none;" role="alert">
+                    <span id="errorMessage"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Bộ lọc thời gian -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Lọc theo thời gian</h5>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Từ ngày</label>
+                                <input type="text" class="form-control datepicker" id="startDate" placeholder="Chọn ngày bắt đầu">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Đến ngày</label>
+                                <input type="text" class="form-control datepicker" id="endDate" placeholder="Chọn ngày kết thúc">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Loại thống kê</label>
+                                <select class="form-select" id="reportType">
+                                    <option value="day">Theo ngày</option>
+                                    <option value="week">Theo tuần</option>
+                                    <option value="month">Theo tháng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" id="applyFilterBtn">
+                                    <i class="bi bi-filter me-1"></i> Áp dụng bộ lọc
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="includeAllPayments">
+                                    <label class="form-check-label" for="includeAllPayments">
+                                        Bao gồm cả thanh toán đang chờ xử lý
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12 d-flex justify-content-end">
+                                <button class="btn btn-outline-success me-2" id="exportExcelBtn">
+                                    <i class="bi bi-file-excel me-1"></i> Xuất Excel
+                                </button>
+                                <button class="btn btn-outline-danger" id="exportPdfBtn">
+                                    <i class="bi bi-file-pdf me-1"></i> Xuất PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tổng quan doanh thu -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-left-primary h-100 py-2 shadow-sm">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <i class="bi bi-calendar-check text-primary fs-1 me-3"></i>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-xs text-muted mb-1">Tổng lịch hẹn</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalAppointments">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-left-success h-100 py-2 shadow-sm">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <i class="bi bi-cash-coin text-success fs-1 me-3"></i>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-xs text-muted mb-1">Tổng doanh thu</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalRevenue">0 VNĐ</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-left-info h-100 py-2 shadow-sm">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <i class="bi bi-people text-info fs-1 me-3"></i>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-xs text-muted mb-1">Số khách hàng</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalCustomers">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-left-warning h-100 py-2 shadow-sm">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <i class="bi bi-tools text-warning fs-1 me-3"></i>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-xs text-muted mb-1">Dịch vụ phổ biến</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="popularService">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Biểu đồ doanh thu -->
+                <div class="row mb-4">
+                    <div class="col-lg-8 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold">Biểu đồ doanh thu</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="revenueChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold">Doanh thu theo dịch vụ</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="servicesPieChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng chi tiết doanh thu -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">Chi tiết doanh thu</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="revenueTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Ngày</th>
+                                        <th>Mã lịch hẹn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Dịch vụ</th>
+                                        <th>Kỹ thuật viên</th>
+                                        <th>Phương thức</th>
+                                        <th>Trạng thái</th>
+                                        <th>Tổng tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="revenueTableBody">
+                                    <!-- Dữ liệu doanh thu sẽ được thêm bằng JavaScript -->
+                                    <tr>
+                                        <td colspan="9" class="text-center py-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                            <p class="mt-2">Đang tải dữ liệu doanh thu...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="8" class="text-end">Tổng cộng:</th>
+                                        <th id="tableTotalRevenue">0 VNĐ</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Admin Revenue JS -->
+    <script src="js/config.js"></script>
+    <script src="js/admin-revenue.js"></script>
+    <!-- Notification Bell Script -->
+    <script src="js/notification-admin.js"></script>
+</body>
+</html>
