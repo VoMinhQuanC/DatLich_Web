@@ -1,0 +1,121 @@
+/* tintuc.css - Style riêng cho trang tin tức */
+
+/* ===== Header & Navbar ===== */
+.header-container {
+    padding: 10px 0;
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+}
+
+.header-logo img {
+    max-height: 60px;
+    width: auto;
+}
+
+.navbar {
+    background-color: #d62828 !important;
+}
+
+.navbar .nav {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+    
+.navbar .nav-link.active {
+    font-weight: bold;
+    background-color: #ed8116;
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: white !important;
+}
+
+.navbar a {
+    color: white !important;
+    font-weight: bold;
+}
+
+.header-title {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+}
+
+/* Navbar */
+.navbar.bg-danger {
+    background-color: #000000 !important;
+}
+
+.navbar .nav-link {
+    color: white !important;
+    font-weight: 600;
+    padding: 10px 20px;
+}
+
+.navbar .nav-link.active {
+    background-color: #ed8116;
+    border-radius: 5px;
+}
+
+/* Styling cho phần tin tức */
+.section-title {
+    position: relative;
+    font-weight: bold;
+    color: #0c0404 !important;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -20px;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #e63946;
+}
+
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;   
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+}
+
+.card-title {
+    color: #0b0d0f;
+    font-size: 30px;
+}
+
+.btn-outline-primary {
+    border-color: #050608;
+    color: #030508;
+}
+
+.btn-outline-primary:hover {
+    background-color: #04060a;
+    color: white;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .header-logo img {
+        max-height: 50px;
+        margin: 10px 0;
+    }
+    
+    .header-title {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .input-group {
+        margin: 0 auto;
+    }
+}
+
+

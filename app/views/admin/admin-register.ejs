@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký Admin - Dịch vụ sửa xe máy</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/admin-register.css">
+</head>
+<body>
+    <!-- Header và Menu -->
+    <div class="container-fluid header-container">
+        <div class="row text-center py-3">
+            <div class="col-md-4 header-title">
+                <h3>Sửa xe nhanh – Đặt lịch dễ!</h3>
+            </div>
+            <div class="col-md-4 header-logo">
+                <img src="images/maintenance.png" alt="Dịch vụ sửa xe">
+            </div>
+            <div class="col-md-4 header-search">
+                <input type="text" class="form-control" placeholder="🔍 Tìm kiếm dịch vụ">
+            </div>
+        </div>
+    </div>
+    
+    <div class="menu">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/dichvu">Dịch vụ</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Tin tức</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Form Đăng ký Admin -->
+    <div class="container">
+        <div class="register-container">
+            <h2 class="form-title">Đăng ký tài khoản Admin</h2>
+            
+            <div class="alert alert-danger" id="error-alert" role="alert" style="display: none;">
+                <!-- Thông báo lỗi sẽ hiển thị ở đây -->
+            </div>
+            
+            <div class="alert alert-success" id="success-alert" role="alert" style="display: none;">
+                <!-- Thông báo thành công sẽ hiển thị ở đây -->
+            </div>
+            
+            <form id="registerForm" novalidate>
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Họ và tên</label>
+                    <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Nhập họ và tên của bạn" required>
+                    <div class="invalid-feedback" id="fullName-feedback">
+                        Vui lòng nhập họ và tên của bạn
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email của bạn" required>
+                    <div class="invalid-feedback" id="email-feedback">
+                        Vui lòng nhập một địa chỉ email hợp lệ
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Số điện thoại</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="Nhập số điện thoại của bạn" required>
+                    <div class="invalid-feedback" id="phone-feedback">
+                        Vui lòng nhập số điện thoại hợp lệ
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                    <div class="password-requirements">
+                        Mật khẩu phải có ít nhất 6 ký tự
+                    </div>
+                    <div class="invalid-feedback" id="password-feedback">
+                        Mật khẩu phải có ít nhất 6 ký tự
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+                    <div class="invalid-feedback" id="confirmPassword-feedback">
+                        Mật khẩu xác nhận không khớp
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="adminKey" class="form-label">Mã quản trị viên</label>
+                    <input type="password" class="form-control" id="adminKey" name="adminKey" placeholder="Nhập mã quản trị viên" required>
+                    <div class="admin-key-info text-muted small">
+                        Mã xác thực để đăng ký tài khoản với quyền Admin
+                    </div>
+                    <div class="invalid-feedback" id="adminKey-feedback">
+                        Mã quản trị viên không hợp lệ
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="agreeTerms" name="agreeTerms" required>
+                    <label class="form-check-label" for="agreeTerms">
+                        Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a>
+                    </label>
+                    <div class="invalid-feedback" id="agreeTerms-feedback">
+                        Bạn phải đồng ý với điều khoản dịch vụ
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="registerButton">
+                    <span class="spinner-border spinner-border-sm loading-spinner" id="registerSpinner" role="status" aria-hidden="true" style="display: none;"></span>
+                    Đăng ký Admin
+                </button>
+            </form>
+            
+            <div class="login-link">
+                Bạn đã có tài khoản? <a href="/login">Đăng nhập ngay</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><i class="bi bi-telephone-fill me-2"></i> Hotline: 0123 456 789</p>
+                    <p><i class="bi bi-envelope-fill me-2"></i> Email: tuanvu2832004@gmail.com</p>
+                    <p><i class="bi bi-geo-alt-fill me-2"></i> Địa chỉ: Thủ Đức, TP.HCM</p>
+                </div>
+                <div class="col-md-6 text-md-end text-center mt-md-0 mt-3">
+                    <p>&copy; 2025. Dichvusuaxe.com.vn</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Admin Registration JS -->
+    <script src="js/config.js"></script>
+    <script src="js/admin-register.js"></script>
+</body>
+</html>

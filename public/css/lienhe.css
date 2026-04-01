@@ -1,0 +1,53 @@
+
+  /* Màu chủ đạo */
+  :root {
+    --primary-color: #dc3545;
+    --primary-hover: #bb2d3b;
+    --secondary-color: #f8f9fa;
+    --dark-color: #212529;
+  }
+  
+  /* Hero section */
+  .hero {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/contact-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+  }
+  
+  /* Thẻ contact card */
+  .card {
+    border: none;
+    transition: transform 0.3s;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Nút bấm */
+  .btn-warning {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-warning:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: white;
+  }
+  
+  /* Form */
+  .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+  }
+  
+  /* Map info box */
+  .map-info-box {
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }

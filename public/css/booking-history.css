@@ -1,0 +1,343 @@
+/* booking-history.css - Style cho trang lịch sử đặt lịch */
+
+
+/* Điều chỉnh kích thước logo */
+.header-logo img {
+    max-height: 60px; /* Giảm chiều cao tối đa */
+    width: auto; /* Đảm bảo tỷ lệ khung hình */
+}
+
+/* Điều chỉnh padding và căn chỉnh của header container */
+.header-container {
+    padding: 10px 0;
+    margin-bottom: 0;
+}
+
+/* Điều chỉnh tiêu đề */
+.header-title {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+}
+
+/* Điều chỉnh khung tìm kiếm */
+.input-group {
+    max-width: 300px;
+    margin-left: auto;
+}
+
+/* Media queries cho responsive */
+@media (max-width: 768px) {
+    .header-logo img {
+        max-height: 50px;
+        margin: 10px 0;
+    }
+    
+    .header-title {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .input-group {
+        margin: 0 auto;
+    }
+}
+
+.booking-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.booking-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-id {
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.booking-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-confirmed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-completed {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.status-canceled {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.booking-body {
+    padding: 20px;
+}
+
+.booking-date {
+    margin-bottom: 15px;
+}
+
+.booking-date i {
+    color: #0d6efd;
+    margin-right: 5px;
+}
+
+.booking-services {
+    margin-bottom: 15px;
+}
+
+.service-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.service-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.service-list li:last-child {
+    border-bottom: none;
+}
+
+.booking-vehicle {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.booking-notes {
+    font-style: italic;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.booking-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-actions .btn {
+    margin-left: 10px;
+}
+
+.booking-total {
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+/* Modal Styles */
+.booking-detail-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.booking-detail-header .booking-id {
+    margin-right: 15px;
+}
+
+.detail-section {
+    margin-bottom: 25px;
+}
+
+.detail-section h5 {
+    margin-bottom: 15px;
+    color: #0d6efd;
+    font-size: 1.1rem;
+}
+
+.service-table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.service-table th, .service-table td {
+    padding: 10px;
+}
+
+.service-table thead {
+    background-color: #f8f9fa;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.detail-label {
+    width: 150px;
+    font-weight: 600;
+}
+
+.detail-value {
+    flex: 1;
+}
+
+/* Review Styles */
+.rating {
+    display: flex;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.rating-star {
+    color: #ced4da;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: color 0.2s ease;
+}
+
+.rating-star:hover, .rating-star.active {
+    color: #ffc107;
+}
+
+.rating-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.review-item {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.review-rating {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.review-comment {
+    margin-bottom: 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state-text {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .booking-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .booking-status {
+        margin-top: 10px;
+    }
+    
+    .booking-footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .booking-actions {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .booking-actions .btn {
+        margin-left: 0;
+        flex: 1;
+        margin-right: 10px;
+    }
+    
+    .booking-actions .btn:last-child {
+        margin-right: 0;
+    }
+}
+
+
+/* Nút chung */
+.btn-custom {
+    flex: 1;
+    min-height: 45px;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+/* Nút Không */
+.btn-equal1 {
+    background-color: #0d6efd;
+    color: #ffffff;
+    border: 1px solid #0d6efd;
+}
+
+.btn-equal1:hover {
+    background-color: #085ee0;
+}
+
+/* Nút Có */
+.btn-equal2 {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.btn-equal2:hover {
+    background-color: #c82333;
+}
+
+.btn-equal2 .spinner-border {
+    height: 1rem;
+    width: 1rem;
+}

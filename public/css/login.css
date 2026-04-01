@@ -1,0 +1,264 @@
+/* login.css - Style cho trang đăng nhập thống nhất */
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f5f7fa;
+    font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+}
+
+.container-fluid {
+    height: 100vh;
+    padding: 0;
+}
+
+.row {
+    height: 100%;
+    margin: 0;
+}
+
+/* Left side - Background */
+.left-side {
+    background-image: url('../images/login-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    padding: 0;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(214, 40, 40, 0.8) 0%, rgba(237, 129, 22, 0.8) 100%);
+}
+
+.left-content {
+    position: relative;
+    z-index: 1;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 2rem;
+    text-align: center;
+}
+
+.logo {
+    height: 80px;
+    width: auto;
+}
+
+.brand-name {
+    font-weight: 700;
+    color: white;
+    margin-top: 0.5rem;
+}
+
+.welcome-text {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.welcome-description {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 500px;
+}
+
+/* Right side - Login form */
+.right-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.login-header {
+    margin-bottom: 2.5rem;
+}
+
+.login-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.form-control {
+    border-left: none;
+    padding-left: 0;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.toggle-password {
+    border-left: none;
+    background-color: white;
+    border-color: #ced4da;
+}
+
+.toggle-password:hover {
+    background-color: #f8f9fa;
+}
+
+.login-btn {
+    background-color: #d62828;
+    border-color: #d62828;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover, .login-btn:focus {
+    background-color: #c42323;
+    border-color: #c42323;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.forgot-password {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.forgot-password:hover {
+    color: #d62828;
+    text-decoration: underline;
+}
+
+.register-link a, .back-to-site a {
+    color: #d62828;
+    transition: color 0.3s;
+    font-weight: 500;
+}
+
+.register-link a:hover, .back-to-site a:hover {
+    color: #9e1b1b;
+}
+
+.login-footer {
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: auto;
+    padding-top: 2rem;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+/* Responsive adaptations */
+@media (max-width: 991.98px) {
+    body {
+        overflow-y: auto;
+    }
+    
+    .container-fluid, .row {
+        height: auto;
+    }
+    
+    .right-side {
+        padding: 3rem 1.5rem;
+    }
+    
+    .login-footer {
+        margin-top: 2rem;
+    }
+}
+
+/* Animation */
+.login-container {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Thêm vào cuối file */
+.social-login {
+    margin-top: 20px;
+}
+
+.or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 15px 0;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.or-divider span {
+    padding: 0 10px;
+    color: #777;
+    font-size: 14px;
+}
+
+.btn-google {
+    background-color: #dd4b39;
+    color: white;
+}
+
+.btn-google:hover {
+    background-color: #c23321;
+    color: white;
+}

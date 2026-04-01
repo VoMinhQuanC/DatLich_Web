@@ -1,0 +1,420 @@
+/* payment.css - Style cho trang thanh toán */
+
+/* ===== General ===== */
+body {
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Header ===== */
+.header-container {
+    background-color: #fff;
+    padding: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.header-logo img {
+    max-height: 60px;
+    width: auto;
+}
+
+.header-title {
+    color: #d62828;
+    font-size: 1.8rem;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+/* ===== Payment Card ===== */
+.payment-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.payment-header h4 {
+    color: white;
+    font-weight: 600;
+}
+
+/* ===== Countdown Badge ===== */
+.countdown-badge {
+    display: inline-block;
+    background-color: #ffc107;
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.countdown-badge.countdown-warning {
+    background-color: #ff9800;
+    animation: pulse 1s infinite;
+}
+
+.countdown-badge.countdown-danger {
+    background-color: #f44336;
+    color: white;
+    animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ===== QR Code ===== */
+.qr-container {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    display: inline-block;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.qr-image {
+    max-width: 260px;
+    width: 100%;
+    display: block;
+    border-radius: 8px;
+}
+
+/* ===== Bank Info Card ===== */
+.bank-info-card {
+    background: rgba(255,255,255,0.15);
+    padding: 25px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.bank-info-card h6 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row.highlight {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 8px;
+    border-bottom: none;
+    margin-top: 10px;
+}
+
+.info-label {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+}
+
+.info-value {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.info-value-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.transfer-content {
+    background: rgba(255,255,255,0.2);
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffc107;
+}
+
+/* ===== Upload Section ===== */
+.upload-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    color: #333;
+    margin-top: 20px;
+}
+
+.upload-section h5 {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.upload-area:hover {
+    border-color: #667eea;
+    background: #f0f2ff;
+}
+
+.upload-placeholder {
+    padding: 20px;
+}
+
+#imagePreview img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+/* ===== Order Info Card ===== */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    padding: 15px 20px;
+}
+
+.total-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px;
+    border-radius: 8px;
+    color: white;
+}
+
+/* ===== Timeline Steps ===== */
+.timeline-steps {
+    padding: 10px 0;
+}
+
+.timeline-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(0,0,0,0.1);
+}
+
+.timeline-step:last-child {
+    border-bottom: none;
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.step-text {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* ===== Waiting State ===== */
+.success-icon {
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.waiting-animation {
+    margin: 20px 0;
+}
+
+.waiting-animation .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* ===== Toast Notification ===== */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-notification.toast-success {
+    border-left: 4px solid #28a745;
+    color: #28a745;
+}
+
+.toast-notification.toast-error {
+    border-left: 4px solid #dc3545;
+    color: #dc3545;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+}
+
+.btn-outline-primary {
+    color: #667eea;
+    border-color: #667eea;
+}
+
+.btn-outline-primary:hover {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #d62828 !important;
+    border-color: #d62828 !important;
+}
+
+.btn-danger:hover {
+    background-color: #b21f2d !important;
+    border-color: #b21f2d !important;
+}
+
+/* ===== Footer ===== */
+.footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 50px;
+}
+
+/* ===== Alerts ===== */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-left: 4px solid #0dcaf0;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .header-title {
+        font-size: 1.4rem;
+    }
+
+    .payment-card {
+        padding: 20px;
+    }
+
+    .qr-image {
+        max-width: 200px;
+    }
+
+    .countdown-badge {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .info-value-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .toast-notification {
+        right: 10px;
+        left: 10px;
+    }
+}
+
+/* ===== Loading State ===== */
+#loadingState {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== Error State ===== */
+#errorState {
+    min-height: 400px;
+}
+
+/* ===== Utility Classes ===== */
+.text-danger {
+    color: #d62828 !important;
+}
+
+.text-primary {
+    color: #667eea !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}

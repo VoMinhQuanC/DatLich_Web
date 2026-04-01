@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chấm công QR - VQTBIKE</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .kiosk-container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            max-height: 90vh;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* QR Code Container */
+        .qr-wrapper {
+            background: white;
+            border: 10px solid #4CAF50;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 0 auto 30px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+        }
+
+        #qrCodeContainer {
+            width: 400px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qrCodeContainer img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Countdown */
+        .countdown-section {
+            margin-top: 30px;
+        }
+
+        .countdown-label {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown.warning {
+            color: #FF5722;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Progress Bar */
+        .progress-bar-wrapper {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+            transition: width 1s linear;
+            border-radius: 10px;
+        }
+
+        .progress-bar.warning {
+            background: linear-gradient(90deg, #FF5722, #FF7043);
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 15px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            text-align: left;
+            display: inline-block;
+            font-size: 1.3rem;
+            color: #666;
+            line-height: 2;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        /* Status Message */
+        .status-message {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: #E3F2FD;
+            border-left: 5px solid #2196F3;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            color: #1976D2;
+        }
+
+        .error-message {
+            background: #FFEBEE;
+            border-left-color: #F44336;
+            color: #C62828;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #4CAF50;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            #qrCodeContainer {
+                width: 300px;
+                height: 300px;
+            }
+
+            .countdown {
+                font-size: 3rem;
+            }
+
+            .instructions h3 {
+                font-size: 1.4rem;
+            }
+
+            .instructions ol {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kiosk-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            #qrCodeContainer {
+                width: 250px;
+                height: 250px;
+            }
+
+            .countdown {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Fullscreen mode */
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Time Display */
+        .current-time {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            background: white;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Current Time Display -->
+    <div class="current-time" id="currentTime">00:00:00</div>
+
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">
+        🖥️ Toàn màn hình
+    </button>
+
+    <!-- Main Kiosk Container -->
+    <div class="kiosk-container">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="images/maintenance.png" alt="VQTBIKE Logo">
+        </div>
+
+        <!-- Title -->
+        <h1>CHẤM CÔNG VQTBIKE</h1>
+        <p class="subtitle">Quét mã QR để chấm công vào/ra</p>
+
+        <!-- QR Code -->
+        <div class="qr-wrapper">
+            <div id="qrCodeContainer">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Countdown -->
+        <div class="countdown-section">
+            <div class="countdown-label">Mã QR hết hạn sau:</div>
+            <div class="countdown" id="countdown">30</div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>📱 Hướng dẫn chấm công</h3>
+            <ol>
+                <li>Mở app VQTBIKE trên điện thoại</li>
+                <li>Chọn "Chấm công" trong menu</li>
+                <li>Quét mã QR trên màn hình này</li>
+                <li>Xác nhận thông tin và hoàn tất!</li>
+            </ol>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status-message" id="statusMessage" style="display: none;">
+            QR code đang tải...
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const API_URL = 'https://suaxeweb-production.up.railway.app/api';
+        let countdown = 30;
+        let countdownInterval;
+
+        // ================================================
+        // INITIALIZE
+        // ================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🖥️ [KIOSK] QR Display initialized');
+            
+            // Start QR generation
+            generateQRCode();
+            
+            // Auto refresh every 30s
+            setInterval(generateQRCode, 30000);
+            
+            // Update current time
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+        });
+
+        // ================================================
+        // GENERATE QR CODE
+        // ================================================
+
+        async function generateQRCode() {
+            try {
+                console.log('🔄 [KIOSK] Fetching QR code...');
+                
+                const response = await fetch(`${API_URL}/attendance/qr/image`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display QR image
+                    const container = document.getElementById('qrCodeContainer');
+                    container.innerHTML = `<img src="${data.image}" alt="QR Code">`;
+                    
+                    // Hide status message
+                    document.getElementById('statusMessage').style.display = 'none';
+                    
+                    // Start countdown
+                    startCountdown();
+                    
+                    console.log('✅ [KIOSK] QR code displayed');
+                } else {
+                    showError('Không thể tạo mã QR. Vui lòng thử lại.');
+                }
+            } catch (err) {
+                console.error('❌ [KIOSK] Error:', err);
+                showError('Lỗi kết nối. Đang thử lại...');
+            }
+        }
+
+        // ================================================
+        // COUNTDOWN TIMER
+        // ================================================
+
+        function startCountdown() {
+            countdown = 30;
+            clearInterval(countdownInterval);
+            
+            const countdownEl = document.getElementById('countdown');
+            const progressBar = document.getElementById('progressBar');
+            
+            // Remove warning class
+            countdownEl.classList.remove('warning');
+            progressBar.classList.remove('warning');
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown;
+                
+                // Update progress bar
+                const progress = (countdown / 30) * 100;
+                progressBar.style.width = progress + '%';
+                
+                // Warning when low
+                if (countdown <= 5) {
+                    countdownEl.classList.add('warning');
+                    progressBar.classList.add('warning');
+                }
+                
+                // Stop at 0
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+
+        // ================================================
+        // CURRENT TIME
+        // ================================================
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+
+        // ================================================
+        // FULLSCREEN
+        // ================================================
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // ================================================
+        // ERROR HANDLING
+        // ================================================
+
+        function showError(message) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message error-message';
+            statusEl.style.display = 'block';
+            
+            const container = document.getElementById('qrCodeContainer');
+            container.innerHTML = '<div class="spinner"></div>';
+        }
+    </script>
+</body>
+</html>

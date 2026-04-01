@@ -1,0 +1,276 @@
+/* admin-users.css - CSS cho trang quản lý tài khoản người dùng */
+
+/* Styling cho avatar người dùng */
+.avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Sidebar active highlighting */
+#sidebar .nav-link.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #0d6efd;
+}
+
+/* Styling cho badges vai trò */
+.badge {
+    padding: 0.35em 0.65em;
+    border-radius: 50rem;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.bg-purple {
+    background-color: #6f42c1;
+    color: #fff;
+}
+
+.bg-orange {
+    background-color: #fd7e14;
+    color: #fff;
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-edit {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-edit:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-delete {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-delete:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+.btn-password {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-password:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Modal */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Form controls */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Border styles for cards */
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #f6c23e !important;
+}
+
+/* Bộ lọc */
+.filter-section {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* Tables */
+#usersTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#usersTable th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+#usersTable td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#usersTable tr:hover {
+    background-color: rgba(0, 123, 255, 0.03);
+}
+
+/* Password visibility toggle */
+.toggle-password,
+.toggle-new-password,
+.toggle-confirm-password {
+    cursor: pointer;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 5px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    #usersTable {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .card-stats {
+        margin-bottom: 15px;
+    }
+}
+
+/* DataTables styling */
+.dataTables_wrapper .dataTables_length select {
+    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    appearance: none;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: #fff !important;
+    background: linear-gradient(to bottom, #0d6efd 0%, #0a58ca 100%);
+    border: 1px solid #0a58ca;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    color: #0d6efd !important;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+/* Thêm styling cho phần tổng quan */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.h5 {
+    font-weight: 600;
+}
+
+.text-xs {
+    font-size: 0.875rem;
+}
+
+/* Sidebar navigation styling */
+#sidebar {
+    min-height: 100vh;
+}
+
+#sidebar .nav-item:has(.active) {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+#sidebar .nav-link {
+    padding: 0.75rem 1.5rem;
+    border-left: 4px solid transparent;
+}
+
+#sidebar .nav-link.active {
+    border-left-color: #0d6efd;
+}

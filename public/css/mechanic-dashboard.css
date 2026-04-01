@@ -1,0 +1,502 @@
+/* mechanic-dashboard.css - Dashboard styles mirroring admin design */
+
+/* Stats Cards */
+.stats-card {
+  padding: 1.5rem;
+  border-radius: 0.35rem;
+  position: relative;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+.stats-card .stats-content {
+  position: relative;
+  z-index: 2;
+}
+
+.stats-card .stats-label {
+  text-transform: uppercase;
+  color: var(--gray-700);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-card .stats-value {
+  color: var(--gray-800);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+.stats-card .stats-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  opacity: 0.25;
+  color: var(--gray-500);
+}
+
+.stats-card.primary .stats-icon {
+  color: var(--primary);
+}
+
+.stats-card.success .stats-icon {
+  color: var(--success);
+}
+
+.stats-card.info .stats-icon {
+  color: var(--info);
+}
+
+.stats-card.warning .stats-icon {
+  color: var(--warning);
+}
+
+.stats-card .stats-progress {
+  margin-top: 1rem;
+  height: 4px;
+  background-color: var(--gray-200);
+  position: relative;
+  border-radius: 2px;
+}
+
+.stats-card .stats-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 2px;
+}
+
+.stats-card.primary .stats-progress-bar {
+  background-color: var(--primary);
+}
+
+.stats-card.success .stats-progress-bar {
+  background-color: var(--success);
+}
+
+.stats-card.info .stats-progress-bar {
+  background-color: var(--info);
+}
+
+.stats-card.warning .stats-progress-bar {
+  background-color: var(--warning);
+}
+
+/* Progress Bars */
+.progress {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--gray-200);
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  border-radius: 0.25rem;
+}
+
+/* Project Cards */
+.project-card {
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.project-card-title {
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.25rem;
+}
+
+.project-card-text {
+  font-size: 0.85rem;
+  color: var(--gray-600);
+  margin-bottom: 0.5rem;
+}
+
+/* Appointments List */
+.appointment-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.appointment-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.appointment-item:last-child {
+  border-bottom: none;
+}
+
+.appointment-item:hover {
+  background-color: var(--gray-100);
+}
+
+.appointment-title {
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.25rem;
+}
+
+.appointment-info {
+  display: flex;
+  align-items: center;
+  color: var(--gray-600);
+  font-size: 0.85rem;
+  margin-bottom: 0.15rem;
+}
+
+.appointment-info i {
+  margin-right: 0.5rem;
+  color: var(--gray-500);
+  width: 1rem;
+  text-align: center;
+}
+
+.appointment-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.appointment-status.pending {
+  background-color: rgba(246, 194, 62, 0.2);
+  color: var(--warning);
+}
+
+.appointment-status.confirmed {
+  background-color: rgba(54, 185, 204, 0.2);
+  color: var(--info);
+}
+
+.appointment-status.completed {
+  background-color: rgba(28, 200, 138, 0.2);
+  color: var(--success);
+}
+
+.appointment-status.canceled {
+  background-color: rgba(231, 74, 59, 0.2);
+  color: var(--danger);
+}
+
+.appointment-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Notifications */
+.notifications-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: var(--gray-100);
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.notification-icon.primary {
+  background-color: rgba(78, 115, 223, 0.1);
+  color: var(--primary);
+}
+
+.notification-icon.success {
+  background-color: rgba(28, 200, 138, 0.1);
+  color: var(--success);
+}
+
+.notification-icon.warning {
+  background-color: rgba(246, 194, 62, 0.1);
+  color: var(--warning);
+}
+
+.notification-icon.danger {
+  background-color: rgba(231, 74, 59, 0.1);
+  color: var(--danger);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.25rem;
+}
+
+.notification-text {
+  color: var(--gray-600);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.notification-time {
+  color: var(--gray-500);
+  font-size: 0.75rem;
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--danger);
+  margin-left: 0.5rem;
+}
+
+/* Mini Calendar */
+#calendarMini {
+  height: 450px;
+}
+
+/* Calendar Customization */
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.fc .fc-button-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.fc .fc-button-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+.fc-daygrid-day.fc-day-today {
+  background-color: rgba(78, 115, 223, 0.1) !important;
+}
+
+.fc-event {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.fc-event.appointment-event {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.fc-event.schedule-event {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.fc-event.unavailable-event {
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Performance Chart */
+.chart-area {
+  position: relative;
+  height: 20rem;
+  width: 100%;
+}
+
+.chart-pie {
+  position: relative;
+  height: 15rem;
+  width: 100%;
+}
+
+/* Legend */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.legend-color {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  margin-right: 0.5rem;
+}
+
+.legend-primary {
+  background-color: var(--primary);
+}
+
+.legend-success {
+  background-color: var(--success);
+}
+
+.legend-info {
+  background-color: var(--info);
+}
+
+.legend-warning {
+  background-color: var(--warning);
+}
+
+.legend-danger {
+  background-color: var(--danger);
+}
+
+/* Welcome banner */
+.welcome-banner {
+  background: linear-gradient(to right, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 1.5rem;
+  border-radius: 0.35rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(30deg);
+}
+
+.welcome-banner h4 {
+  color: white;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-banner p {
+  opacity: 0.9;
+  margin-bottom: 1rem;
+  max-width: 700px;
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-banner .btn {
+  background-color: white;
+  color: var(--primary);
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-banner .btn:hover {
+  background-color: var(--gray-100);
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.quick-stat {
+  flex: 1;
+  min-width: 200px;
+  background-color: white;
+  border-radius: 0.35rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.quick-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+}
+
+.quick-stat-content {
+  flex: 1;
+}
+
+.quick-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  line-height: 1.1;
+}
+
+.quick-stat-label {
+  color: var(--gray-600);
+  font-size: 0.85rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .quick-stats {
+    flex-direction: column;
+  }
+  
+  .quick-stat {
+    width: 100%;
+  }
+  
+  #calendarMini {
+    height: 350px;
+  }
+  
+  .chart-area {
+    height: 15rem;
+  }
+  
+  .chart-pie {
+    height: 12rem;
+  }
+}

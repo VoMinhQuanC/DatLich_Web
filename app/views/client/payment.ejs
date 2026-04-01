@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán - VQTBike</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        
+        .payment-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        /* Countdown Timer */
+        .payment-timer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .timer-display {
+            font-size: 72px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .timer-label {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .timer-instruction {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+        
+        .timer-warning {
+            animation: pulse 1s infinite;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.9; }
+        }
+        
+        .timer-expired {
+            background: linear-gradient(135deg, #f85032 0%, #e73827 100%);
+        }
+        
+        /* QR Code */
+        .qr-container {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .qr-code-img {
+            max-width: 350px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .info-row {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .copy-btn {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-tools text-primary me-2"></i>
+                <strong>VQTBike</strong>
+            </a>
+            <span class="text-muted">Thanh toán</span>
+        </div>
+    </nav>
+    
+    <div class="payment-container">
+        <!-- Loading -->
+        <div id="loadingSection" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-3">Đang khởi tạo thanh toán...</p>
+        </div>
+        
+        <!-- Payment Content -->
+        <div id="paymentContent" style="display: none;">
+            <!-- Countdown Timer -->
+            <div class="payment-timer" id="paymentTimer">
+                <div class="timer-label">
+                    <i class="bi bi-alarm"></i> Thời gian thanh toán còn lại
+                </div>
+                <div class="timer-display" id="countdownDisplay">15:00</div>
+                <div class="timer-instruction">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Vui lòng hoàn tất thanh toán trong thời gian trên
+                </div>
+            </div>
+            
+            <!-- QR Code Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-qr-code me-2"></i>
+                        Thông tin chuyển khoản
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- QR Code -->
+                        <div class="col-md-6">
+                            <div class="qr-container">
+                                <img id="qrCodeImage" src="" alt="QR Code" class="qr-code-img img-fluid">
+                                <div class="mt-3">
+                                    <span class="badge bg-success">Quét mã để thanh toán</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bank Info -->
+                        <div class="col-md-6">
+                            <div class="info-row">
+                                <div class="info-label">Mã đặt lịch</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="info-value text-primary" id="bookingCode">-</span>
+                                    <i class="bi bi-clipboard copy-btn" onclick="copyText('bookingCode')"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Ngân hàng</div>
+                                <div class="info-value" id="bankName">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Số tài khoản</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="info-value" id="accountNo">-</span>
+                                    <i class="bi bi-clipboard copy-btn" onclick="copyText('accountNo')"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Chủ tài khoản</div>
+                                <div class="info-value" id="accountName">-</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Số tiền</div>
+                                <div class="info-value text-danger" id="amount">-</div>
+                            </div>
+                            
+                            <div class="info-row bg-warning bg-opacity-10">
+                                <div class="info-label text-danger">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    Nội dung chuyển khoản (CHÍNH XÁC)
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="info-value text-primary" id="transferContent">-</span>
+                                    <i class="bi bi-clipboard copy-btn" onclick="copyText('transferContent')"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upload Section -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-cloud-upload me-2"></i>
+                        Upload chứng từ thanh toán
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Ảnh chứng từ <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control" id="proofImage" accept="image/*">
+                                <small class="text-muted">Chụp màn hình giao dịch thành công</small>
+                            </div>
+                            
+                            <!-- Preview -->
+                            <div id="imagePreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview" class="img-fluid border rounded" style="max-height: 300px;">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-info-circle me-2"></i>Hướng dẫn:</h6>
+                                <ol class="mb-0 small">
+                                    <li>Quét mã QR hoặc nhập thông tin chuyển khoản</li>
+                                    <li>Chuyển khoản CHÍNH XÁC theo nội dung</li>
+                                    <li>Chụp màn hình giao dịch thành công</li>
+                                    <li>Upload ảnh và chờ admin xác nhận</li>
+                                </ol>
+                            </div>
+                            
+                            <button type="button" class="btn btn-success w-100 btn-lg" id="uploadBtn" disabled>
+                                <i class="bi bi-cloud-upload me-2"></i>
+                                <span id="uploadBtnText">Upload chứng từ</span>
+                                <span class="spinner-border spinner-border-sm ms-2" id="uploadSpinner" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="alert alert-success mt-4" style="display: none;">
+                <h5><i class="bi bi-check-circle me-2"></i>Upload thành công!</h5>
+                <p class="mb-0">Đơn hàng của bạn đang được xem xét. Chúng tôi sẽ thông báo kết quả sớm nhất.</p>
+                <p class="mb-0 mt-2">
+                    <a href="/booking-history" class="btn btn-success">
+                        Xem lịch sử đặt lịch
+                    </a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Error -->
+        <div id="errorSection" class="alert alert-danger" style="display: none;">
+            <h5><i class="bi bi-x-circle me-2"></i>Lỗi</h5>
+            <p id="errorMessage"></p>
+            <a href="/booking" class="btn btn-primary">Quay lại đặt lịch</a>
+        </div>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script>
+        //<!-- const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'http://localhost:3001/api'; -->
+        
+        let countdownTimer = null;
+        let paymentExpiresAt = null;
+        let appointmentId = null;
+        let proofId = null;
+        
+        // Lấy appointmentId từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        appointmentId = urlParams.get('appointmentId');
+        
+        if (!appointmentId) {
+            showError('Thiếu thông tin đơn hàng. Vui lòng đặt lịch lại.');
+        } else {
+            initPaymentPage();
+        }
+        
+        // Khởi tạo trang
+        async function initPaymentPage() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showError('Vui lòng đăng nhập để tiếp tục.');
+                    return;
+                }
+                
+                // Tạo payment proof
+                const createRes = await fetch(`${API_BASE_URL}/payment-proof/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        appointmentId: appointmentId,
+                        amount: localStorage.getItem('pendingTotalAmount') || 0
+                    })
+                });
+                
+                const createResult = await createRes.json();
+                
+                if (!createResult.success) {
+                    throw new Error(createResult.message);
+                }
+                
+                proofId = createResult.data.proofId;
+                paymentExpiresAt = new Date(createResult.data.expiresAt);
+                
+                // Load QR code
+                await loadQRCode();
+                
+                // Hiện nội dung
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('paymentContent').style.display = 'block';
+                
+                // Bắt đầu countdown
+                startCountdown();
+                
+            } catch (error) {
+                console.error('Init error:', error);
+                showError(error.message);
+            }
+        }
+        
+        // Load QR Code
+        async function loadQRCode() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE_URL}/payment/qr/${appointmentId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const result = await res.json();
+                
+                if (!result.success) {
+                    throw new Error('Không thể tạo QR code');
+                }
+                
+                const data = result.data;
+                
+                // Hiển thị QR
+                document.getElementById('qrCodeImage').src = data.qrUrl;
+                document.getElementById('bookingCode').textContent = data.bookingCode;
+                document.getElementById('bankName').textContent = data.bankInfo.bankName;
+                document.getElementById('accountNo').textContent = data.bankInfo.accountNo;
+                document.getElementById('accountName').textContent = data.bankInfo.accountName;
+                document.getElementById('amount').textContent = formatCurrency(data.totalAmount);
+                document.getElementById('transferContent').textContent = data.bookingCode;
+                
+            } catch (error) {
+                throw new Error('Lỗi tải QR code: ' + error.message);
+            }
+        }
+        
+        // Countdown
+        function startCountdown() {
+            updateCountdown();
+            countdownTimer = setInterval(updateCountdown, 1000);
+        }
+        
+        function updateCountdown() {
+            const now = new Date();
+            const timeLeft = paymentExpiresAt - now;
+            
+            if (timeLeft <= 0) {
+                handleTimeout();
+                return;
+            }
+            
+            const minutes = Math.floor(timeLeft / 1000 / 60);
+            const seconds = Math.floor((timeLeft / 1000) % 60);
+            
+            const display = document.getElementById('countdownDisplay');
+            display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            const timer = document.getElementById('paymentTimer');
+            if (minutes < 3) {
+                timer.classList.add('timer-warning');
+            }
+            if (minutes < 1) {
+                timer.classList.add('timer-expired');
+            }
+        }
+        
+        async function handleTimeout() {
+            clearInterval(countdownTimer);
+            
+            document.getElementById('countdownDisplay').textContent = '00:00';
+            
+            // Gọi API expire
+            const token = localStorage.getItem('token');
+            await fetch(`${API_BASE_URL}/payment-proof/expire/${proofId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            alert('Hết thời gian thanh toán! Đơn hàng đã bị hủy.');
+            window.location.href = '/booking';
+        }
+        
+        // Preview image
+        document.getElementById('proofImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('previewImg').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('uploadBtn').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Upload
+        document.getElementById('uploadBtn').addEventListener('click', async function() {
+            const fileInput = document.getElementById('proofImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Vui lòng chọn ảnh chứng từ');
+                return;
+            }
+            
+            // Show loading
+            const btn = this;
+            const btnText = document.getElementById('uploadBtnText');
+            const spinner = document.getElementById('uploadSpinner');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Đang upload...';
+            spinner.style.display = 'inline-block';
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE_URL}/payment-proof/upload/${proofId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                
+                const result = await res.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+                
+                // Dừng countdown
+                clearInterval(countdownTimer);
+                
+                // Hiện success
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('paymentContent').scrollIntoView({ behavior: 'smooth' });
+                
+                // Redirect sau 3s
+                setTimeout(() => {
+                    window.location.href = '/booking-history';
+                }, 3000);
+                
+            } catch (error) {
+                alert('Upload thất bại: ' + error.message);
+                btn.disabled = false;
+                btnText.textContent = 'Upload chứng từ';
+                spinner.style.display = 'none';
+            }
+        });
+        
+        // Copy text
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã copy: ' + text);
+            });
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+        
+        function showError(message) {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('paymentContent').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+    </script>
+</body>
+</html>

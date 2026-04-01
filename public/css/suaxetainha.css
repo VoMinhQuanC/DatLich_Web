@@ -1,0 +1,148 @@
+.service-hero {
+    background: #333;
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    background-size: cover;
+    position: relative;
+}
+
+.share-location p, .share-location #location-output {
+  color: #fff;
+}
+
+.share-location button {
+  font-weight: bold;
+  padding: 10px 20px;
+}
+
+.share-location .location-btn {
+    background-color: #ffc107;
+    color: #000;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 25px;
+    border-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-location .location-btn:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+    color: #000;
+}
+
+.share-location .location-text {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+
+.service-card {
+    transition: transform 0.3s;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+}
+
+.service-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.benefit-item {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+    height: 100%;
+}
+
+.benefit-icon {
+    font-size: 40px;
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.booking-steps {
+    counter-reset: step-counter;
+}
+
+.step-item {
+    position: relative;
+    padding-left: 80px;
+    margin-bottom: 30px;
+}
+
+.step-item:before {
+    counter-increment: step-counter;
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 60px;
+    height: 60px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.promo-banner {
+    background-color: #dc3545;
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin: 40px 0;
+}
+
+
+.promo-banner .contact-info {
+    font-size: 16px;
+    color: #fff;
+    background-color: #dc3545;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+
+.contact-info {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.contact-info .call-btn {
+    background-color: #ffc107; /* màu vàng nổi bật */
+    color: #000; /* chữ màu đen dễ đọc */
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 25px;
+    border-radius: 50px; /* bo tròn đẹp */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.contact-info .call-btn i {
+    margin-right: 8px;
+}
+
+.contact-info .call-btn:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+    color: #000;
+}
+

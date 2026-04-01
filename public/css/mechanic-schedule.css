@@ -1,0 +1,1206 @@
+/* mechanic-schedule.css - Thiết kế cho trang lịch làm việc */
+
+/* Calendar container */
+.calendar-container {
+  margin-bottom: 1.5rem;
+}
+
+#calendar {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1rem;
+  height: 700px;
+}
+
+/* Calendar legend */
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+}
+
+.legend-color.bg-schedule {
+  background-color: var(--primary);
+}
+
+.legend-color.bg-appointment {
+  background-color: var(--info);
+}
+
+.legend-color.bg-unavailable {
+  background-color: var(--danger);
+}
+
+.legend-color.bg-today {
+  background-color: rgba(53, 99, 233, 0.1);
+}
+
+.legend-text {
+  color: var(--text-muted);
+}
+
+/* FullCalendar Customization */
+.fc .fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fc .fc-toolbar {
+  margin-bottom: 1.5rem;
+}
+
+.fc-theme-standard th {
+  background-color: #f8fafc;
+  padding: 0.75rem 0;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.fc .fc-day-today {
+  background-color: rgba(53, 99, 233, 0.05) !important;
+}
+
+.fc-daygrid-day-number,
+.fc-col-header-cell-cushion {
+  color: var(--text-main);
+  text-decoration: none !important;
+}
+
+.fc-daygrid-day-number:hover,
+.fc-col-header-cell-cushion:hover {
+  color: var(--primary);
+}
+
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.fc-event {
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.1s;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.fc-event.bg-schedule {
+  background-color: var(--primary);
+  border-color: var(--primary-dark);
+}
+
+.fc-event.bg-appointment {
+  background-color: var(--info);
+  border-color: #1e70eb;
+}
+
+.fc-event.bg-unavailable {
+  background-color: var(--danger);
+  border-color: #dc2626;
+}
+
+.fc .fc-button-primary {
+  background-color: #fff;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #f8fafc;
+  color: var(--primary);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.fc .fc-today-button {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.fc .fc-today-button:disabled {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+/* Time slots */
+.fc-timegrid-slot {
+  height: 40px !important;
+}
+
+.fc-timegrid-event {
+  min-height: 38px;
+}
+
+/* Day header with indicator for today */
+.fc .fc-day-today .fc-col-header-cell-cushion {
+  background-color: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+/* Schedules table */
+.schedules-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.schedules-table th {
+  background-color: #f8fafc;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.schedules-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.schedules-table tr:last-child td {
+  border-bottom: none;
+}
+
+.schedules-table tr:hover td {
+  background-color: rgba(53, 99, 233, 0.03);
+}
+
+/* Badges for schedule status */
+.badge {
+  padding: 0.35em 0.65em;
+  font-weight: 600;
+  border-radius: 4px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.badge.bg-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge.bg-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge.bg-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Schedule form in modal */
+.schedule-form-group {
+  margin-bottom: 1rem;
+}
+
+.schedule-form-group label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-weight: 500;
+}
+
+.schedule-form-group .form-control,
+.schedule-form-group .form-select {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.schedule-form-group .form-control:focus,
+.schedule-form-group .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(53, 99, 233, 0.15);
+}
+
+.date-time-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.date-time-row .schedule-form-group {
+  flex: 1;
+}
+
+/* Schedule type selector with icons */
+.schedule-type-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.schedule-type-option {
+  flex: 1;
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-type-option:hover {
+  background-color: rgba(53, 99, 233, 0.05);
+}
+
+.schedule-type-option.active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.schedule-type-option i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.schedule-type-option.work i {
+  color: var(--primary);
+}
+
+.schedule-type-option.unavailable i {
+  color: var(--danger);
+}
+
+.schedule-type-option.active i {
+  color: white;
+}
+
+/* Action buttons on schedule cards */
+.schedule-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-action {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--border-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action i {
+  font-size: 1rem;
+}
+
+/* Delete confirmation modal */
+.delete-warning {
+  color: var(--danger);
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.empty-state-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.empty-state-message {
+  color: var(--text-muted);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Schedule week navigation */
+.week-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.week-nav-btn {
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: var(--text-main);
+  transition: all 0.2s;
+}
+
+.week-nav-btn:hover {
+  background-color: rgba(53, 99, 233, 0.05);
+  color: var(--primary);
+}
+
+.current-week-display {
+  font-weight: 600;
+  color: var(--text-main);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0.5rem 1rem;
+}
+
+/* Loading states */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  margin-bottom: 1rem;
+}
+
+.loading-text {
+  color: var(--text-muted);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  #calendar {
+    height: 600px;
+  }
+  
+  .calendar-legend {
+    justify-content: center;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.25rem;
+  }
+  
+  .date-time-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #calendar {
+    height: 500px;
+    padding: 0.5rem;
+  }
+  
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .fc-header-toolbar {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .schedules-table {
+    font-size: 0.875rem;
+  }
+  
+  .schedule-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+  
+  .btn-action span {
+    display: none;
+  }
+  
+  .week-navigation {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .current-week-display {
+    order: -1;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Time slot tooltips */
+.schedule-tooltip {
+  position: absolute;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0.5rem 0.75rem;
+  z-index: 1000;
+  box-shadow: var(--box-shadow);
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.schedule-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+
+.schedule-tooltip-info {
+  color: var(--text-muted);
+}
+
+.schedule-tooltip-info span {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+/* Today indicator animation */
+@keyframes pulseToday {
+  0% {
+    box-shadow: 0 0 0 0 rgba(53, 99, 233, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(53, 99, 233, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(53, 99, 233, 0);
+  }
+}
+
+.fc .fc-day-today .fc-col-header-cell-cushion {
+  animation: pulseToday 2s infinite;
+}
+/* =============== MODAL V2 - ALERT INFO & FORM CHECK =============== */
+
+.alert-info {
+  background-color: #e0f2fe;
+  border: 2px solid #bae6fd;
+  color: #075985;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  font-size: 0.9rem;
+}
+
+.alert-info i {
+  color: #0ea5e9;
+  font-size: 1.1rem;
+}
+
+.alert-info strong {
+  color: #0c4a6e;
+}
+
+/* Form Check - Đăng ký nghỉ */
+.form-check {
+  padding: 1rem;
+  background-color: #f0f9ff;
+  border: 2px solid #bfdbfe;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s;
+}
+
+/* Khi checkbox được tick - Màu đỏ warning */
+.form-check:has(.form-check-input:checked) {
+  background-color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+}
+
+.form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  cursor: pointer;
+  border: 2px solid #3b82f6;
+}
+
+.form-check-input:checked {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+.form-check-label {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.form-check-label strong {
+  color: #3b82f6;
+}
+
+/* Khi tick - text chuyển đỏ */
+.form-check:has(.form-check-input:checked) .form-check-label strong {
+  color: #ef4444 !important;
+}
+
+/* Animation fade in */
+#leaveRequestSection {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Textarea bắt buộc */
+textarea.form-control[required] {
+  border-color: #ef4444 !important;
+}
+
+textarea.form-control[required]:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Text danger hints */
+small.text-danger {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #ef4444 !important;
+}
+
+small.text-danger strong {
+  font-weight: 700;
+}
+
+/* Disabled styling */
+.form-control:disabled,
+.form-select:disabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  border-color: #d1d5db !important;
+  opacity: 0.7;
+}
+
+/* Badge status */
+.badge {
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge i {
+  margin-right: 0.375rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .alert-info {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+  }
+  
+  .form-check {
+    padding: 0.75rem;
+  }
+  
+  .form-check-label {
+    font-size: 0.9rem;
+  }
+}
+
+/* =============== FIX CALENDAR - TÔ ĐẬM MÀU NGÀY =============== */
+
+/* Tô nền ngày trong tháng */
+.fc-daygrid-day {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* Số ngày - Tô đậm và to hơn */
+.fc-daygrid-day-number {
+    color: #1f2937 !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    padding: 8px !important;
+}
+
+/* Ngày hôm nay - Highlight đậm */
+.fc-day-today {
+    background-color: #dbeafe !important;
+    border: 2px solid #3b82f6 !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+    color: #1e40af !important;
+    font-weight: 700 !important;
+    font-size: 1.2rem !important;
+}
+
+/* Ngày có sự kiện - Làm nổi bật hơn */
+.fc-daygrid-day.fc-day-past {
+    background-color: #f9fafb !important;
+}
+
+.fc-daygrid-day.fc-day-future {
+    background-color: #ffffff !important;
+}
+
+/* Header ngày trong tuần (Thứ 2, Thứ 3...) */
+.fc-col-header-cell {
+    background-color: #f3f4f6 !important;
+    font-weight: 700 !important;
+    color: #374151 !important;
+    font-size: 0.95rem !important;
+    padding: 12px 8px !important;
+    border: 1px solid #d1d5db !important;
+}
+
+/* Events trên calendar */
+.fc-event {
+    border-radius: 4px !important;
+    padding: 2px 4px !important;
+    margin-bottom: 2px !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+/* Fix các ô trống (other month) - làm mờ đi */
+.fc-day-other .fc-daygrid-day-number {
+    color: #9ca3af !important;
+    opacity: 0.5;
+}
+
+/* Hover effect cho ngày */
+.fc-daygrid-day:hover {
+    background-color: #f0f9ff !important;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Tháng/Năm header - Tô đậm */
+.fc-toolbar-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+}
+
+/* Nút Previous/Next/Today */
+.fc-button {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    font-weight: 600 !important;
+}
+
+.fc-button:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+}
+
+.fc-button:disabled {
+    background-color: #9ca3af !important;
+    border-color: #9ca3af !important;
+    opacity: 0.5;
+}
+/* =============== FIX CALENDAR VIEW TABS (THÁNG/NGÀY/DANH SÁCH) =============== */
+
+/* All calendar buttons - Tô nền xám nhạt */
+.fc .fc-button-group > .fc-button {
+    background-color: #f3f4f6 !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+    font-weight: 600 !important;
+    padding: 8px 16px !important;
+    margin: 0 !important;
+}
+
+/* Button hover - Tô xanh nhạt */
+.fc .fc-button-group > .fc-button:hover {
+    background-color: #dbeafe !important;
+    border-color: #93c5fd !important;
+    color: #1e40af !important;
+}
+
+/* Button ACTIVE (đang chọn) - Tô xanh đậm */
+.fc .fc-button-group > .fc-button.fc-button-active {
+    background-color: #3b82f6 !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Border giữa các button */
+.fc .fc-button-group > .fc-button:not(:first-child) {
+    border-left: 1px solid #d1d5db !important;
+}
+
+/* First button rounded left */
+.fc .fc-button-group > .fc-button:first-child {
+    border-top-left-radius: 6px !important;
+    border-bottom-left-radius: 6px !important;
+}
+
+/* Last button rounded right */
+.fc .fc-button-group > .fc-button:last-child {
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+}
+
+/* Disabled state */
+.fc .fc-button:disabled {
+    background-color: #e5e7eb !important;
+    border-color: #d1d5db !important;
+    color: #9ca3af !important;
+    opacity: 0.6 !important;
+}
+
+/* Focus state */
+.fc .fc-button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+/* =============== FIX NGÀY HÔM NAY TRONG WEEK VIEW =============== */
+
+/* Ngày hôm nay trong week view (Th 5 27/11) */
+.fc-timegrid-col.fc-day-today {
+    background-color: #dbeafe !important; /* Nền xanh nhạt */
+}
+
+/* Header ngày hôm nay - TÔ ĐẬM */
+.fc-col-header-cell.fc-day-today {
+    background-color: #3b82f6 !important; /* Nền xanh đậm */
+}
+
+.fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion {
+    color: #ffffff !important; /* Chữ trắng */
+    font-weight: 700 !important; /* Đậm */
+    font-size: 1rem !important;
+    padding: 8px 12px !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+}
+
+/* Border ngày hôm nay */
+.fc-day-today {
+    border-left: 3px solid #3b82f6 !important;
+    border-right: 3px solid #3b82f6 !important;
+}
+
+/* Slot time trong ngày hôm nay */
+.fc-timegrid-col.fc-day-today .fc-timegrid-col-frame {
+    background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Remove animation cũ nếu conflict */
+.fc .fc-day-today .fc-col-header-cell-cushion {
+    animation: none !important;
+}/* =================================================================
+   CSS MỚI - THÊM VÀO CUỐI FILE mechanic-schedule.css
+   
+   Hiển thị tooltip số KTV đã đăng ký + info chi tiết
+   ================================================================= */
+
+/* =============== TOOLTIP HIỂN THỊ THÔNG TIN KỸ THUẬT VIÊN =============== */
+
+.mechanic-tooltip {
+    position: absolute;
+    background: white;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    min-width: 250px;
+    font-size: 0.9rem;
+}
+
+.mechanic-tooltip strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #1e40af;
+    font-size: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 4px;
+}
+
+.mechanic-tooltip .registered-count {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: #dbeafe;
+    color: #1e40af;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.mechanic-tooltip .available-slots {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.mechanic-tooltip .available-slots.available {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.mechanic-tooltip .available-slots.almost-full {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.mechanic-tooltip .available-slots.full {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.mechanic-tooltip .mechanic-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+}
+
+.mechanic-tooltip .mechanic-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    font-size: 0.85rem;
+}
+
+.mechanic-tooltip .mechanic-list li:last-child {
+    border-bottom: none;
+}
+
+/* =============== BADGE SỐ KTV TRÊN CALENDAR =============== */
+
+/* Badge hiển thị số KTV trong mỗi ô ngày */
+.fc-daygrid-day-bottom {
+    position: relative;
+}
+
+.mechanic-count-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 10;
+}
+
+.mechanic-count-badge.full {
+    background-color: #ef4444;
+}
+
+.mechanic-count-badge.almost-full {
+    background-color: #f59e0b;
+}
+
+/* =============== VALIDATION WARNING BOX =============== */
+
+.validation-warning {
+    background-color: #fef3c7;
+    border: 2px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.validation-warning i {
+    color: #f59e0b;
+    font-size: 1.5rem;
+    margin-right: 12px;
+}
+
+.validation-warning-content {
+    flex: 1;
+}
+
+.validation-warning-title {
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 4px;
+}
+
+.validation-warning-text {
+    color: #78350f;
+    font-size: 0.9rem;
+}
+
+/* =============== INFO BOX TRONG MODAL =============== */
+
+.schedule-info-box {
+    background-color: #e0f2fe;
+    border: 2px solid #0ea5e9;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.schedule-info-box strong {
+    color: #0c4a6e;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.schedule-info-box ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.schedule-info-box li {
+    color: #075985;
+    margin-bottom: 4px;
+}
+
+/* =============== TIME SLOT LOCKED INDICATOR =============== */
+
+.fc-timegrid-slot.locked {
+    background-color: #fee2e2 !important;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(239, 68, 68, 0.1) 10px,
+        rgba(239, 68, 68, 0.1) 20px
+    ) !important;
+}
+
+.locked-time-label {
+    position: absolute;
+    background-color: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    z-index: 5;
+}
+
+/* =============== DATE CELL WITH MECHANIC COUNT =============== */
+
+.fc-daygrid-day.has-mechanics {
+    position: relative;
+}
+
+.fc-daygrid-day.has-mechanics::after {
+    content: attr(data-mechanic-count);
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.fc-daygrid-day.mechanic-full::after {
+    background-color: #ef4444;
+}
+
+.fc-daygrid-day.mechanic-almost-full::after {
+    background-color: #f59e0b;
+}
+
+/* =============== HOVER EFFECT =============== */
+
+.fc-daygrid-day:hover .mechanic-tooltip {
+    display: block !important;
+}
+
+/* =============== RESPONSIVE =============== */
+
+@media (max-width: 768px) {
+    .mechanic-tooltip {
+        min-width: 200px;
+        font-size: 0.8rem;
+        padding: 10px 12px;
+    }
+    
+    .mechanic-tooltip .mechanic-list li {
+        font-size: 0.75rem;
+    }
+    
+    .mechanic-count-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+}
+
+/* =============== ANIMATION =============== */
+
+@keyframes fadeInTooltip {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mechanic-tooltip {
+    animation: fadeInTooltip 0.2s ease-out;
+}
+
+/* =============== XIN NGHỈ STYLES =============== */
+
+/* Pending Leave Card */
+.schedule-card.pending-leave-card {
+    border-left: 4px solid var(--warning) !important;
+    background-color: rgba(246, 194, 62, 0.05);
+}
+
+/* Schedule Type Badges */
+.schedule-card-type.pending-leave {
+    background-color: rgba(246, 194, 62, 0.2);
+    color: #b45309;
+    border: 1px solid rgba(246, 194, 62, 0.5);
+}
+
+.schedule-card-type.unavailable {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.schedule-card-type.work {
+    background-color: rgba(78, 115, 223, 0.15);
+    color: #4e73df;
+    border: 1px solid rgba(78, 115, 223, 0.3);
+}
+
+.schedule-card-type.appointment {
+    background-color: rgba(54, 185, 204, 0.15);
+    color: #36b9cc;
+    border: 1px solid rgba(54, 185, 204, 0.3);
+}
+
+/* Pending Edit - màu info/cyan */
+.schedule-card-type.pending-edit {
+    background-color: rgba(23, 162, 184, 0.2);
+    color: #117a8b;
+    border: 1px solid rgba(23, 162, 184, 0.5);
+}
+
+.schedule-card.pending-edit-card {
+    border-left: 4px solid #17a2b8 !important;
+    background-color: rgba(23, 162, 184, 0.05);
+}
+
+/* Approved Edit - màu success */
+.schedule-card-type.approved-edit {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+/* Rejected Edit - màu danger */
+.schedule-card-type.rejected-edit {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Leave Request Button */
+.btn-outline-warning.leave-request-btn {
+    border-color: #f6c23e;
+    color: #b45309;
+}
+
+.btn-outline-warning.leave-request-btn:hover {
+    background-color: #f6c23e;
+    color: #1a1a1a;
+}
+
+/* Leave Request Modal */
+#leaveRequestModal .modal-header {
+    background-color: #f6c23e;
+}
+
+#leaveRequestModal .modal-header .modal-title {
+    color: #1a1a1a;
+}
+
+/* Leave Schedule Info Box */
+.leave-schedule-info {
+    background: linear-gradient(135deg, #f8f9fc 0%, #eef2f7 100%);
+}
+
+.leave-schedule-info i {
+    width: 24px;
+    text-align: center;
+}
+
+/* =============== KẾT THÚC CSS MỚI =============== */
