@@ -15,7 +15,10 @@ const checkAdmin = (req, res, next) => {
 };
 
 router.get('/admin/pending', authenticateToken, checkAdmin, paymentProofController.getPendingProofs);
+router.get('/admin/stats', authenticateToken, checkAdmin, paymentProofController.getProofStats);
+router.get('/admin/all', authenticateToken, checkAdmin, paymentProofController.getAllProofs);
 router.post('/admin/approve/:proofId', authenticateToken, checkAdmin, paymentProofController.approveProof);
+router.post('/admin/reject/:proofId', authenticateToken, checkAdmin, paymentProofController.rejectProof);
 
 // --- SYSTEM/CRON APIs ---
 router.post('/process-expired', paymentProofController.processExpired);
