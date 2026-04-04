@@ -41,15 +41,10 @@
     "socket.io": "^4.8.3"
   },
   "engines": {
-<<<<<<< Updated upstream
     "node": ">=20.0.0",
     "npm": ">=9.0.0"
-=======
-    "node": ">=18.x",
-    "npm": ">=9.x"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
->>>>>>> Stashed changes
   }
 }
