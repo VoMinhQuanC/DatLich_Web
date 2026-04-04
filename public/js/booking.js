@@ -88,33 +88,50 @@ document.addEventListener('DOMContentLoaded', function() {
         const userInfo = localStorage.getItem('user');
         
         if (token && userInfo) {
-            try {
-                // Đã đăng nhập
-                if (loginRequiredAlert) loginRequiredAlert.style.display = 'none';
-                if (bookingFormContainer) bookingFormContainer.style.display = 'flex';
-                
-                // Load dữ liệu cần thiết
-                loadServices();
-
-                // Đọc serviceId từ URL và tự động chọn dịch vụ
-                const urlParams = new URLSearchParams(window.location.search);
-                const preselectedServiceId = urlParams.get('serviceId');
-
-                if (preselectedServiceId) {
-                    console.log('ServiceId từ URL:', preselectedServiceId);
-                    // Đợi services load xong rồi mới tự động chọn
-                    setTimeout(() => {
-                        autoSelectService(preselectedServiceId);
-                    }, 500);
+            // Xác thực token với backend để đảm bảo token còn hạn
+            fetch(`${API_BASE_URL}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Token không hợp lệ hoặc đã hết hạn');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Đã đăng nhập và token hợp lệ
+                    if (loginRequiredAlert) loginRequiredAlert.style.display = 'none';
+                    if (bookingFormContainer) bookingFormContainer.style.display = 'flex';
+                    
+                    // Load dữ liệu cần thiết
+                    loadServices();
 
-                loadUserVehicles();
-                populateYearDropdown();
-                
-            } catch (error) {
-                console.error('Lỗi xử lý thông tin người dùng:', error);
+                    // Đọc serviceId từ URL và tự động chọn dịch vụ
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const preselectedServiceId = urlParams.get('serviceId');
+
+                    if (preselectedServiceId) {
+                        console.log('ServiceId từ URL:', preselectedServiceId);
+                        // Đợi services load xong rồi mới tự động chọn
+                        setTimeout(() => {
+                            autoSelectService(preselectedServiceId);
+                        }, 500);
+                    }
+
+                    loadUserVehicles();
+                    populateYearDropdown();
+                } else {
+                    throw new Error('Xác thực thất bại');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi xác thực:', error);
+                // Xóa token cũ và yêu cầu đăng nhập lại
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
                 showLoginRequired();
-            }
+            });
         } else {
             // Chưa đăng nhập
             showLoginRequired();
@@ -1471,6 +1488,15 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Lỗi khi đặt lịch:', error);
             
+            // Xử lý báo lỗi phiên hết hạn
+            if (error.message && (error.message.includes('Token') || error.message.includes('xác thực') || error.message.includes('đăng nhập'))) {
+                alert('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+                return false;
+            }
+            
             // Hiển thị lỗi chi tiết
             const errorAlert = document.getElementById('bookingErrorAlert');
             if (errorAlert) {
@@ -1858,6 +1884,13 @@ async function createAppointmentOnly() {
         
     } catch (error) {
         console.error('❌ Error creating appointment:', error);
+        if (error.message && (error.message.includes('Token') || error.message.includes('xác thực') || error.message.includes('đăng nhập'))) {
+            alert('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+            return null; // Tránh ném lỗi để hàm ngoài không catch
+        }
         throw error;
     }
 }
@@ -1925,7 +1958,8 @@ if (goToPaymentPageBtn) {
             const appointmentId = await createAppointmentOnly();
             
             if (!appointmentId) {
-                throw new Error('Không thể tạo đơn hàng');
+                // Return silently nếu createAppointmentOnly đã handle việc redirect (trả về null)
+                return;
             }
             
             console.log('✅ Appointment created:', appointmentId);

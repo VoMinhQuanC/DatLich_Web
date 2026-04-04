@@ -112,6 +112,9 @@ class BookingService {
             paymentMethod: paymentMethod && (paymentMethod.toLowerCase().includes('chuyển khoản') || paymentMethod.toLowerCase().includes('bank') || paymentMethod.toLowerCase().includes('transfer')) ? 'Chuyển khoản ngân hàng' : 'Thanh toán tại tiệm'
         };
         
+        console.log('🚨 [DEBUG BookingService] bookingData created:', JSON.stringify(bookingData));
+        console.log('🚨 [DEBUG BookingService] services format:', typeof services, Array.isArray(services), JSON.stringify(services));
+        
         const result = await this.bookingModel.createAppointment(bookingData);
         
         // Notifications

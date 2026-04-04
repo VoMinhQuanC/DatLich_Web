@@ -349,20 +349,20 @@
         async function loadQRCode() {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE_URL}/payment/qr/${appointmentId}`, {
+                const res = await fetch(`${API_BASE_URL}/payments/qr/${appointmentId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
                 const result = await res.json();
                 
                 if (!result.success) {
-                    throw new Error('Không thể tạo QR code');
+                    throw new Error(result.message || 'Không thể tạo QR code');
                 }
                 
                 const data = result.data;
                 
                 // Hiển thị QR
-                document.getElementById('qrCodeImage').src = data.qrUrl;
+                document.getElementById('qrCodeImage').src = data.qrUrl || data.qrString;
                 document.getElementById('bookingCode').textContent = data.bookingCode;
                 document.getElementById('bankName').textContent = data.bankInfo.bankName;
                 document.getElementById('accountNo').textContent = data.bankInfo.accountNo;
@@ -410,9 +410,9 @@
             
             document.getElementById('countdownDisplay').textContent = '00:00';
             
-            // Gọi API expire
+            // Gọi API dọn dẹp hệ thống 
             const token = localStorage.getItem('token');
-            await fetch(`${API_BASE_URL}/payment-proof/expire/${proofId}`, {
+            await fetch(`${API_BASE_URL}/payment-proof/process-expired`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -456,15 +456,17 @@
             
             try {
                 const formData = new FormData();
-                formData.append('image', file);
+                formData.append('proofImage', file);
+                formData.append('appointmentId', appointmentId);
                 
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE_URL}/payment-proof/upload/${proofId}`, {
+                const res = await fetch(`${API_BASE_URL}/payment-proof/upload`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
                 });
                 
+                if (!res.ok && res.status === 404) throw new Error('API Endpoint không tồn tại');
                 const result = await res.json();
                 
                 if (!result.success) {
