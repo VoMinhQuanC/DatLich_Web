@@ -13,7 +13,7 @@ try {
     if (process.env.NODE_ENV === 'production') {
         avatarDir = '/tmp/avatars';
     } else {
-        avatarDir = path.join(__dirname, '../../../Web/images/avatars'); // Lưu ý đã lùi thêm 1 cấp do ở trong controllers
+        avatarDir = path.join(__dirname, '../../../public/images/avatars');
     }
 
     if (!fs.existsSync(avatarDir)) {

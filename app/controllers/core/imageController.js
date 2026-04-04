@@ -14,8 +14,7 @@ if (process.env.NODE_ENV === 'production') {
     vehiclesDir = '/tmp/vehicles';
     tempDir = '/tmp/temp';
 } else {
-    // Lưu ý: Lùi thêm cấp bậc vì file này nằm trong controllers/core
-    webImagesDir = path.join(__dirname, '../../../../Web/images');
+    webImagesDir = path.join(__dirname, '../../../public/images');
     avatarsDir = path.join(webImagesDir, 'avatars');
     servicesDir = path.join(webImagesDir, 'services');
     vehiclesDir = path.join(webImagesDir, 'vehicles');
@@ -41,7 +40,7 @@ const removeOldAvatarImages = async (userId) => {
         if (users.length > 0) {
             [users[0].ProfilePicture, users[0].AvatarUrl].forEach(imgPath => {
                 if (imgPath) {
-                    const fullPath = path.join(__dirname, '../../../../Web', imgPath);
+                    const fullPath = path.join(__dirname, '../../../public', imgPath);
                     if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
                 }
             });
@@ -79,7 +78,7 @@ const uploadAvatar = async (req, res) => {
         
         let imagePath = process.env.NODE_ENV === 'production' 
             ? req.file.path.split('/tmp/')[1] 
-            : req.file.path.replace(/\\/g, '/').split('/Web/')[1];
+            : req.file.path.replace(/\\/g, '/').split('/public/')[1];
 
         await removeOldAvatarImages(userId);
         await pool.query('UPDATE Users SET ProfilePicture = ?, AvatarUrl = ? WHERE UserID = ?', [imagePath, imagePath, userId]);
@@ -103,7 +102,7 @@ const uploadServiceImage = async (req, res) => {
     try {
         let imagePath = process.env.NODE_ENV === 'production' 
             ? req.file.path.split('/tmp/')[1] 
-            : req.file.path.replace(/\\/g, '/').split('/Web/')[1];
+            : req.file.path.replace(/\\/g, '/').split('/public/')[1];
         
         await pool.query('UPDATE Services SET ServiceImage = ? WHERE ServiceID = ?', [imagePath, req.params.id]);
         res.json({ success: true, imagePath });

@@ -13,7 +13,7 @@
 .git
 .gitignore
 
-!Web/
+!public/
 
 # Node.js dependencies:
 node_modules/

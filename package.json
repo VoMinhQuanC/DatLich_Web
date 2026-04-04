@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "api-server.js",
   "scripts": {
-    "start": "node api-server.js",
-    "dev": "nodemon api-server.js",
+    "verify:case": "node verify_imports.js",
+    "start": "node verify_imports.js && node api-server.js",
+    "dev": "node verify_imports.js && nodemon api-server.js",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "keywords": [

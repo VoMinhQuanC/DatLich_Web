@@ -62,10 +62,8 @@ passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
-// Phục vụ file tĩnh (Ảnh avatar, css, js...)
-app.use('/images', express.static(path.join(__dirname, 'Web/images')));
+// Phục vụ file tĩnh từ thư mục public để tránh lệch đường dẫn/casing trên Linux.
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
-app.use(express.static(path.join(__dirname, 'Web')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
