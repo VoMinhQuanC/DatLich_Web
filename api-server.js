@@ -79,7 +79,10 @@ app.use('/api/auth0', require('./app/routes/auth/auth0Routes'));
 app.use('/api/bookings', require('./app/routes/core/bookingRoutes'));  // alias cũ
 app.use('/api/booking', require('./app/routes/core/bookingRoutes'));   // alias mới (admin dùng)
 app.use('/api/services', require('./app/routes/core/serviceRoutes'));
-app.use('/api/payments', require('./app/routes/core/paymentRoutes'));
+const paymentRoutes = require('./app/routes/core/paymentRoutes');
+console.log("✅ Payment routes loaded");
+
+app.use('/api/payment', paymentRoutes);
 app.use('/api/payment-proof', require('./app/routes/core/paymentProofRoutes'));
 app.use('/api/upload', require('./app/routes/core/uploadRoutes'));
 app.use('/api/notifications', require('./app/routes/core/notificationRoutes'));

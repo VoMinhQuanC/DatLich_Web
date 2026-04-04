@@ -31,16 +31,25 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.12.1",
     "multer": "^2.1.1",
-    "mysql2": "^3.19.1",
+    "mysql2": "^3.20.0",
     "nodemailer": "^7.0.11",
     "passport": "^0.7.0",
     "passport-auth0": "^1.4.4",
-    "qrcode": "^1.5.3",
+    "qrcode": "^1.5.4",
+    "qrcode.react": "^4.2.0",
     "sharp": "^0.32.5",
     "socket.io": "^4.8.3"
   },
   "engines": {
+<<<<<<< Updated upstream
     "node": ">=20.0.0",
     "npm": ">=9.0.0"
+=======
+    "node": ">=18.x",
+    "npm": ">=9.x"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+>>>>>>> Stashed changes
   }
 }
