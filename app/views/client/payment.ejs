@@ -362,7 +362,11 @@
                 const data = result.data;
                 
                 // Hiển thị QR
+<<<<<<< Updated upstream
                 document.getElementById('qrCodeImage').src = data.qrUrl || data.qrString;
+=======
+                document.getElementById('qrCodeImage').src = data.qrString;
+>>>>>>> Stashed changes
                 document.getElementById('bookingCode').textContent = data.bookingCode;
                 document.getElementById('bankName').textContent = data.bankInfo.bankName;
                 document.getElementById('accountNo').textContent = data.bankInfo.accountNo;
@@ -507,6 +511,31 @@
                 currency: 'VND'
             }).format(amount);
         }
+
+        // momo va VNPay
+        async function payVNPay() {
+            const res = await fetch(`${API_BASE_URL}/payment/vnpay`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ appointmentId })
+            });
+
+            const data = await res.json();
+            if (data.success) window.location.href = data.paymentUrl;
+        }
+
+
+        async function payMomo() {
+            const res = await fetch(`${API_BASE_URL}/payment/momo`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ appointmentId })
+            });
+
+            const data = await res.json();
+            if (data.success) window.location.href = data.paymentUrl;
+        }        
+
         
         function showError(message) {
             document.getElementById('loadingSection').style.display = 'none';

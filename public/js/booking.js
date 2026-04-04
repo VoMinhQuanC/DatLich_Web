@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let userVehicles = [];
     let allTimeSlots = []; // Lưu trữ tất cả các khung giờ đã tải từ API
     
+    
     // Elements
     const loginRequiredAlert = document.getElementById('loginRequiredAlert');
     const bookingFormContainer = document.getElementById('bookingFormContainer');
@@ -1226,6 +1227,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Xử lý riêng cho bước 5
         if (step === 5) {
             console.log('Đang xử lý bước 5');
+
+            setupPaymentMethodRadios();
+            updateStep4Buttons();
             // Validate phương thức thanh toán
             const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
             let paymentMethodSelected = false;
@@ -1235,6 +1239,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     paymentMethodSelected = true;
                     // Lưu phương thức thanh toán vào bookingData
                     bookingData.paymentMethod = radio.value;
+                    selectedPaymentMethod = radio.value;
                     
                     // Hiển thị thông tin thanh toán nếu chọn chuyển khoản
                     const paymentInfo = document.getElementById('paymentInfo');
@@ -1255,6 +1260,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!paymentMethodSelected && paymentMethodRadios.length > 0) {
                 paymentMethodRadios[0].checked = true;
                 bookingData.paymentMethod = paymentMethodRadios[0].value;
+                selectedPaymentMethod = paymentMethodRadios[0].value; // 🔥 THÊM DÒNG NÀY
 
                 // Cập nhật buttons
                 if (typeof updateStep4Buttons === 'function') {
@@ -1542,7 +1548,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const paymentAmountElement = document.getElementById('paymentAmount');
                     
                     if (paymentInfo && paymentStatusInfo) {
-                        if (this.value === 'Chuyển khoản') {
+                        if (this.value === 'Chuyển khoản ngân hàng') {
                             // Tính tổng giá dịch vụ
                             const totalPrice = bookingData.services.reduce((sum, service) => sum + service.price, 0);
                             
@@ -1591,25 +1597,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mở rộng hàm submitBooking để hỗ trợ phương thức thanh toán
     const originalSubmitBooking = submitBooking;
+
     submitBooking = async function() {
         try {
-            // Validate phương thức thanh toán
+            // 1. Validate phương thức thanh toán
             if (!bookingData.paymentMethod) {
-                // Nếu chưa chọn, chọn mặc định phương thức đầu tiên
-                const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
-                if (paymentMethodRadios.length > 0) {
-                    paymentMethodRadios[0].checked = true;
-                    bookingData.paymentMethod = paymentMethodRadios[0].value;
+                const radios = document.querySelectorAll('input[name="paymentMethod"]');
+                if (radios.length > 0) {
+                    radios[0].checked = true;
+                    bookingData.paymentMethod = radios[0].value;
                 }
             }
 
-            // Gọi hàm submit gốc
-            return await originalSubmitBooking.call(this);
+            // 2. GỌI SUBMIT GỐC (TẠO BOOKING)
+            const result = await originalSubmitBooking.call(this);
+
+            // 🔥 QUAN TRỌNG: lấy appointmentId
+            const appointmentId = result?.appointmentId;
+
+            if (!appointmentId) {
+                console.error("❌ Không lấy được appointmentId");
+                return;
+            }
+
+            console.log("✅ Booking ID:", appointmentId);
+
+            // =========================
+            // 3. XỬ LÝ THANH TOÁN
+            // =========================
+
+            // 🟢 QR
+            if (bookingData.paymentMethod === 'Chuyển khoản ngân hàng') {
+                const res = await fetch(`/api/payment/qr/${appointmentId}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const qrImg = document.createElement("img");
+                    qrImg.src = data.data.qrString;
+                    qrImg.style.width = "250px";
+
+                    const paymentInfo = document.getElementById("paymentInfo");
+                    paymentInfo.innerHTML = "";
+                    paymentInfo.appendChild(qrImg);
+                    paymentInfo.style.display = "block";
+                }
+            }
+
+            // 🔵 VNPay
+            else if (bookingData.paymentMethod === 'VNPay') {
+                const res = await fetch('/api/payment/vnpay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ appointmentId })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = data.paymentUrl;
+                }
+            }
+
+            // 🔴 MoMo
+            else if (bookingData.paymentMethod === 'MoMo') {
+                const res = await fetch('/api/payment/momo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ appointmentId })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = data.paymentUrl;
+                }
+            }
+
+            // ⚪ Tiền mặt
+            else {
+                alert("Đặt lịch thành công! Thanh toán tại tiệm.");
+                window.location.href = "/booking-success";
+            }
+
+            return result;
+
         } catch (error) {
-            console.error('Lỗi trong submit booking mở rộng:', error);
-            throw error;
+            console.error('❌ Lỗi submit booking:', error);
+            alert("Có lỗi xảy ra");
         }
     };
+
+
     
     // === UTILITY FUNCTIONS ===
     
@@ -1770,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.loadAvailableTimeSlots = loadAvailableTimeSlots;
 
     // ===== BIẾN LƯU PHƯƠNG THỨC THANH TOÁN =====
-let selectedPaymentMethod = null;
+let selectedPaymentMethod = 'Thanh toán tại tiệm'; // Default value
 
 // ===== PAYMENT BUTTONS MANAGEMENT =====
 
@@ -1781,23 +1859,21 @@ function updateStep4Buttons() {
     const submitCashBtn = document.getElementById('submitBookingCash');
     const goToPaymentBtn = document.getElementById('goToPaymentPage');
     
-    console.log('🔄 Updating Step 4 buttons. Payment method:', selectedPaymentMethod);
-    
-    // Ẩn tất cả trước
+    console.log('🔄 Payment method:', selectedPaymentMethod);
+
+    // Ẩn hết
     if (submitCashBtn) submitCashBtn.style.display = 'none';
     if (goToPaymentBtn) goToPaymentBtn.style.display = 'none';
-    
-    // Hiện nút tương ứng
+
     if (selectedPaymentMethod === 'Thanh toán tại tiệm') {
-        if (submitCashBtn) {
-            submitCashBtn.style.display = 'inline-block';
-            console.log('✅ Showing "Hoàn tất đặt lịch" button');
-        }
-    } else if (selectedPaymentMethod === 'Chuyển khoản ngân hàng') {
-        if (goToPaymentBtn) {
-            goToPaymentBtn.style.display = 'inline-block';
-            console.log('✅ Showing "Qua trang thanh toán" button');
-        }
+        submitCashBtn.style.display = 'inline-block';
+    } 
+    else if (
+        selectedPaymentMethod === 'Chuyển khoản ngân hàng' ||
+        selectedPaymentMethod === 'VNPay' ||
+        selectedPaymentMethod === 'MoMo'
+    ) {
+        goToPaymentBtn.style.display = 'inline-block';
     }
 }
 
@@ -1936,83 +2012,233 @@ if (submitBookingCashBtn) {
     console.log('✅ submitBookingCash event listener registered');
 }
 
+// ...existing code...
+
 // NÚT 2: QUA TRANG THANH TOÁN - CHUYỂN KHOẢN
 const goToPaymentPageBtn = document.getElementById('goToPaymentPage');
 if (goToPaymentPageBtn) {
+    let isProcessing = false;
     goToPaymentPageBtn.addEventListener('click', async function() {
         try {
-            console.log('💳 Creating appointment - Bank transfer');
             
-            // Validate phương thức thanh toán
-            if (selectedPaymentMethod !== 'Chuyển khoản ngân hàng') {
-                alert('Vui lòng chọn phương thức thanh toán chuyển khoản');
-                return;
+            if (!selectedPaymentMethod || selectedPaymentMethod.trim() === '') {
+                const radios = document.querySelectorAll('input[name="paymentMethod"]');
+                if (radios.length > 0 && radios[0].checked) {
+                    selectedPaymentMethod = radios[0].value;
+                } else {
+                    alert('Vui lòng chọn phương thức thanh toán');
+                    return;
+                }
             }
-            
-            // Show loading
-            const spinner = document.getElementById('submitSpinnerBank');
-            if (spinner) spinner.style.display = 'inline-block';
-            this.disabled = true;
-            
-            // TẠO APPOINTMENT TRƯỚC
+    
             const appointmentId = await createAppointmentOnly();
+    
+            if (!appointmentId) throw new Error('Không tạo được đơn');
+    
+            // Tính tổng tiền
+            const totalAmount = bookingData.services.reduce((sum, service) => sum + service.price, 0);
             
-            if (!appointmentId) {
-                // Return silently nếu createAppointmentOnly đã handle việc redirect (trả về null)
-                return;
+            // ✅ CHUYỂN KHOẢN → sang trang QR
+            if (selectedPaymentMethod === 'Chuyển khoản ngân hàng') {
+                window.location.href = `/payment?appointmentId=${appointmentId}`;
             }
-            
-            console.log('✅ Appointment created:', appointmentId);
-            
-            // REDIRECT SANG TRANG PAYMENT
-            window.location.href = `/payment?appointmentId=${appointmentId}`;
-            
+    
+            // ✅ VNPay → gọi API backend
+            else if (selectedPaymentMethod === 'VNPay') {
+                const vnpayData = {
+                    appointmentId: appointmentId,
+                    amount: totalAmount,
+                    description: `Thanh toán đặt lịch BK${appointmentId}`,
+                    returnUrl: `${window.location.origin}/booking-success`
+                };
+                
+                console.log('📤 VNPay request:', vnpayData);
+                
+                const res = await fetch(`${API_BASE_URL}/api/payment/vnpay`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(vnpayData)
+                });
+    
+                const data = await res.json();
+                console.log('📥 VNPay response:', data);
+                
+                if (data.success && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    throw new Error(data.message || 'Lỗi VNPay');
+                }
+            }
+    
+            // ✅ MoMo → gọi API backend
+            else if (selectedPaymentMethod === 'MoMo') {
+                const momoData = {
+                    appointmentId: appointmentId,
+                    amount: totalAmount,
+                    description: `Thanh toán đặt lịch BK${appointmentId}`,
+                    returnUrl: `${window.location.origin}/booking-success`
+                };
+                
+                console.log('📤 MoMo request:', momoData);
+                
+                const res = await fetch(`${API_BASE_URL}/api/payment/momo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(momoData)
+                });
+    
+                const data = await res.json();
+                console.log('📥 MoMo response:', data);
+                
+                if (data.success && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    throw new Error(data.message || 'Lỗi MoMo');
+                }
+            }
+    
         } catch (error) {
-            console.error('Error creating appointment:', error);
-            alert('Có lỗi xảy ra: ' + error.message);
-            
-            const spinner = document.getElementById('submitSpinnerBank');
-            if (spinner) spinner.style.display = 'none';
+            console.error('❌ Payment error:', error);
+            alert('Lỗi thanh toán: ' + error.message);
             this.disabled = false;
         }
     });
     console.log('✅ goToPaymentPage event listener registered');
 }
 
+
+
+
 // ===== EVENT LISTENER CHO RADIO PAYMENT METHOD =====
 
 // Tìm và gắn event listener cho radio buttons
-setTimeout(() => {
+// Thay phần setTimeout cũ (dòng khoảng 1958) bằng:
+
+// ===== EVENT LISTENER CHO RADIO PAYMENT METHOD =====
+// Gắn event listener NGAY KHI DOM READY (không cần setTimeout)
+
+// ❌ CỦA TỰ THIẾT LẬP PAYMENT METHOD RADIOS
+function setupPaymentMethodRadios() {
     const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
     
-    if (paymentMethodRadios.length > 0) {
-        console.log(`Found ${paymentMethodRadios.length} payment method radio buttons`);
-        
-        paymentMethodRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.checked) {
-                    selectedPaymentMethod = this.value;
-                    bookingData.paymentMethod = this.value;
-                    
-                    console.log('✅ Payment method selected:', selectedPaymentMethod);
-                    
-                    // Cập nhật buttons
-                    updateStep4Buttons();
-                }
-            });
-        });
-        
-        // Set default nếu chưa có gì được chọn
-        const checkedRadio = document.querySelector('input[name="paymentMethod"]:checked');
-        if (checkedRadio) {
-            selectedPaymentMethod = checkedRadio.value;
-            bookingData.paymentMethod = checkedRadio.value;
-            console.log('✅ Initial payment method:', selectedPaymentMethod);
-        }
-    } else {
+    console.log(`✅ Found ${paymentMethodRadios.length} payment method radios`);
+    
+    if (paymentMethodRadios.length === 0) {
         console.warn('⚠️ No payment method radio buttons found');
+        return;
     }
-}, 500);
+    
+    paymentMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                selectedPaymentMethod = this.value;
+                bookingData.paymentMethod = this.value;
+                
+                console.log('✅ Payment method changed to:', selectedPaymentMethod);
+                
+                // ✅ FIX: Tách riêng 2 containers
+                const momoContainer = document.getElementById('momoQRContainer');
+                const bankContainer = document.getElementById('bankTransferInfo');
+                
+                // Ẩn tất cả trước
+                if (momoContainer) momoContainer.style.display = 'none';
+                if (bankContainer) bankContainer.style.display = 'none';
+                
+                // Hiển thị theo phương thức
+                if (this.id === 'paymentMethodMomo') {
+                    // Load QR MoMo
+                    const totalAmount = bookingData.services.reduce(
+                        (sum, service) => sum + (Number(service.price) || 0), 0
+                    );
+                    console.log('📱 Loading MoMo QR for:', totalAmount);
+                    loadMomoQR(totalAmount);
+                    
+                } else if (this.id === 'paymentMethodTransfer') {
+                    // Hiển thị thông tin chuyển khoản
+                    if (bankContainer) {
+                        const totalAmount = bookingData.services.reduce(
+                            (sum, service) => sum + (Number(service.price) || 0), 0
+                        );
+                        
+                        // Cập nhật số tiền
+                        const amountSpan = document.getElementById('paymentAmount');
+                        if (amountSpan) {
+                            amountSpan.textContent = totalAmount.toLocaleString('vi-VN') + ' ₫';
+                        }
+                        
+                        bankContainer.style.display = 'block';
+                    }
+                }
+                
+                // Cập nhật buttons
+                updateStep4Buttons();
+            }
+        });
+    });
+    
+    // Check radio đã selected
+    const checkedRadio = document.querySelector('input[name="paymentMethod"]:checked');
+    if (checkedRadio) {
+        selectedPaymentMethod = checkedRadio.value;
+        console.log('✅ Initial payment method:', selectedPaymentMethod);
+        
+        // Trigger change event
+        checkedRadio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
+// ✅ HÀM RÁ RIÊNG - LOAD QR MOMO
+async function loadMomoQR(amount) {
+    try {
+        console.log('📱 Loading MoMo QR for amount:', amount);
+        
+        const momoContainer = document.getElementById('momoQRContainer');
+        if (!momoContainer) return;
+        
+        // Gọi API lấy QR
+        const response = await fetch(`${API_BASE_URL}/payment/momo/test-qr`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                amount: amount
+            })
+        });
+
+        const data = await response.json();
+        console.log('📥 MoMo response:', data);
+
+        if (data.success && momoContainer) {
+            // ✅ Chỉ cập nhật nội dung trong momoContainer
+            const momoImage = document.getElementById('momoQRImage');
+            const momoAmount = document.getElementById('momoQRAmount');
+            const momoLink = document.getElementById('momoPayLink');
+            
+            if (momoImage) momoImage.src = data.qrCodeUrl;
+            if (momoAmount) momoAmount.textContent = amount.toLocaleString('vi-VN') + ' ₫';
+            if (momoLink) momoLink.href = data.payUrl;
+            
+            // Hiển thị QR container
+            momoContainer.style.display = 'block';
+            
+            console.log('✅ MoMo QR loaded successfully');
+        } else {
+            console.error('❌ Error:', data.message || 'Không lấy được QR code');
+            alert('❌ Lỗi: ' + (data.message || 'Không lấy được QR code'));
+        }
+    } catch (error) {
+        console.error('❌ Error loading MoMo QR:', error);
+        alert('Lỗi tải QR MoMo: ' + error.message);
+    }
+}
+
+// Gọi function này khi chuyển sang step 5
+// Thêm vào hàm goToStep(5):
+if (step === 5) {
+    setupPaymentMethodRadios();
+    updateStep4Buttons(); // Hiển thị button đúng
+}
 
 // Export functions to global scope
 window.updateStep4Buttons = updateStep4Buttons;
