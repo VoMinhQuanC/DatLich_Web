@@ -17,8 +17,9 @@ const API_BASE_URL = (() => {
         return 'https://suaxeweb-production.up.railway.app/api'; // URL Railway production
     }
     
-    // Fallback cho các trường hợp khác
-    return 'https://suaxeweb-production.up.railway.app/api';
+    // Fallback: Tự động dùng cùng domain đang phục vụ trang web
+    // Điều này đảm bảo hoạt động đúng trên mọi Railway domain (datlich.up.railway.app, v.v.)
+    return `${location.origin}/api`;
 })();
 
 // Cấu hình API endpoints

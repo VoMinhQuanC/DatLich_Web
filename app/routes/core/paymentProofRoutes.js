@@ -1,7 +1,7 @@
 // File: app/routes/core/paymentproofRoutes.js
 const express = require('express');
 const router = express.Router();
-const paymentProofController = require('../../controllers/core/paymentProofController');
+const paymentProofController = require('../../controllers/core/paymentproofController');
 const { authenticateToken } = require('../auth/authRoutes');
 
 // --- CUSTOMER APIs ---
