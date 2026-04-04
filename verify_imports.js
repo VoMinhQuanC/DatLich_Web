@@ -3,7 +3,7 @@ const path = require('path');
 
 const rootDir = __dirname;
 const textExtensions = new Set(['.js', '.ejs', '.css']);
-const ignoredDirs = new Set(['.git', 'node_modules']);
+const ignoredDirs = new Set(['.git', 'node_modules', 'temp']);
 const issues = [];
 
 function walk(dir, files = []) {
