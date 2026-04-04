@@ -53,7 +53,7 @@ const createPaymentRequest = async (req, res) => {
         const [existing] = await pool.query('SELECT * FROM PaymentProofs WHERE AppointmentID = ? AND Status IN ("Pending", "WaitingReview")', [appointmentId]);
         if (existing.length > 0) {
             const remaining = Math.max(0, Math.floor((new Date(existing[0].ExpiresAt) - new Date()) / 1000));
-            return res.json({ success: true, message: 'Đã có yêu cầu thanh toán', data: { proofId: existing[0].ProofID, status: existing[0].Status, remainingSeconds: remaining } });
+            return res.json({ success: true, message: 'Đã có yêu cầu thanh toán', data: { proofId: existing[0].ProofID, status: existing[0].Status, remainingSeconds: remaining, expiresAt: existing[0].ExpiresAt } });
         }
 
         const transferContent = `BK${appointmentId}`;
@@ -91,10 +91,15 @@ const uploadProof = async (req, res) => {
         }
         
         await connection.query('UPDATE Appointments SET Status = "PendingApproval" WHERE AppointmentID = ?', [appointmentId]);
+        
+        // Lấy tên khách hàng để Push Notification không bị "Khách undefined"
+        const [users] = await connection.query('SELECT FullName FROM Users WHERE UserID = ?', [userId]);
+        const customerName = users[0] ? users[0].FullName : 'Khách hàng';
+        
         await connection.commit();
 
         // Notify
-        try { notificationHelper.notifyPaymentProofUploaded({ userId, appointmentId, amount: 0 }); } catch (e) {}
+        try { notificationHelper.notifyPaymentProofUploaded({ userId, customerName, appointmentId, amount: 0 }); } catch (e) {}
 
         res.json({ success: true, message: 'Upload chứng từ thành công', proofId });
     } catch (error) {
@@ -145,6 +150,70 @@ const getPendingProofs = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
+// 4.1 Lấy thống kê cho màn hình Admin
+const getProofStats = async (req, res) => {
+    try {
+        const [waiting] = await pool.query('SELECT COUNT(*) as c FROM PaymentProofs WHERE Status = "WaitingReview"');
+        const [approved] = await pool.query('SELECT COUNT(*) as c FROM PaymentProofs WHERE Status = "Approved" AND DATE(ReviewedAt) = CURDATE()');
+        const [rejected] = await pool.query('SELECT COUNT(*) as c FROM PaymentProofs WHERE Status = "Rejected" AND DATE(ReviewedAt) = CURDATE()');
+        const [expired] = await pool.query('SELECT COUNT(*) as c FROM PaymentProofs WHERE Status = "Expired" AND DATE(ExpiresAt) = CURDATE()');
+        
+        res.json({ success: true, data: {
+            waiting: waiting[0].c,
+            approved: approved[0].c,
+            rejected: rejected[0].c,
+            expired: expired[0].c
+        }});
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+// 4.2 Lấy tất cả hoá đơn (có bộ lọc)
+const getAllProofs = async (req, res) => {
+    try {
+        const { status } = req.query;
+        let query = `
+            SELECT pp.*, u.FullName as CustomerName, u.PhoneNumber as CustomerPhone
+            FROM PaymentProofs pp
+            JOIN Appointments a ON pp.AppointmentID = a.AppointmentID
+            JOIN Users u ON a.UserID = u.UserID
+        `;
+        const params = [];
+        if (status) {
+            query += ` WHERE pp.Status = ?`;
+            params.push(status);
+        }
+        query += ` ORDER BY pp.ProofUploadedAt DESC, pp.CreatedAt DESC`;
+        
+        const [proofs] = await pool.query(query, params);
+        res.json({ success: true, data: proofs });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+// 4.3 Admin từ chối chứng từ
+const rejectProof = async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        const { proofId } = req.params;
+        const { reason, note } = req.body;
+        const adminId = req.user.userId;
+        await connection.beginTransaction();
+
+        const [proofs] = await connection.query('SELECT * FROM PaymentProofs WHERE ProofID = ?', [proofId]);
+        if (proofs.length === 0) throw new Error('Không tìm thấy chứng từ');
+
+        const reviewNote = `${reason} - ${note}`;
+        await connection.query('UPDATE PaymentProofs SET Status = "Rejected", ReviewedBy = ?, ReviewedAt = NOW(), ReviewNote = ? WHERE ProofID = ?', [adminId, reviewNote, proofId]);
+        
+        await connection.query('UPDATE Appointments SET Status = "Chờ thanh toán" WHERE AppointmentID = ?', [proofs[0].AppointmentID]);
+        
+        await connection.commit();
+        res.json({ success: true, message: 'Từ chối thành công' });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ success: false, message: error.message });
+    } finally { connection.release(); }
+};
+
 // 5. Xử lý hết hạn (Cron)
 const processExpired = async (req, res) => {
     try {
@@ -162,5 +231,8 @@ module.exports = {
     uploadProof,
     approveProof,
     getPendingProofs,
+    getProofStats,
+    getAllProofs,
+    rejectProof,
     processExpired
 };
