@@ -288,7 +288,7 @@ const debugVNPayConfig = async (req, res) => {
 
         if (appointmentId) {
             const [appointments] = await pool.query(`
-                SELECT AppointmentID, UserID, Status, PaymentStatus, PaymentMethod, AppointmentDate
+                SELECT AppointmentID, UserID, Status, PaymentMethod, AppointmentDate
                 FROM Appointments
                 WHERE AppointmentID = ?
             `, [appointmentId]);
@@ -321,7 +321,7 @@ const debugVNPayConfig = async (req, res) => {
 
                 existingPayments = payments;
 
-                if (appointment.Status === 'Confirmed' && appointment.PaymentStatus === 'Paid') {
+                if (appointment.Status === 'Confirmed') {
                     warnings.push('Appointment này đã Paid/Confirmed, không nên test VNPay lại trên cùng đơn');
                 }
 
@@ -431,7 +431,7 @@ const vnpayReturn = async (req, res) => {
 
         // 🔥 CHECK appointment exists
         const [appointmentCheck] = await pool.query(
-            `SELECT AppointmentID, Status, PaymentStatus FROM Appointments WHERE AppointmentID = ?`,
+            `SELECT AppointmentID, Status, PaymentMethod FROM Appointments WHERE AppointmentID = ?`,
             [appointmentId]
         );
 
@@ -441,9 +441,13 @@ const vnpayReturn = async (req, res) => {
         }
 
         const appointment = appointmentCheck[0];
+        const [completedPayments] = await pool.query(
+            `SELECT PaymentID FROM Payments WHERE AppointmentID = ? AND PaymentMethod = 'VNPay' AND Status = 'Completed' LIMIT 1`,
+            [appointmentId]
+        );
 
         // 🔥 Nếu đã Confirmed, không cập nhật lại
-        if (appointment.Status === 'Confirmed' && appointment.PaymentStatus === 'Paid') {
+        if (appointment.Status === 'Confirmed' || completedPayments.length > 0) {
             console.log('⚠️  Appointment already confirmed:', appointmentId);
             return res.redirect(buildPaymentResultUrl('success', appointmentId));
         }
@@ -453,14 +457,11 @@ const vnpayReturn = async (req, res) => {
             // 🔥 UPDATE 1: Pending → Confirmed
             await pool.query(`
                 UPDATE Appointments 
-                SET PaymentStatus = 'Paid', Status = 'Confirmed', UpdatedAt = NOW()
+                SET Status = 'Confirmed', PaymentMethod = 'VNPay', UpdatedAt = NOW()
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
-            const [existingPayment] = await pool.query(
-                `SELECT PaymentID FROM Payments WHERE AppointmentID = ? AND PaymentMethod = 'VNPay' AND Status = 'Completed' LIMIT 1`,
-                [appointmentId]
-            );
+            const existingPayment = completedPayments;
 
             if (existingPayment.length === 0) {
                 // 🔥 UPDATE 2: Ghi nhận Payment record
@@ -489,7 +490,7 @@ const vnpayReturn = async (req, res) => {
             // 🔥 UPDATE: Pending → Cancelled (giải phóng lịch)
             await pool.query(`
                 UPDATE Appointments 
-                SET PaymentStatus = 'Failed', Status = 'Cancelled', UpdatedAt = NOW()
+                SET Status = 'Cancelled', PaymentMethod = 'VNPay', UpdatedAt = NOW()
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
@@ -629,7 +630,7 @@ const momoIPN = async (req, res) => {
 
         // 🔥 CHECK appointment exists
         const [appointmentCheck] = await pool.query(
-            `SELECT AppointmentID, Status, PaymentStatus FROM Appointments WHERE AppointmentID = ?`,
+            `SELECT AppointmentID, Status, PaymentMethod FROM Appointments WHERE AppointmentID = ?`,
             [appointmentId]
         );
 
@@ -639,9 +640,13 @@ const momoIPN = async (req, res) => {
         }
 
         const appointment = appointmentCheck[0];
+        const [completedPayments] = await pool.query(
+            `SELECT PaymentID FROM Payments WHERE AppointmentID = ? AND PaymentMethod = 'MoMo' AND Status = 'Completed' LIMIT 1`,
+            [appointmentId]
+        );
 
         // 🔥 Nếu đã Confirmed, không cập nhật lại
-        if (appointment.Status === 'Confirmed' && appointment.PaymentStatus === 'Paid') {
+        if (appointment.Status === 'Confirmed' || completedPayments.length > 0) {
             console.log('⚠️  Appointment already confirmed:', appointmentId);
             return res.json({ message: "OK" });
         }
@@ -651,26 +656,28 @@ const momoIPN = async (req, res) => {
             // 🔥 UPDATE 1: Pending → Confirmed
             await pool.query(`
                 UPDATE Appointments 
-                SET PaymentStatus = 'Paid', Status = 'Confirmed', UpdatedAt = NOW()
+                SET Status = 'Confirmed', PaymentMethod = 'MoMo', UpdatedAt = NOW()
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
-            // 🔥 UPDATE 2: Ghi nhận Payment record
-            await pool.query(`
-                INSERT INTO Payments (UserID, AppointmentID, Amount, PaymentMethod, Status, TransactionID, PaymentDate)
-                SELECT 
-                    a.UserID,
-                    a.AppointmentID,
-                    COALESCE(? / 100, SUM(s.Price * aps.Quantity), 0),
-                    'MoMo',
-                    'Completed',
-                    ?,
-                    NOW()
-                FROM Appointments a
-                LEFT JOIN AppointmentServices aps ON a.AppointmentID = aps.AppointmentID
-                LEFT JOIN Services s ON aps.ServiceID = s.ServiceID
-                WHERE a.AppointmentID = ?
-            `, [amount, transId, appointmentId]);
+            if (completedPayments.length === 0) {
+                // 🔥 UPDATE 2: Ghi nhận Payment record
+                await pool.query(`
+                    INSERT INTO Payments (UserID, AppointmentID, Amount, PaymentMethod, Status, TransactionID, PaymentDate)
+                    SELECT 
+                        a.UserID,
+                        a.AppointmentID,
+                        COALESCE(? / 100, SUM(s.Price * aps.Quantity), 0),
+                        'MoMo',
+                        'Completed',
+                        ?,
+                        NOW()
+                    FROM Appointments a
+                    LEFT JOIN AppointmentServices aps ON a.AppointmentID = aps.AppointmentID
+                    LEFT JOIN Services s ON aps.ServiceID = s.ServiceID
+                    WHERE a.AppointmentID = ?
+                `, [amount, transId, appointmentId]);
+            }
 
             console.log('✅ MoMo payment successful:', appointmentId, 'Amount:', amount);
         } 
@@ -679,7 +686,7 @@ const momoIPN = async (req, res) => {
             // 🔥 UPDATE: Pending → Cancelled (giải phóng lịch)
             await pool.query(`
                 UPDATE Appointments 
-                SET PaymentStatus = 'Failed', Status = 'Cancelled', UpdatedAt = NOW()
+                SET Status = 'Cancelled', PaymentMethod = 'MoMo', UpdatedAt = NOW()
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
