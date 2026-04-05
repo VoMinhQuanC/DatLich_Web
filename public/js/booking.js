@@ -1718,23 +1718,26 @@ let selectedPaymentMethod = 'Thanh toán tại tiệm'; // Default value
  */
 function updateStep4Buttons() {
     const submitCashBtn = document.getElementById('submitBookingCash');
-    const goToPaymentBtn = document.getElementById('goToPaymentPage');
+    const goToBankTransferBtn = document.getElementById('goToBankTransferPage');
+    const payWithVNPayBtn = document.getElementById('payWithVNPay');
+    const payWithMomoBtn = document.getElementById('payWithMomo');
     
     console.log('🔄 Payment method:', selectedPaymentMethod);
 
     // Ẩn hết
     if (submitCashBtn) submitCashBtn.style.display = 'none';
-    if (goToPaymentBtn) goToPaymentBtn.style.display = 'none';
+    if (goToBankTransferBtn) goToBankTransferBtn.style.display = 'none';
+    if (payWithVNPayBtn) payWithVNPayBtn.style.display = 'none';
+    if (payWithMomoBtn) payWithMomoBtn.style.display = 'none';
 
     if (selectedPaymentMethod === 'Thanh toán tại tiệm') {
         submitCashBtn.style.display = 'inline-block';
-    } 
-    else if (
-        selectedPaymentMethod === 'Chuyển khoản ngân hàng' ||
-        selectedPaymentMethod === 'VNPay' ||
-        selectedPaymentMethod === 'MoMo'
-    ) {
-        goToPaymentBtn.style.display = 'inline-block';
+    } else if (selectedPaymentMethod === 'Chuyển khoản ngân hàng') {
+        goToBankTransferBtn.style.display = 'inline-block';
+    } else if (selectedPaymentMethod === 'VNPay') {
+        payWithVNPayBtn.style.display = 'inline-block';
+    } else if (selectedPaymentMethod === 'MoMo') {
+        payWithMomoBtn.style.display = 'inline-block';
     }
 }
 
@@ -1947,115 +1950,139 @@ if (submitBookingCashBtn) {
 
 // ...existing code...
 
-// NÚT 2: QUA TRANG THANH TOÁN - CHUYỂN KHOẢN
-const goToPaymentPageBtn = document.getElementById('goToPaymentPage');
-if (goToPaymentPageBtn) {
-    goToPaymentPageBtn.addEventListener('click', async function() {
-        const spinner = document.getElementById('submitSpinnerBank');
+async function createAppointmentAndGetToken(paymentMethod, triggerButton, spinnerId) {
+    const spinner = document.getElementById(spinnerId);
+    const token = localStorage.getItem('token');
 
+    if (!token) {
+        throw new Error('Vui lòng đăng nhập lại để tiếp tục thanh toán');
+    }
+
+    if (!selectedPaymentMethod || selectedPaymentMethod.trim() === '') {
+        throw new Error('Vui lòng chọn phương thức thanh toán');
+    }
+
+    triggerButton.disabled = true;
+    if (spinner) spinner.style.display = 'inline-block';
+
+    try {
+        const appointmentId = await createAppointmentOnly(paymentMethod);
+        if (!appointmentId) {
+            throw new Error('Không tạo được đơn');
+        }
+
+        return { token, appointmentId, spinner };
+    } catch (error) {
+        if (spinner) spinner.style.display = 'none';
+        triggerButton.disabled = false;
+        throw error;
+    }
+}
+
+const goToBankTransferBtn = document.getElementById('goToBankTransferPage');
+if (goToBankTransferBtn) {
+    goToBankTransferBtn.addEventListener('click', async function() {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Vui lòng đăng nhập lại để tiếp tục thanh toán');
-            }
+            const { appointmentId, spinner } = await createAppointmentAndGetToken(
+                'Chuyển khoản ngân hàng',
+                this,
+                'submitSpinnerBank'
+            );
 
-            if (!selectedPaymentMethod || selectedPaymentMethod.trim() === '') {
-                const radios = document.querySelectorAll('input[name="paymentMethod"]');
-                if (radios.length > 0 && radios[0].checked) {
-                    selectedPaymentMethod = radios[0].value;
-                } else {
-                    alert('Vui lòng chọn phương thức thanh toán');
-                    return;
-                }
-            }
-
-            this.disabled = true;
-            if (spinner) spinner.style.display = 'inline-block';
-    
-            const appointmentId = await createAppointmentOnly(selectedPaymentMethod);
-    
-            if (!appointmentId) throw new Error('Không tạo được đơn');
-    
-            // Tính tổng tiền
-            const totalAmount = bookingData.services.reduce((sum, service) => sum + service.price, 0);
-            
-            // ✅ CHUYỂN KHOẢN → sang trang QR
-            if (selectedPaymentMethod === 'Chuyển khoản ngân hàng') {
-                window.location.href = `/payment?appointmentId=${appointmentId}`;
-            }
-    
-            // ✅ VNPay → gọi API backend
-            else if (selectedPaymentMethod === 'VNPay') {
-                const vnpayData = {
-                    appointmentId: appointmentId,
-                    amount: totalAmount,
-                    description: `Thanh toán đặt lịch BK${appointmentId}`,
-                    returnUrl: `${window.location.origin}/booking-success`
-                };
-                
-                console.log('📤 VNPay request:', vnpayData);
-                
-                const res = await fetch(`${API_BASE_URL}/payment/vnpay`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(vnpayData)
-                });
-    
-                const data = await res.json();
-                console.log('📥 VNPay response:', data);
-                
-                if (data.success && data.paymentUrl) {
-                    if (spinner) spinner.style.display = 'none';
-                    window.location.href = data.paymentUrl;
-                } else {
-                    throw new Error(data.message || 'Lỗi VNPay');
-                }
-            }
-    
-            // ✅ MoMo → gọi API backend
-            else if (selectedPaymentMethod === 'MoMo') {
-                const momoData = {
-                    appointmentId: appointmentId,
-                    amount: totalAmount,
-                    description: `Thanh toán đặt lịch BK${appointmentId}`,
-                    returnUrl: `${window.location.origin}/booking-success`
-                };
-                
-                console.log('📤 MoMo request:', momoData);
-                
-                const res = await fetch(`${API_BASE_URL}/payment/momo`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(momoData)
-                });
-    
-                const data = await res.json();
-                console.log('📥 MoMo response:', data);
-                
-                const momoRedirectUrl = data.payUrl || data.qrCodeUrl || data.paymentUrl;
-
-                if (data.success && momoRedirectUrl) {
-                    if (spinner) spinner.style.display = 'none';
-                    window.location.href = momoRedirectUrl;
-                } else {
-                    throw new Error(data.message || 'Lỗi MoMo');
-                }
-            }
-    
+            if (spinner) spinner.style.display = 'none';
+            window.location.href = `/payment?appointmentId=${appointmentId}`;
         } catch (error) {
-            console.error('❌ Payment error:', error);
+            console.error('❌ Bank transfer error:', error);
             alert('Lỗi thanh toán: ' + error.message);
+        }
+    });
+}
+
+const payWithVNPayBtn = document.getElementById('payWithVNPay');
+if (payWithVNPayBtn) {
+    payWithVNPayBtn.addEventListener('click', async function() {
+        try {
+            const { token, appointmentId, spinner } = await createAppointmentAndGetToken(
+                'VNPay',
+                this,
+                'submitSpinnerVNPay'
+            );
+
+            const totalAmount = bookingData.services.reduce((sum, service) => sum + service.price, 0);
+            const res = await fetch(`${API_BASE_URL}/payment/vnpay`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    appointmentId,
+                    amount: totalAmount,
+                    description: `Thanh toán đặt lịch BK${appointmentId}`
+                })
+            });
+
+            const data = await res.json();
+            console.log('📥 VNPay response:', data);
+
+            if (!data.success || !data.paymentUrl) {
+                throw new Error(data.message || 'Lỗi VNPay');
+            }
+
+            if (spinner) spinner.style.display = 'none';
+            window.location.href = data.paymentUrl;
+        } catch (error) {
+            console.error('❌ VNPay error:', error);
+            alert('Lỗi thanh toán VNPay: ' + error.message);
+            const spinner = document.getElementById('submitSpinnerVNPay');
             if (spinner) spinner.style.display = 'none';
             this.disabled = false;
         }
     });
-    console.log('✅ goToPaymentPage event listener registered');
+}
+
+const payWithMomoBtn = document.getElementById('payWithMomo');
+if (payWithMomoBtn) {
+    payWithMomoBtn.addEventListener('click', async function() {
+        try {
+            const { token, appointmentId, spinner } = await createAppointmentAndGetToken(
+                'MoMo',
+                this,
+                'submitSpinnerMomo'
+            );
+
+            const totalAmount = bookingData.services.reduce((sum, service) => sum + service.price, 0);
+            const res = await fetch(`${API_BASE_URL}/payment/momo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    appointmentId,
+                    amount: totalAmount,
+                    description: `Thanh toán đặt lịch BK${appointmentId}`
+                })
+            });
+
+            const data = await res.json();
+            console.log('📥 MoMo response:', data);
+
+            const momoRedirectUrl = data.payUrl || data.qrCodeUrl || data.paymentUrl;
+            if (!data.success || !momoRedirectUrl) {
+                throw new Error(data.message || 'Lỗi MoMo');
+            }
+
+            if (spinner) spinner.style.display = 'none';
+            window.location.href = momoRedirectUrl;
+        } catch (error) {
+            console.error('❌ MoMo error:', error);
+            alert('Lỗi thanh toán MoMo: ' + error.message);
+            const spinner = document.getElementById('submitSpinnerMomo');
+            if (spinner) spinner.style.display = 'none';
+            this.disabled = false;
+        }
+    });
 }
 
 

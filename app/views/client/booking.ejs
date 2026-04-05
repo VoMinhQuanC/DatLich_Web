@@ -355,7 +355,7 @@
 <div class="step-content" id="stepContent5">
     <h4 class="mb-4">Chọn phương thức thanh toán</h4>
     <p class="text-muted mb-4">
-        Chọn cách thanh toán phù hợp. Thông tin QR và chuyển khoản chỉ hiển thị sau khi bạn bấm qua trang thanh toán.
+        Chọn đúng phương thức bạn muốn dùng. Chuyển khoản thường sẽ mở trang QR riêng, còn VNPay sẽ chuyển thẳng sang cổng thanh toán VNPay.
     </p>
     
     <div class="payment-method-grid">
@@ -379,10 +379,10 @@
             <label class="form-check-label" for="paymentMethodTransfer">
                 <span class="payment-method-title-line">
                     <i class="bi bi-qr-code-scan text-primary"></i>
-                    <span>Quét mã QR thanh toán</span>
+                    <span>Chuyển khoản thường</span>
                 </span>
                 <span class="payment-method-desc">
-                    Sau khi bấm qua trang thanh toán, hệ thống sẽ hiện mã QR và thông tin chuyển khoản.
+                    Mở trang QR nội bộ để quét mã, chuyển khoản thủ công và tải ảnh chứng từ.
                 </span>
             </label>
         </div>
@@ -426,20 +426,30 @@
             <i class="bi bi-arrow-left me-2"></i>Quay lại
         </button>
         
-        <!-- 2 Nút hiển thị theo Payment Method -->
+        <!-- Nút hiển thị theo Payment Method -->
         <div id="step5ActionButtons">
-            <!-- NÚT 1: THANH TOÁN TẠI TIỆM -->
             <button type="button" class="btn btn-danger btn-lg" id="submitBookingCash" style="display: none;">
                 <i class="bi bi-check-circle me-2"></i>
                 Hoàn tất đặt lịch
                 <span class="spinner-border spinner-border-sm ms-2" id="submitSpinnerCash" style="display: none;"></span>
             </button>
             
-            <!-- NÚT 2: QUA TRANG THANH TOÁN (CHUYỂN KHOẢN) -->
-            <button type="button" class="btn btn-primary btn-lg" id="goToPaymentPage" style="display: none;">
-                <i class="bi bi-credit-card me-2"></i>
-                Qua trang thanh toán
+            <button type="button" class="btn btn-primary btn-lg" id="goToBankTransferPage" style="display: none;">
+                <i class="bi bi-qr-code-scan me-2"></i>
+                Mở trang chuyển khoản
                 <span class="spinner-border spinner-border-sm ms-2" id="submitSpinnerBank" style="display: none;"></span>
+            </button>
+
+            <button type="button" class="btn btn-primary btn-lg" id="payWithVNPay" style="display: none;">
+                <i class="bi bi-credit-card me-2"></i>
+                Thanh toán qua VNPay
+                <span class="spinner-border spinner-border-sm ms-2" id="submitSpinnerVNPay" style="display: none;"></span>
+            </button>
+
+            <button type="button" class="btn btn-danger btn-lg" id="payWithMomo" style="display: none;">
+                <i class="bi bi-wallet2 me-2"></i>
+                Thanh toán qua MoMo
+                <span class="spinner-border spinner-border-sm ms-2" id="submitSpinnerMomo" style="display: none;"></span>
             </button>
         </div>
     </div>

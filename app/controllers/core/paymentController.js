@@ -4,6 +4,53 @@ const axios = require('axios');
 const qs = require('qs');
 const crypto = require('crypto');
 
+const normalizeBaseUrl = (url, fallback = 'http://localhost:3001') => {
+    const base = (url || fallback).trim().replace(/\/+$/, '');
+    return base || fallback;
+};
+
+const getFrontendBaseUrl = () => normalizeBaseUrl(
+    process.env.FRONTEND_BASE_URL,
+    process.env.RAILWAY_STATIC_URL
+        ? `https://${process.env.RAILWAY_STATIC_URL}`
+        : (process.env.RAILWAY_PUBLIC_DOMAIN
+            ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+            : `http://localhost:${process.env.PORT || 3001}`)
+);
+
+const getBackendBaseUrl = () => normalizeBaseUrl(
+    process.env.BACKEND_BASE_URL,
+    getFrontendBaseUrl()
+);
+
+const sortObject = (input) => Object.keys(input)
+    .sort()
+    .reduce((result, key) => {
+        result[key] = input[key];
+        return result;
+    }, {});
+
+const getClientIp = (req) => {
+    const forwardedFor = req.headers['x-forwarded-for'];
+    if (typeof forwardedFor === 'string' && forwardedFor.trim()) {
+        return forwardedFor.split(',')[0].trim();
+    }
+
+    return req.ip || req.connection?.remoteAddress || '127.0.0.1';
+};
+
+const buildPaymentResultUrl = (status, appointmentId, extraParams = {}) => {
+    const frontendBaseUrl = getFrontendBaseUrl();
+    const query = new URLSearchParams({
+        status,
+        gateway: 'vnpay',
+        appointmentId: String(appointmentId || ''),
+        ...extraParams
+    });
+
+    return `${frontendBaseUrl}/payment-result?${query.toString()}`;
+};
+
 
 // Helper: Lấy tên ngân hàng từ mã BIN
 const getBankName = (bankId) => {
@@ -95,6 +142,11 @@ const generatePaymentQR = async (req, res) => {
 const createVNPayPayment = async (req, res) => {
     try {
         const { appointmentId } = req.body;
+        const numericAppointmentId = Number.parseInt(appointmentId, 10);
+
+        if (!numericAppointmentId) {
+            return res.status(400).json({ success: false, message: 'Mã lịch hẹn không hợp lệ' });
+        }
 
         // 🔥 LẤY AMOUNT TỪ DATABASE
         const [services] = await pool.query(`
@@ -102,7 +154,7 @@ const createVNPayPayment = async (req, res) => {
             FROM AppointmentServices aps 
             JOIN Services s ON aps.ServiceID = s.ServiceID
             WHERE aps.AppointmentID = ?
-        `, [appointmentId]);
+        `, [numericAppointmentId]);
 
         const amount = services[0]?.TotalAmount || 0;
         
@@ -112,38 +164,52 @@ const createVNPayPayment = async (req, res) => {
 
         const vnp_TmnCode = process.env.VNP_TMN_CODE;
         const vnp_HashSecret = process.env.VNP_HASH_SECRET;
+        const vnp_Url = process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+        const vnp_ReturnUrl = `${getBackendBaseUrl()}/api/payment/vnpay-return`;
 
-        const vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        const vnp_ReturnUrl = "http://localhost:3001/api/payment/vnpay-return";
+        if (!vnp_TmnCode || !vnp_HashSecret) {
+            return res.status(500).json({ success: false, message: 'Thiếu cấu hình VNPay trên server' });
+        }
 
         const date = new Date();
-        const createDate = date.toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+        const expireDate = new Date(date.getTime() + 15 * 60 * 1000);
+        const formatVnpDate = (inputDate) => {
+            const year = inputDate.getFullYear();
+            const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+            const day = String(inputDate.getDate()).padStart(2, '0');
+            const hours = String(inputDate.getHours()).padStart(2, '0');
+            const minutes = String(inputDate.getMinutes()).padStart(2, '0');
+            const seconds = String(inputDate.getSeconds()).padStart(2, '0');
+            return `${year}${month}${day}${hours}${minutes}${seconds}`;
+        };
 
-        const orderId = appointmentId;
-        const orderInfo = `Thanh toan don ${appointmentId}`;
+        const orderId = `${numericAppointmentId}_${Date.now()}`;
+        const orderInfo = `Thanh toan don ${numericAppointmentId}`;
 
-        const vnp_Params = {
-            vnp_Version: "2.1.0",
-            vnp_Command: "pay",
+        const vnp_Params = sortObject({
+            vnp_Version: '2.1.0',
+            vnp_Command: 'pay',
             vnp_TmnCode,
             vnp_Amount: amount * 100,
-            vnp_CurrCode: "VND",
+            vnp_CurrCode: 'VND',
             vnp_TxnRef: orderId,
             vnp_OrderInfo: orderInfo,
-            vnp_OrderType: "billpayment",
-            vnp_Locale: "vn",
+            vnp_OrderType: 'billpayment',
+            vnp_Locale: 'vn',
             vnp_ReturnUrl,
-            vnp_CreateDate: createDate,
-            vnp_IpAddr: "127.0.0.1"
-        };
+            vnp_CreateDate: formatVnpDate(date),
+            vnp_ExpireDate: formatVnpDate(expireDate),
+            vnp_IpAddr: getClientIp(req)
+        });
 
         const sortedParams = qs.stringify(vnp_Params, { encode: false });
 
-        const signData = crypto.createHmac("sha512", vnp_HashSecret)
+        const signData = crypto.createHmac('sha512', vnp_HashSecret)
             .update(Buffer.from(sortedParams, 'utf-8'))
-            .digest("hex");
+            .digest('hex');
 
         vnp_Params['vnp_SecureHash'] = signData;
+        vnp_Params['vnp_SecureHashType'] = 'SHA512';
 
         const paymentUrl = vnp_Url + '?' + qs.stringify(vnp_Params, { encode: false });
 
@@ -155,15 +221,33 @@ const createVNPayPayment = async (req, res) => {
 };
 
 const vnpayReturn = async (req, res) => {
-    const appointmentId = req.query.vnp_TxnRef;
+    const vnpParams = { ...req.query };
+    const secureHash = vnpParams.vnp_SecureHash;
+    delete vnpParams.vnp_SecureHash;
+    delete vnpParams.vnp_SecureHashType;
+
+    const sortedParams = sortObject(vnpParams);
+    const signData = qs.stringify(sortedParams, { encode: false });
+    const expectedHash = crypto
+        .createHmac('sha512', process.env.VNP_HASH_SECRET || '')
+        .update(Buffer.from(signData, 'utf-8'))
+        .digest('hex');
+
+    const txnRef = req.query.vnp_TxnRef || '';
+    const appointmentId = Number.parseInt(String(txnRef).split('_')[0], 10);
     const code = req.query.vnp_ResponseCode;
     const amount = req.query.vnp_Amount;
 
     try {
+        if (!secureHash || !process.env.VNP_HASH_SECRET || secureHash !== expectedHash) {
+            console.error('❌ Invalid VNPay secure hash for txn:', txnRef);
+            return res.redirect(buildPaymentResultUrl('failed', appointmentId || '', { error: 'invalid_signature' }));
+        }
+
         // 🔥 VALIDATE appointmentId
-        if (!appointmentId || isNaN(appointmentId)) {
-            console.error('❌ Invalid appointmentId:', appointmentId);
-            return res.redirect("http://localhost:3001/payment-fail?error=invalid_appointment");
+        if (!appointmentId || Number.isNaN(appointmentId)) {
+            console.error('❌ Invalid appointmentId:', txnRef);
+            return res.redirect(buildPaymentResultUrl('failed', '', { error: 'invalid_appointment' }));
         }
 
         // 🔥 CHECK appointment exists
@@ -174,7 +258,7 @@ const vnpayReturn = async (req, res) => {
 
         if (appointmentCheck.length === 0) {
             console.error('❌ Appointment not found:', appointmentId);
-            return res.redirect("http://localhost:3001/payment-fail?error=not_found");
+            return res.redirect(buildPaymentResultUrl('failed', appointmentId, { error: 'not_found' }));
         }
 
         const appointment = appointmentCheck[0];
@@ -182,11 +266,11 @@ const vnpayReturn = async (req, res) => {
         // 🔥 Nếu đã Confirmed, không cập nhật lại
         if (appointment.Status === 'Confirmed' && appointment.PaymentStatus === 'Paid') {
             console.log('⚠️  Appointment already confirmed:', appointmentId);
-            return res.redirect("http://localhost:3001/payment-success");
+            return res.redirect(buildPaymentResultUrl('success', appointmentId));
         }
 
         // ✅ Thanh toán thành công (code = "00")
-        if (code === "00") {
+        if (code === '00') {
             // 🔥 UPDATE 1: Pending → Confirmed
             await pool.query(`
                 UPDATE Appointments 
@@ -194,24 +278,31 @@ const vnpayReturn = async (req, res) => {
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
-            // 🔥 UPDATE 2: Ghi nhận Payment record
-            await pool.query(`
-                INSERT INTO Payments (UserID, AppointmentID, Amount, PaymentMethod, Status, PaymentDate)
-                SELECT 
-                    a.UserID,
-                    a.AppointmentID,
-                    COALESCE(? / 100, SUM(s.Price * aps.Quantity), 0),
-                    'VNPay',
-                    'Completed',
-                    NOW()
-                FROM Appointments a
-                LEFT JOIN AppointmentServices aps ON a.AppointmentID = aps.AppointmentID
-                LEFT JOIN Services s ON aps.ServiceID = s.ServiceID
-                WHERE a.AppointmentID = ?
-            `, [amount, appointmentId]);
+            const [existingPayment] = await pool.query(
+                `SELECT PaymentID FROM Payments WHERE AppointmentID = ? AND PaymentMethod = 'VNPay' AND Status = 'Completed' LIMIT 1`,
+                [appointmentId]
+            );
+
+            if (existingPayment.length === 0) {
+                // 🔥 UPDATE 2: Ghi nhận Payment record
+                await pool.query(`
+                    INSERT INTO Payments (UserID, AppointmentID, Amount, PaymentMethod, Status, PaymentDate)
+                    SELECT 
+                        a.UserID,
+                        a.AppointmentID,
+                        COALESCE(? / 100, SUM(s.Price * aps.Quantity), 0),
+                        'VNPay',
+                        'Completed',
+                        NOW()
+                    FROM Appointments a
+                    LEFT JOIN AppointmentServices aps ON a.AppointmentID = aps.AppointmentID
+                    LEFT JOIN Services s ON aps.ServiceID = s.ServiceID
+                    WHERE a.AppointmentID = ?
+                `, [amount, appointmentId]);
+            }
 
             console.log('✅ VNPay payment successful:', appointmentId, 'Amount:', amount);
-            return res.redirect("http://localhost:3001/payment-success");
+            return res.redirect(buildPaymentResultUrl('success', appointmentId));
 
         } 
         // ❌ Thanh toán thất bại
@@ -224,12 +315,12 @@ const vnpayReturn = async (req, res) => {
             `, [appointmentId]);
 
             console.log('❌ VNPay payment failed:', appointmentId, 'Code:', code);
-            return res.redirect("http://localhost:3001/payment-fail");
+            return res.redirect(buildPaymentResultUrl('failed', appointmentId, { error: code || 'unknown' }));
         }
 
     } catch (error) {
         console.error('❌ Error processing VNPay return:', error);
-        return res.redirect("http://localhost:3001/payment-fail");
+        return res.redirect(buildPaymentResultUrl('failed', appointmentId || '', { error: 'server_error' }));
     }
 };
 

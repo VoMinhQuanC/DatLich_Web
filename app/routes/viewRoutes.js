@@ -44,6 +44,10 @@ router.get('/payment', (req, res) => {
     res.render('client/payment');
 });
 
+router.get('/payment-result', (req, res) => {
+    res.render('client/payment-result');
+});
+
 router.get('/notification', (req, res) => {
     res.render('client/notification');
 });
