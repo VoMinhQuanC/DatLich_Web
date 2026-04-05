@@ -1,7 +1,7 @@
 // File: app/controllers/mechanic/mechanicController.js
 const { pool } = require('../../../config/db');
 const nodemailer = require('nodemailer');
-const { parseVietnamTime, parseVietnamDate } = require('../../utils/timeUtils');
+const { getCurrentVietnamDate } = require('../../utils/timeUtils');
 
 // Cấu hình nodemailer
 const transporter = nodemailer.createTransport({
@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 const getDashboardStats = async (req, res) => {
     try {
         const mechanicId = req.user.userId;
-        const today = new Date().toISOString().split('T')[0];
+        const today = getCurrentVietnamDate();
         
         const [todayAppointments] = await pool.query('SELECT COUNT(*) as count FROM Appointments WHERE MechanicID = ? AND DATE(AppointmentDate) = ? AND IsDeleted = 0', [mechanicId, today]);
         const [pendingAppointments] = await pool.query('SELECT COUNT(*) as count FROM Appointments WHERE MechanicID = ? AND Status IN ("Pending", "Confirmed") AND IsDeleted = 0', [mechanicId]);

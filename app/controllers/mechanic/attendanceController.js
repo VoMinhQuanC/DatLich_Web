@@ -2,17 +2,19 @@
 const { pool } = require('../../../config/db');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
+const { getCurrentVietnamDate } = require('../../utils/timeUtils');
 
 // --- CÁC HÀM HELPER NỘI BỘ ---
 
 const findTodaySchedule = async (mechanicId, date) => {
     try {
-        const dayOfWeek = new Date(date).getDay();
         const [schedules] = await pool.query(
-            `SELECT * FROM Schedules WHERE MechanicID = ? AND DayOfWeek = ? 
-             AND ((StartDate <= ? AND EndDate >= ?) OR (StartDate <= ? AND EndDate IS NULL))
-             ORDER BY CreatedAt DESC LIMIT 1`,
-            [mechanicId, dayOfWeek, date, date, date]
+            `SELECT * FROM StaffSchedule
+             WHERE MechanicID = ? AND WorkDate = ?
+             AND (Status IS NULL OR Status NOT IN ('ApprovedLeave', 'PendingLeave'))
+             AND (Type IS NULL OR Type != 'unavailable')
+             ORDER BY StartTime ASC LIMIT 1`,
+            [mechanicId, date]
         );
         return schedules.length > 0 ? schedules[0] : null;
     } catch (err) { return null; }
@@ -64,7 +66,7 @@ const checkIn = async (req, res) => {
         const [qrRows] = await pool.query('SELECT * FROM AttendanceQRCodes WHERE QRToken = ? AND ExpiresAt > NOW() AND IsUsed = FALSE', [qrToken]);
         if (qrRows.length === 0) return res.status(400).json({ success: false, message: 'Mã QR không hợp lệ hoặc đã hết hạn' });
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = getCurrentVietnamDate();
         const [existing] = await pool.query('SELECT * FROM Attendance WHERE MechanicID = ? AND AttendanceDate = ?', [mechanicId, today]);
         if (existing.length > 0 && existing[0].CheckInTime) return res.status(400).json({ success: false, message: 'Đã chấm công vào rồi' });
 
@@ -107,7 +109,7 @@ const checkOut = async (req, res) => {
     try {
         const mechanicId = req.user.userId;
         const { qrToken, latitude, longitude, address } = req.body;
-        const today = new Date().toISOString().split('T')[0];
+        const today = getCurrentVietnamDate();
 
         const [qrRows] = await pool.query('SELECT * FROM AttendanceQRCodes WHERE QRToken = ? AND ExpiresAt > NOW() AND IsUsed = FALSE', [qrToken]);
         if (qrRows.length === 0) return res.status(400).json({ success: false, message: 'Mã QR không hợp lệ hoặc đã hết hạn' });
@@ -157,7 +159,7 @@ const getAttendanceHistory = async (req, res) => {
 const adminGetAttendance = async (req, res) => {
     try {
         if (req.user.role !== 1) return res.status(403).json({ success: false, message: 'Chỉ Admin' });
-        const date = req.query.date || new Date().toISOString().split('T')[0];
+        const date = req.query.date || getCurrentVietnamDate();
         const [rows] = await pool.query(`SELECT a.*, u.FullName FROM Attendance a JOIN Users u ON a.MechanicID = u.UserID WHERE a.AttendanceDate = ?`, [date]);
         res.json({ success: true, attendance: rows, date });
     } catch (err) {

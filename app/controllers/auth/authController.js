@@ -7,6 +7,11 @@ const { pool } = require('../../../config/db');
 const JWT_SECRET = process.env.JWT_SECRET || 'sua_xe_secret_key';
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "admin123456"; 
 
+const normalizeRoleId = (role, fallback = 2) => {
+    const parsedRole = Number(role);
+    return Number.isInteger(parsedRole) ? parsedRole : fallback;
+};
+
 // 1. Hàm Đăng ký
 const register = async (req, res) => {
     try {
@@ -22,8 +27,9 @@ const register = async (req, res) => {
         }
 
         let userRole = 2; // Mặc định khách hàng
+        const requestedRole = normalizeRoleId(role, 2);
         
-        if (role === 1) {
+        if (requestedRole === 1) {
             if (!adminKey || adminKey !== ADMIN_SECRET_KEY) {
                 return res.status(403).json({ success: false, message: 'Mã xác thực Admin không hợp lệ' });
             }

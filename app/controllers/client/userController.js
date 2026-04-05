@@ -2,6 +2,11 @@
 const bcrypt = require('bcrypt');
 const { pool } = require('../../../config/db');
 
+const normalizeRoleId = (role, fallback = null) => {
+    const parsedRole = Number(role);
+    return Number.isInteger(parsedRole) ? parsedRole : fallback;
+};
+
 // Middleware kiểm tra quyền admin
 const checkAdminAccess = (req, res, next) => {
     if (req.user.role !== 1) {
@@ -99,8 +104,9 @@ const createUser = async (req, res) => {
     try {
         await connection.beginTransaction();
         const { fullName, email, phone, password, role, status, adminKey } = req.body;
+        const normalizedRole = normalizeRoleId(role);
         
-        if (!fullName || !email || !phone || !password || !role) {
+        if (!fullName || !email || !phone || !password || normalizedRole === null) {
             return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ thông tin' });
         }
         
@@ -108,7 +114,7 @@ const createUser = async (req, res) => {
         if (existingUsers.length > 0) return res.status(400).json({ success: false, message: 'Email đã được sử dụng' });
         
         const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "admin123456";
-        if (role === 1 && (!adminKey || adminKey !== ADMIN_SECRET_KEY)) {
+        if (normalizedRole === 1 && (!adminKey || adminKey !== ADMIN_SECRET_KEY)) {
             return res.status(403).json({ success: false, message: 'Mã xác thực Admin không hợp lệ' });
         }
         
@@ -117,11 +123,11 @@ const createUser = async (req, res) => {
         
         const [result] = await connection.query(
             'INSERT INTO Users (FullName, Email, PhoneNumber, PasswordHash, RoleID, Status) VALUES (?, ?, ?, ?, ?, ?)',
-            [fullName, email, phone, hashedPassword, role, status || 1]
+            [fullName, email, phone, hashedPassword, normalizedRole, status || 1]
         );
         
         const userId = result.insertId;
-        if (role === 3) {
+        if (normalizedRole === 3) {
             await connection.query('INSERT INTO MechanicInfo (UserID, MechanicName) VALUES (?, ?)', [userId, fullName]);
         }
         
@@ -146,6 +152,8 @@ const updateUser = async (req, res) => {
         
         const [existingUser] = await connection.query('SELECT * FROM Users WHERE UserID = ?', [userId]);
         if (existingUser.length === 0) return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        const normalizedRole = normalizeRoleId(role, existingUser[0].RoleID);
+        if (normalizedRole === null) return res.status(400).json({ success: false, message: 'Role không hợp lệ' });
         
         if (email !== existingUser[0].Email) {
             const [emailCheck] = await connection.query('SELECT * FROM Users WHERE Email = ? AND UserID != ?', [email, userId]);
@@ -154,7 +162,7 @@ const updateUser = async (req, res) => {
         
         await connection.query(
             'UPDATE Users SET FullName = ?, Email = ?, PhoneNumber = ?, RoleID = ?, Status = ? WHERE UserID = ?',
-            [fullName, email, phone, role, status || existingUser[0].Status, userId]
+            [fullName, email, phone, normalizedRole, status || existingUser[0].Status, userId]
         );
         
         if (password) {
@@ -163,13 +171,15 @@ const updateUser = async (req, res) => {
             await connection.query('UPDATE Users SET PasswordHash = ? WHERE UserID = ?', [hashedPassword, userId]);
         }
         
-        if (role === 3) {
+        if (normalizedRole === 3) {
             const [mechanicInfoCheck] = await connection.query('SELECT * FROM MechanicInfo WHERE UserID = ?', [userId]);
             if (mechanicInfoCheck.length > 0) {
                 await connection.query('UPDATE MechanicInfo SET MechanicName = ? WHERE UserID = ?', [fullName, userId]);
             } else {
                 await connection.query('INSERT INTO MechanicInfo (UserID, MechanicName) VALUES (?, ?)', [userId, fullName]);
             }
+        } else if (existingUser[0].RoleID === 3) {
+            await connection.query('DELETE FROM MechanicInfo WHERE UserID = ?', [userId]);
         }
         
         await connection.commit();
