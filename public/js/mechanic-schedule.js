@@ -27,7 +27,8 @@ function formatCardNotes(notes) {
         }
 
         if (isLeaveRequest) {
-            const leaveDate = data.newWorkDate ? new Date(data.newWorkDate).toLocaleDateString('vi-VN') : '';
+            const leaveDateSource = data.newWorkDate || data.originalWorkDate || data.workDate || data.WorkDate;
+            const leaveDate = leaveDateSource ? new Date(leaveDateSource).toLocaleDateString('vi-VN') : '';
             if (data.approved) {
                 return `<span class="text-warning">📅 Đã duyệt nghỉ</span>${leaveDate ? ` ${leaveDate}` : ''}${data.reason ? ` - ${data.reason}` : ''}`;
             }
@@ -368,7 +369,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (isLeaveRequest) {
-                const leaveDate = data.newWorkDate ? new Date(data.newWorkDate).toLocaleDateString('vi-VN') : '--/--/----';
+                const leaveDateSource = data.newWorkDate || data.originalWorkDate || data.workDate || data.WorkDate;
+                const leaveDate = leaveDateSource ? new Date(leaveDateSource).toLocaleDateString('vi-VN') : '--/--/----';
                 const status = data.approved ? '✅ Đã duyệt nghỉ' : (data.rejected ? '❌ Từ chối nghỉ' : '⏳ Chờ duyệt nghỉ');
 
                 return `
