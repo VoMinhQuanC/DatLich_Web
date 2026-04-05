@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const mechanicController = require('../../controllers/mechanic/mechanicController');
+const scheduleController = require('../../controllers/mechanic/scheduleController');
 const { authenticateToken } = require('../auth/authRoutes');
 
 // Middleware check quyền
@@ -26,6 +27,8 @@ router.get('/appointments/upcoming', authenticateToken, checkMechanicAccess, mec
 router.get('/appointments/:id', authenticateToken, checkMechanicAccess, mechanicController.getAppointmentDetail);
 router.get('/notifications', authenticateToken, checkMechanicAccess, mechanicController.getNotifications);
 router.put('/notifications/:id/read', authenticateToken, checkMechanicAccess, mechanicController.markNotificationRead);
+router.get('/leave-requests', authenticateToken, checkAdminAccess, scheduleController.getLeaveRequests);
+router.get('/leave-requests/stats', authenticateToken, checkAdminAccess, scheduleController.getLeaveRequestStats);
 
 // Lịch nhóm (Calendar)
 router.get('/schedules/team/by-date-range/:startDate/:endDate', authenticateToken, checkMechanicAccess, mechanicController.getTeamSchedules);

@@ -30,6 +30,8 @@ router.get('/all', checkMechanicAccess, (req, res) => {
 });
 router.get('/available-slots', scheduleController.getAvailableSlots);
 router.get('/count-by-date', checkMechanicAccess, scheduleController.getMechanicCountByDate);
+router.get('/leave-requests', checkAdminAccess, scheduleController.getLeaveRequests);
+router.get('/leave-requests/stats', checkAdminAccess, scheduleController.getLeaveRequestStats);
 router.get('/check-can-edit/:id', checkMechanicAccess, scheduleController.getCanEditStatus);
 router.get('/mechanics/list', checkMechanicAccess, scheduleController.getMechanicsList);
 router.get('/by-date-range/:startDate/:endDate', checkMechanicAccess, scheduleController.getSchedulesByRange);
@@ -42,6 +44,8 @@ router.get('/', checkMechanicAccess, (req, res) => {
 router.post('/check-overlap', checkMechanicAccess, scheduleController.checkOverlap);
 router.post('/:id/request-edit', checkMechanicAccess, scheduleController.requestEdit);
 router.post('/', checkMechanicAccess, scheduleController.createSchedule);
+router.put('/:id/approve', checkAdminAccess, scheduleController.approveScheduleRequest);
+router.put('/:id/reject', checkAdminAccess, scheduleController.rejectScheduleRequest);
 router.put('/:id', checkMechanicAccess, scheduleController.updateSchedule);
 router.delete('/:id', checkAdminAccess, scheduleController.deleteSchedule);
 

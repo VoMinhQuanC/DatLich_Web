@@ -1206,24 +1206,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    // ✅ DEBUG: Check response structure
-                    console.log('🔥 RAW RESPONSE:', JSON.stringify(data, null, 2));
-                    console.log('🔥 data.leaveRequests exists?', !!data.leaveRequests);
-                    console.log('🔥 data.pending exists?', !!data.pending);
-                    
-                    leaveRequests = data.leaveRequests;
-                    
-                    // Debug: Log data để kiểm tra
-                    console.log('Leave Requests Data:', leaveRequests);
-                    console.log('Approved count:', leaveRequests.approved?.length || 0);
-                    console.log('Approved data:', leaveRequests.approved);
-                    
-                    // ✅ DEBUG LOGS
-                    console.log('🔍 DEBUG - Pending:', leaveRequests.pending);
-                    console.log('🔍 DEBUG - Approved:', leaveRequests.approved);
-                    console.log('🔍 DEBUG - First pending:', leaveRequests.pending?.[0]);
-                    console.log('🔍 DEBUG - First approved:', leaveRequests.approved?.[0]);
-                    
+                    const groupedRequests = data.leaveRequests || data.data || {};
+                    leaveRequests = {
+                        pending: Array.isArray(groupedRequests.pending) ? groupedRequests.pending : [],
+                        approved: Array.isArray(groupedRequests.approved) ? groupedRequests.approved : [],
+                        rejected: Array.isArray(groupedRequests.rejected) ? groupedRequests.rejected : []
+                    };
                     
                     // Đếm số đơn theo loại trong pending
                     const editPending = leaveRequests.pending.filter(r => isEditRequest(r)).length;
@@ -1337,6 +1325,31 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         });
     }
+
+    function parseRequestMeta(req) {
+        const notesData = (() => {
+            try {
+                return req?.Notes ? JSON.parse(req.Notes) : null;
+            } catch (error) {
+                return null;
+            }
+        })();
+
+        const editInfo = req?.EditRequest || notesData?.editRequest || (notesData?.type === 'edit' ? notesData : null);
+        const rejectReason = req?.RejectedReason || notesData?.rejectedReason || '';
+
+        return {
+            notesData,
+            editInfo,
+            rejectReason
+        };
+    }
+
+    function renderRequestTypeBadge(isEditReq) {
+        return isEditReq
+            ? '<span class="badge bg-info me-1"><i class="bi bi-pencil-square"></i> Xin sửa</span>'
+            : '<span class="badge bg-warning text-dark me-1"><i class="bi bi-calendar-x"></i> Xin nghỉ</span>';
+    }
     
     /**
      * Render bảng đơn chờ duyệt (cả xin nghỉ và xin sửa)
@@ -1352,7 +1365,7 @@ document.addEventListener('DOMContentLoaded', function() {
                              requestTypeFilter === 'leave' ? 'xin nghỉ' : '';
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
+                    <td colspan="7" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                         Không có đơn ${filterMsg} nào đang chờ duyệt
                     </td>
@@ -1370,39 +1383,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Xác định loại đơn
             const isEditReq = isEditRequest(req);
-            
-            // Parse thông tin xin sửa nếu có
-            let editInfo = null;
+            const { editInfo } = parseRequestMeta(req);
             const notesDisplay = parseRequestReason(req.Notes);
-            
-            if (isEditReq && req.Notes) {
-                try {
-                    const notesData = JSON.parse(req.Notes);
-                    if (notesData.editRequest) {
-                        editInfo = notesData.editRequest;
-                    }
-                } catch (e) {
-                    // Notes không phải JSON, giữ nguyên
-                }
-            }
-            
-            // Badge loại đơn
-            const typeBadge = isEditReq 
-                ? '<span class="badge bg-info me-1"><i class="bi bi-pencil-square"></i> Xin sửa</span>'
-                : '<span class="badge bg-warning text-dark me-1"><i class="bi bi-calendar-x"></i> Xin nghỉ</span>';
-            
-            // Hiển thị thông tin sửa nếu có
-            let editInfoHtml = '';
-            if (editInfo) {
-                const newDate = new Date(editInfo.newWorkDate).toLocaleDateString('vi-VN');
-                editInfoHtml = `
-                    <div class="mt-1 small">
-                        <span class="text-muted">Đổi sang:</span>
-                        <span class="badge bg-info">${newDate}</span>
-                        <span class="text-muted">${editInfo.newStartTime} - ${editInfo.newEndTime}</span>
-                    </div>
-                `;
-            }
+            const typeBadge = renderRequestTypeBadge(isEditReq);
+            const currentShift = `${startTime} - ${endTime}`;
+            const requestedShift = editInfo
+                ? `${new Date(editInfo.newWorkDate).toLocaleDateString('vi-VN')} | ${editInfo.newStartTime} - ${editInfo.newEndTime}`
+                : '<span class="text-muted">Nghỉ ca hiện tại</span>';
             
             html += `
                 <tr>
@@ -1417,10 +1404,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>
                         ${typeBadge}
-                        <span class="badge bg-light text-dark">${workDate}</span>
-                        ${editInfoHtml}
+                        <div class="small text-muted mt-1">${workDate}</div>
                     </td>
-                    <td>${startTime} - ${endTime}</td>
+                    <td><strong>${currentShift}</strong></td>
+                    <td>${requestedShift}</td>
                     <td>
                         <span class="text-truncate d-inline-block" style="max-width: 200px;" title="${notesDisplay}">
                             ${notesDisplay}
@@ -1456,7 +1443,7 @@ document.addEventListener('DOMContentLoaded', function() {
                              requestTypeFilter === 'leave' ? 'xin nghỉ' : '';
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
+                    <td colspan="7" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                         Không có đơn ${filterMsg} nào đã được duyệt
                     </td>
@@ -1475,11 +1462,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Xác định loại đơn
             const isEditReq = isEditRequest(req);
             const notesDisplay = parseRequestReason(req.Notes);
-            
-            // Badge loại đơn
-            const typeBadge = isEditReq 
-                ? '<span class="badge bg-info me-1"><i class="bi bi-pencil-square"></i> Xin sửa</span>'
-                : '<span class="badge bg-warning text-dark me-1"><i class="bi bi-calendar-x"></i> Xin nghỉ</span>';
+            const { editInfo } = parseRequestMeta(req);
+            const typeBadge = renderRequestTypeBadge(isEditReq);
+            const currentShift = `${startTime} - ${endTime}`;
+            const requestedShift = editInfo
+                ? `${new Date(editInfo.newWorkDate).toLocaleDateString('vi-VN')} | ${editInfo.newStartTime} - ${editInfo.newEndTime}`
+                : '<span class="text-muted">Nghỉ ca hiện tại</span>';
             
             html += `
                 <tr>
@@ -1494,9 +1482,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>
                         ${typeBadge}
-                        <span class="badge bg-success">${workDate}</span>
+                        <div class="small text-muted mt-1">${workDate}</div>
                     </td>
-                    <td>${startTime} - ${endTime}</td>
+                    <td><strong>${currentShift}</strong></td>
+                    <td>${requestedShift}</td>
                     <td>
                         <span class="text-truncate d-inline-block" style="max-width: 200px;" title="${notesDisplay}">
                             ${notesDisplay}
@@ -1524,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', function() {
                              requestTypeFilter === 'leave' ? 'xin nghỉ' : '';
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
+                    <td colspan="8" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                         Không có đơn ${filterMsg} nào bị từ chối
                     </td>
@@ -1543,11 +1532,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Xác định loại đơn
             const isEditReq = isEditRequest(req);
             const notesDisplay = parseRequestReason(req.Notes);
-            
-            // Badge loại đơn
-            const typeBadge = isEditReq 
-                ? '<span class="badge bg-info me-1"><i class="bi bi-pencil-square"></i> Xin sửa</span>'
-                : '<span class="badge bg-warning text-dark me-1"><i class="bi bi-calendar-x"></i> Xin nghỉ</span>';
+            const { editInfo, rejectReason } = parseRequestMeta(req);
+            const typeBadge = renderRequestTypeBadge(isEditReq);
+            const currentShift = `${startTime} - ${endTime}`;
+            const requestedShift = editInfo
+                ? `${new Date(editInfo.newWorkDate).toLocaleDateString('vi-VN')} | ${editInfo.newStartTime} - ${editInfo.newEndTime}`
+                : '<span class="text-muted">Nghỉ ca hiện tại</span>';
             
             html += `
                 <tr>
@@ -1562,14 +1552,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>
                         ${typeBadge}
-                        <span class="badge bg-danger">${workDate}</span>
+                        <div class="small text-muted mt-1">${workDate}</div>
                     </td>
-                    <td>${startTime} - ${endTime}</td>
+                    <td><strong>${currentShift}</strong></td>
+                    <td>${requestedShift}</td>
                     <td>
                         <span class="text-truncate d-inline-block" style="max-width: 200px;" title="${notesDisplay}">
                             ${notesDisplay}
                         </span>
                     </td>
+                    <td>${rejectReason || '<span class="text-muted">Không có</span>'}</td>
                     <td>${updatedAt}</td>
                 </tr>
             `;

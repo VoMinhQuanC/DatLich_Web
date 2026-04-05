@@ -5,6 +5,20 @@
 const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'https://suaxeweb-production.up.railway.app/api';
 let dashboardCalendar = null;
 
+function getCurrentMechanicIds() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        return new Set(
+            [user.userId, user.UserID, user.id, user.MechanicID]
+                .map((value) => Number(value))
+                .filter((value) => Number.isFinite(value) && value > 0)
+        );
+    } catch (error) {
+        console.error('❌ Không thể đọc user hiện tại:', error);
+        return new Set();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
     loadDashboardStats();
@@ -145,12 +159,20 @@ async function loadWorkSchedules() {
             throw new Error(result.message || 'Không thể tải lịch làm việc');
         }
 
-        const events = schedules
+        const currentMechanicIds = getCurrentMechanicIds();
+        const mySchedules = currentMechanicIds.size > 0
+            ? schedules.filter((schedule) => {
+                const scheduleMechanicId = Number(schedule.MechanicID || schedule.mechanicId || schedule.UserID);
+                return Number.isFinite(scheduleMechanicId) && currentMechanicIds.has(scheduleMechanicId);
+            })
+            : schedules;
+
+        const events = mySchedules
             .map(mapScheduleToCalendarEvent)
             .filter(Boolean);
 
         dashboardCalendar.addEventSource(events);
-        console.log('✅ Work schedules loaded:', events.length);
+        console.log('✅ Work schedules loaded for current mechanic:', events.length);
     } catch (error) {
         console.error('❌ Error loading work schedules:', error);
         calendarEl.innerHTML = `
