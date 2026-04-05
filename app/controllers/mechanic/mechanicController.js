@@ -212,6 +212,71 @@ const updateAppointmentStatus = async (req, res, targetStatus) => {
     }
 };
 
+const updateAppointmentStatusByMechanic = async (req, res) => {
+    try {
+        const appointmentId = req.params.id;
+        const mechanicId = req.user.userId;
+        const { status, notes } = req.body;
+
+        const allowedStatuses = ['Pending', 'Confirmed', 'InProgress', 'Completed', 'Canceled'];
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: 'Trạng thái không hợp lệ' });
+        }
+
+        const [appointments] = await pool.query(
+            'SELECT * FROM Appointments WHERE AppointmentID = ? AND MechanicID = ? AND IsDeleted = 0',
+            [appointmentId, mechanicId]
+        );
+
+        if (appointments.length === 0) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy lịch hẹn' });
+        }
+
+        const currentAppointment = appointments[0];
+        const currentStatus = currentAppointment.Status;
+
+        const allowedTransitions = {
+            Pending: ['Confirmed', 'Canceled'],
+            Confirmed: ['InProgress', 'Canceled'],
+            InProgress: ['Completed', 'Canceled'],
+            Completed: [],
+            Canceled: []
+        };
+
+        if (status !== currentStatus && !(allowedTransitions[currentStatus] || []).includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Không thể chuyển từ ${currentStatus} sang ${status}`
+            });
+        }
+
+        let query = 'UPDATE Appointments SET Status = ?';
+        const params = [status];
+
+        if (typeof notes === 'string') {
+            query += ', Notes = ?';
+            params.push(notes);
+        }
+
+        query += ' WHERE AppointmentID = ? AND MechanicID = ?';
+        params.push(appointmentId, mechanicId);
+
+        await pool.query(query, params);
+
+        return res.json({
+            success: true,
+            message: 'Cập nhật trạng thái lịch hẹn thành công',
+            data: {
+                appointmentId: Number(appointmentId),
+                status,
+                notes: typeof notes === 'string' ? notes : currentAppointment.Notes || ''
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 const confirmAppointment = (req, res) => updateAppointmentStatus(req, res, 'Confirmed');
 const startAppointment = (req, res) => updateAppointmentStatus(req, res, 'InProgress');
 const completeAppointment = (req, res) => updateAppointmentStatus(req, res, 'Completed');
@@ -238,6 +303,7 @@ module.exports = {
     getNotifications,
     markNotificationRead,
     getTeamSchedules,
+    updateAppointmentStatusByMechanic,
     confirmAppointment,
     startAppointment,
     completeAppointment,

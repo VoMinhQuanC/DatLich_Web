@@ -31,6 +31,7 @@ router.put('/notifications/:id/read', authenticateToken, checkMechanicAccess, me
 router.get('/schedules/team/by-date-range/:startDate/:endDate', authenticateToken, checkMechanicAccess, mechanicController.getTeamSchedules);
 
 // Thao tác với lịch hẹn
+router.put('/appointments/:id/status', authenticateToken, checkMechanicAccess, mechanicController.updateAppointmentStatusByMechanic);
 router.put('/appointments/:id/confirm', authenticateToken, checkMechanicAccess, mechanicController.confirmAppointment);
 router.put('/appointments/:id/start', authenticateToken, checkMechanicAccess, mechanicController.startAppointment);
 router.put('/appointments/:id/complete', authenticateToken, checkMechanicAccess, mechanicController.completeAppointment);

@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('todayBtn').addEventListener('click', () => filterByDate('today'));
     document.getElementById('tomorrowBtn').addEventListener('click', () => filterByDate('tomorrow'));
     document.getElementById('thisWeekBtn').addEventListener('click', () => filterByDate('thisWeek'));
+    document.getElementById('updateAppointmentBtn')?.addEventListener('click', updateAppointmentStatusFromModal);
     document.getElementById('logout-link').addEventListener('click', logout);
     document.getElementById('sidebar-logout').addEventListener('click', logout);
     
@@ -553,6 +554,73 @@ document.addEventListener('DOMContentLoaded', function() {
     function refreshAppointments() {
         console.log("🔄 Refreshing appointments...");
         loadAppointments();
+    }
+
+    async function updateAppointmentStatusFromModal() {
+        if (!selectedAppointmentId) {
+            showErrorAlert('Không xác định được lịch hẹn cần cập nhật');
+            return;
+        }
+
+        const statusSelect = document.getElementById('appointmentStatus');
+        const notesInput = document.getElementById('appointmentNotes');
+        const updateButton = document.getElementById('updateAppointmentBtn');
+        const updateSpinner = document.getElementById('updateSpinner');
+
+        const status = statusSelect ? statusSelect.value : '';
+        const notes = notesInput ? notesInput.value.trim() : '';
+
+        if (!status) {
+            showErrorAlert('Vui lòng chọn trạng thái');
+            return;
+        }
+
+        updateButton?.setAttribute('disabled', 'disabled');
+        updateSpinner?.classList.remove('d-none');
+
+        try {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                throw new Error('Không có token xác thực');
+            }
+
+            const response = await fetch(`${API_BASE_URL}/mechanics/appointments/${selectedAppointmentId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status, notes })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || `Không thể cập nhật trạng thái (${response.status})`);
+            }
+
+            const currentStatusElement = document.getElementById('currentStatus');
+            if (currentStatusElement) {
+                currentStatusElement.innerHTML = getStatusBadge(status);
+            }
+
+            showSuccessAlert('Cập nhật trạng thái lịch hẹn thành công');
+
+            const modalElement = document.getElementById('appointmentDetailModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            await loadAppointments();
+        } catch (error) {
+            console.error('❌ Error updating appointment status:', error);
+            showErrorAlert(error.message || 'Không thể cập nhật trạng thái lịch hẹn');
+        } finally {
+            updateButton?.removeAttribute('disabled');
+            updateSpinner?.classList.add('d-none');
+        }
     }
     
     /**
