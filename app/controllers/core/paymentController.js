@@ -174,12 +174,14 @@ const createVNPayPayment = async (req, res) => {
         const date = new Date();
         const expireDate = new Date(date.getTime() + 15 * 60 * 1000);
         const formatVnpDate = (inputDate) => {
-            const year = inputDate.getFullYear();
-            const month = String(inputDate.getMonth() + 1).padStart(2, '0');
-            const day = String(inputDate.getDate()).padStart(2, '0');
-            const hours = String(inputDate.getHours()).padStart(2, '0');
-            const minutes = String(inputDate.getMinutes()).padStart(2, '0');
-            const seconds = String(inputDate.getSeconds()).padStart(2, '0');
+            // VNPay expects Vietnam local time (UTC+7), while Railway often runs in UTC.
+            const vietnamDate = new Date(inputDate.getTime() + 7 * 60 * 60 * 1000);
+            const year = vietnamDate.getUTCFullYear();
+            const month = String(vietnamDate.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(vietnamDate.getUTCDate()).padStart(2, '0');
+            const hours = String(vietnamDate.getUTCHours()).padStart(2, '0');
+            const minutes = String(vietnamDate.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(vietnamDate.getUTCSeconds()).padStart(2, '0');
             return `${year}${month}${day}${hours}${minutes}${seconds}`;
         };
 
