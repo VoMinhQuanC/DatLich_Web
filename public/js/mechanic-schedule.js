@@ -9,19 +9,32 @@ function formatCardNotes(notes) {
     
     try {
         const data = JSON.parse(notes);
+        const isLegacyEdit = !!data.editRequest;
+        const isEditRequest = isLegacyEdit || data.type === 'edit';
+        const isLeaveRequest = data.type === 'leave';
         
-        // Nếu có editRequest (đơn xin sửa)
-        if (data.editRequest) {
-            const edit = data.editRequest;
-            const newDate = new Date(edit.newWorkDate).toLocaleDateString('vi-VN');
+        if (isEditRequest) {
+            const edit = data.editRequest || data;
+            const newDate = edit.newWorkDate ? new Date(edit.newWorkDate).toLocaleDateString('vi-VN') : '';
             
             if (data.approved) {
-                return `<span class="text-success">✅ Đã duyệt sửa sang ${newDate}</span>`;
+                return `<span class="text-success">✅ Đã duyệt sửa${newDate ? ` sang ${newDate}` : ''}</span>${edit.reason ? ` - ${edit.reason}` : ''}`;
             } else if (data.rejected) {
                 return `<span class="text-danger">❌ Từ chối sửa</span> ${data.rejectedReason ? `- ${data.rejectedReason}` : ''}`;
             } else {
-                return `⏳ Xin đổi sang ${newDate} (${edit.newStartTime} - ${edit.newEndTime})`;
+                return `⏳ Xin đổi${newDate ? ` sang ${newDate}` : ''}${edit.newStartTime && edit.newEndTime ? ` (${edit.newStartTime} - ${edit.newEndTime})` : ''}${edit.reason ? ` - ${edit.reason}` : ''}`;
             }
+        }
+
+        if (isLeaveRequest) {
+            const leaveDate = data.newWorkDate ? new Date(data.newWorkDate).toLocaleDateString('vi-VN') : '';
+            if (data.approved) {
+                return `<span class="text-warning">📅 Đã duyệt nghỉ</span>${leaveDate ? ` ${leaveDate}` : ''}${data.reason ? ` - ${data.reason}` : ''}`;
+            }
+            if (data.rejected) {
+                return `<span class="text-danger">❌ Từ chối nghỉ</span>${data.rejectedReason ? ` - ${data.rejectedReason}` : ''}`;
+            }
+            return `📝 Xin nghỉ${leaveDate ? ` ${leaveDate}` : ''}${data.reason ? ` - ${data.reason}` : ''}`;
         }
         
         return notes;
@@ -333,11 +346,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Thử parse JSON
         try {
             const data = JSON.parse(notes);
+            const isLegacyEdit = !!data.editRequest;
+            const isEditRequest = isLegacyEdit || data.type === 'edit';
+            const isLeaveRequest = data.type === 'leave';
             
-            // Nếu có editRequest (đơn xin sửa)
-            if (data.editRequest) {
-                const edit = data.editRequest;
-                const newDate = new Date(edit.newWorkDate).toLocaleDateString('vi-VN');
+            if (isEditRequest) {
+                const edit = data.editRequest || data;
+                const newDate = edit.newWorkDate ? new Date(edit.newWorkDate).toLocaleDateString('vi-VN') : '--/--/----';
                 const status = data.approved ? '✅ Đã duyệt sửa' : (data.rejected ? '❌ Đã từ chối sửa' : '⏳ Chờ duyệt');
                 
                 return `
@@ -348,6 +363,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             Đổi sang: <strong>${newDate}</strong> (${edit.newStartTime} - ${edit.newEndTime})
                         </div>
                         ${edit.reason ? `<div class="text-muted"><i class="bi bi-chat-left-text me-1"></i>${edit.reason}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            if (isLeaveRequest) {
+                const leaveDate = data.newWorkDate ? new Date(data.newWorkDate).toLocaleDateString('vi-VN') : '--/--/----';
+                const status = data.approved ? '✅ Đã duyệt nghỉ' : (data.rejected ? '❌ Từ chối nghỉ' : '⏳ Chờ duyệt nghỉ');
+
+                return `
+                    <div class="small">
+                        <span class="badge bg-warning text-dark">${status}</span>
+                        <div class="mt-1">
+                            <i class="bi bi-calendar-x me-1"></i>
+                            Ngày nghỉ: <strong>${leaveDate}</strong>
+                        </div>
+                        ${data.reason ? `<div class="text-muted"><i class="bi bi-chat-left-text me-1"></i>${data.reason}</div>` : ''}
+                        ${data.rejectedReason ? `<div class="text-danger"><i class="bi bi-x-circle me-1"></i>${data.rejectedReason}</div>` : ''}
                     </div>
                 `;
             }

@@ -500,3 +500,61 @@
     height: 12rem;
   }
 }
+
+/* Mechanic Header Notification Bell */
+.mechanic-notification-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mechanic-notification-bell .bell-button {
+  background: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.5rem !important;
+}
+
+.mechanic-notification-bell .bell-button:hover {
+  background: #e9ecef !important;
+  border-color: #adb5bd !important;
+}
+
+.mechanic-notification-bell .bell-icon {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: #495057 !important;
+  fill: none !important;
+}
+
+.mechanic-notification-bell .notification-badge {
+  box-shadow: 0 0 0 2px #ffffff !important;
+}
+
+.mechanic-notification-bell .notification-dropdown {
+  right: 0;
+  top: calc(100% + 10px);
+}
+
+.mechanic-notification-bell .mechanic-tab-button {
+  flex: 1;
+  background: #e4e6eb;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #050505;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.mechanic-notification-bell .mechanic-tab-button.active {
+  background: #e7f3ff;
+  color: #0866ff;
+}

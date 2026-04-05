@@ -467,25 +467,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!appointment) {
                     throw new Error('Dữ liệu chi tiết lịch hẹn không hợp lệ');
                 }
+
+                const setText = (ids, value) => {
+                    const idList = Array.isArray(ids) ? ids : [ids];
+                    const element = idList.map((id) => document.getElementById(id)).find(Boolean);
+                    if (element) {
+                        element.textContent = value;
+                    }
+                };
+
+                const setHtml = (ids, value) => {
+                    const idList = Array.isArray(ids) ? ids : [ids];
+                    const element = idList.map((id) => document.getElementById(id)).find(Boolean);
+                    if (element) {
+                        element.innerHTML = value;
+                    }
+                };
                 
                 // Điền thông tin vào modal
-                document.getElementById('detailAppointmentId').textContent = appointment.AppointmentID;
-                document.getElementById('detailCustomerName').textContent = appointment.CustomerName || 'N/A';
-                document.getElementById('detailPhoneNumber').textContent = appointment.PhoneNumber || 'N/A';
-                document.getElementById('detailEmail').textContent = appointment.Email || 'N/A';
+                setText(['detailAppointmentId', 'appointmentId'], appointment.AppointmentID || 'N/A');
+                setText(['detailCustomerName', 'customerName'], appointment.CustomerName || 'N/A');
+                setText(['detailPhoneNumber', 'customerPhone'], appointment.PhoneNumber || appointment.CustomerPhone || 'N/A');
+                setText(['detailEmail', 'customerEmail'], appointment.Email || 'N/A');
                 
                 const appointmentDate = new Date(appointment.AppointmentDate);
-                document.getElementById('detailAppointmentDate').textContent = appointmentDate.toLocaleDateString('vi-VN');
-                document.getElementById('detailAppointmentTime').textContent = appointmentDate.toLocaleTimeString('vi-VN', {
+                const formattedDate = appointmentDate.toLocaleDateString('vi-VN');
+                const formattedTime = appointmentDate.toLocaleTimeString('vi-VN', {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
+                setText(['detailAppointmentDate'], formattedDate);
+                setText(['detailAppointmentTime'], formattedTime);
+                setText(['appointmentDateTime'], `${formattedDate} ${formattedTime}`);
                 
-                document.getElementById('detailVehicleInfo').textContent = appointment.VehicleInfo || 'N/A';
-                document.getElementById('detailNotes').textContent = appointment.Notes || 'Không có ghi chú';
+                setText(['detailVehicleInfo'], appointment.VehicleInfo || 'N/A');
+                setText(['vehiclePlate'], appointment.LicensePlate || 'N/A');
+                setText(['vehicleBrand'], appointment.Brand || 'N/A');
+                setText(['vehicleModel'], appointment.Model || 'N/A');
+                setText(['detailNotes', 'appointmentNotes'], appointment.Notes || 'Không có ghi chú');
+                setText(['createdAt'], appointment.CreatedAt ? new Date(appointment.CreatedAt).toLocaleString('vi-VN') : 'N/A');
                 
                 // Status badge
-                document.getElementById('detailStatus').innerHTML = getStatusBadge(appointment.Status);
+                setHtml(['detailStatus', 'currentStatus'], getStatusBadge(appointment.Status));
+                const statusSelect = document.getElementById('appointmentStatus');
+                if (statusSelect) statusSelect.value = appointment.Status || 'Pending';
                 
                 // Services
                 const services = appointment.services || appointment.ServicesDetails || [];
@@ -497,13 +522,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         </li>
                     `).join('');
                     
-                    document.getElementById('detailServicesList').innerHTML = servicesHTML;
+                    setHtml(['detailServicesList', 'servicesList'], servicesHTML);
                     
                     const totalPrice = services.reduce((sum, s) => sum + ((s.Price || 0) * (s.Quantity || 1)), 0);
-                    document.getElementById('detailTotalPrice').textContent = formatCurrency(totalPrice);
+                    setText(['detailTotalPrice', 'totalPrice'], formatCurrency(totalPrice));
+                    const totalTimeMinutes = services.reduce((sum, s) => sum + ((s.EstimatedTime || 0) * (s.Quantity || 1)), 0);
+                    setText(['totalTime'], formatTime(totalTimeMinutes));
                 } else {
-                    document.getElementById('detailServicesList').innerHTML = '<li class="list-group-item">Không có dịch vụ</li>';
-                    document.getElementById('detailTotalPrice').textContent = formatCurrency(0);
+                    setHtml(['detailServicesList', 'servicesList'], '<li class="list-group-item">Không có dịch vụ</li>');
+                    setText(['detailTotalPrice', 'totalPrice'], formatCurrency(0));
+                    setText(['totalTime'], formatTime(appointment.ServiceDuration || 0));
                 }
                 
                 // Hiển thị modal
