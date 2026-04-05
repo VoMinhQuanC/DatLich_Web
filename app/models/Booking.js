@@ -115,6 +115,17 @@ class Booking {
         } catch (err) { throw err; }
     }
 
+    // 5.1. Hủy lịch hẹn
+    static async cancelAppointment(appointmentId) {
+        try {
+            const [result] = await pool.query(
+                'UPDATE Appointments SET Status = ? WHERE AppointmentID = ?',
+                ['Canceled', appointmentId]
+            );
+            return result.affectedRows > 0;
+        } catch (err) { throw err; }
+    }
+
     // 6. Lấy danh sách thợ máy
     static async getMechanics() {
         const [rows] = await pool.query('SELECT UserID, FullName, Email, PhoneNumber FROM Users WHERE RoleID = 3 AND Status = 1');

@@ -107,9 +107,21 @@ class BookingService {
             if (appointmentsResult.length > 0) throw new Error('MECHANIC_BUSY');
         }
         
+        let normalizedPaymentMethod = 'Thanh toán tại tiệm';
+        if (paymentMethod) {
+            const paymentMethodLower = paymentMethod.toLowerCase();
+            if (paymentMethodLower.includes('chuyển khoản') || paymentMethodLower.includes('bank') || paymentMethodLower.includes('transfer')) {
+                normalizedPaymentMethod = 'Chuyển khoản ngân hàng';
+            } else if (paymentMethodLower.includes('vnpay')) {
+                normalizedPaymentMethod = 'VNPay';
+            } else if (paymentMethodLower.includes('momo')) {
+                normalizedPaymentMethod = 'MoMo';
+            }
+        }
+
         const bookingData = {
             userId, vehicleId, licensePlate, brand, model, year, appointmentDate, mechanicId, services, notes, totalServiceTime, endTime,
-            paymentMethod: paymentMethod && (paymentMethod.toLowerCase().includes('chuyển khoản') || paymentMethod.toLowerCase().includes('bank') || paymentMethod.toLowerCase().includes('transfer')) ? 'Chuyển khoản ngân hàng' : 'Thanh toán tại tiệm'
+            paymentMethod: normalizedPaymentMethod
         };
         
         console.log('🚨 [DEBUG BookingService] bookingData created:', JSON.stringify(bookingData));

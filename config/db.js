@@ -18,6 +18,7 @@ const config = {
     password,
     database,
     port,
+    timezone: '+07:00',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -31,6 +32,11 @@ console.log('🔍 Database port:', config.port);
 console.log('🔍 Database name:', config.database || '(missing)');
 
 const pool = mysql.createPool(config);
+
+// Dong bo session timezone cua MySQL theo gio Viet Nam cho moi ket noi trong pool.
+pool.on('connection', (connection) => {
+    connection.query("SET time_zone = '+07:00'");
+});
 
 async function connectDB() {
     try {

@@ -60,11 +60,18 @@ const getRevenueDetails = async (req, res) => {
         const endDateTime = `${endDate} 23:59:59`;
 
         let query = `
-            SELECT p.*, COALESCE(u.FullName, p.CustomerName, 'N/A') as CustomerName,
-            COALESCE(m.FullName, p.MechanicName, 'N/A') as MechanicName,
+            SELECT p.*, COALESCE(NULLIF(u.FullName, ''), NULLIF(p.CustomerName, ''), 'N/A') as CustomerName,
+            COALESCE(
+                NULLIF(m.FullName, ''),
+                NULLIF(mi.MechanicName, ''),
+                NULLIF(p.MechanicName, ''),
+                'Chưa phân công'
+            ) as MechanicName,
             COALESCE((SELECT GROUP_CONCAT(s.ServiceName) FROM AppointmentServices aps JOIN Services s ON aps.ServiceID = s.ServiceID WHERE aps.AppointmentID = p.AppointmentID), p.Services, 'N/A') as Services
             FROM Payments p LEFT JOIN Appointments a ON p.AppointmentID = a.AppointmentID
-            LEFT JOIN Users u ON a.UserID = u.UserID LEFT JOIN Users m ON a.MechanicID = m.UserID
+            LEFT JOIN Users u ON a.UserID = u.UserID
+            LEFT JOIN Users m ON a.MechanicID = m.UserID
+            LEFT JOIN MechanicInfo mi ON a.MechanicID = mi.UserID
             WHERE p.PaymentDate BETWEEN ? AND ? AND (p.Status = 'Completed' OR p.Status = 'Hoàn thành'
         `;
         query += includeAll === 'true' ? " OR p.Status = 'Pending' OR p.Status = 'Chờ thanh toán')" : ")";

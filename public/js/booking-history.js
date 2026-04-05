@@ -3,6 +3,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Sử dụng API_CONFIG từ config.js (được load trước)
     const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'http://localhost:3001/api';
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('paymentStatus') === 'success') {
+        localStorage.removeItem('pendingAppointmentId');
+        localStorage.removeItem('pendingTotalAmount');
+        localStorage.removeItem('pendingBookingFingerprint');
+    }
     
     // Biến lưu trữ dữ liệu
     let bookings = [];
@@ -205,6 +212,10 @@ document.addEventListener('DOMContentLoaded', function() {
             let statusText = '';
             
             switch (booking.Status) {
+                case 'PendingPayment':
+                    statusClass = 'status-pending';
+                    statusText = 'Chờ thanh toán';
+                    break;
                 case 'Pending':
                     statusClass = 'status-pending';
                     statusText = 'Chờ xác nhận';
@@ -257,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button class="btn btn-outline-primary btn-sm view-detail-btn" data-id="${booking.AppointmentID}">
                                 Xem chi tiết
                             </button>
-                            ${booking.Status === 'Pending' || booking.Status === 'Confirmed' ? `
+                            ${booking.Status === 'PendingPayment' || booking.Status === 'Pending' || booking.Status === 'Confirmed' ? `
                             <button class="btn btn-outline-danger btn-sm cancel-btn" data-id="${booking.AppointmentID}">
                                 Hủy lịch
                             </button>
@@ -424,6 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function getStatusText(status) {
         switch (status) {
+            case 'PendingPayment': return 'Chờ thanh toán';
             case 'Pending': return 'Chờ xác nhận';
             case 'Confirmed': return 'Đã xác nhận';
             case 'Completed': return 'Hoàn thành';
@@ -475,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedAppointment = result.appointment;
                 
                 // Hiển thị hoặc ẩn nút hủy lịch hẹn
-                if (selectedAppointment.Status === 'Pending' || selectedAppointment.Status === 'Confirmed') {
+                if (selectedAppointment.Status === 'PendingPayment' || selectedAppointment.Status === 'Pending' || selectedAppointment.Status === 'Confirmed') {
                     cancelBookingBtn.style.display = 'block';
                 } else {
                     cancelBookingBtn.style.display = 'none';
@@ -517,6 +529,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let statusText = '';
         
         switch (appointment.Status) {
+            case 'PendingPayment':
+                statusClass = 'status-pending';
+                statusText = 'Chờ thanh toán';
+                break;
             case 'Pending':
                 statusClass = 'status-pending';
                 statusText = 'Chờ xác nhận';

@@ -354,93 +354,65 @@
 <!-- Step 5: Thanh toán -->
 <div class="step-content" id="stepContent5">
     <h4 class="mb-4">Chọn phương thức thanh toán</h4>
+    <p class="text-muted mb-4">
+        Chọn cách thanh toán phù hợp. Thông tin QR và chuyển khoản chỉ hiển thị sau khi bạn bấm qua trang thanh toán.
+    </p>
     
-    <div class="row">
-        <!-- CỘT 1: Lựa chọn phương thức -->
-        <div class="col-md-6">
-            <div class="payment-methods">
-                <!-- Thanh toán tại tiệm -->
-                <div class="form-check payment-method-item">
-                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                           id="paymentMethodCash" value="Thanh toán tại tiệm" checked>
-                    <label class="form-check-label" for="paymentMethodCash">
-                        <i class="bi bi-cash-coin me-2 text-success"></i>Thanh toán tại tiệm
-                    </label>
-                    <div class="text-muted small mt-2">Thanh toán trực tiếp bằng tiền mặt khi đến cửa hàng</div>
-                </div>
-                
-                <!-- Quét QR Chuyển khoản -->
-                <div class="form-check payment-method-item mt-3">
-                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                           id="paymentMethodTransfer" value="Chuyển khoản ngân hàng">
-                    <label class="form-check-label" for="paymentMethodTransfer">
-                        <i class="bi bi-bank me-2 text-primary"></i>Quét mã QR Thanh toán
-                    </label>
-                    <div class="text-muted small mt-2">Chuyển khoản trước để đảm bảo đặt chỗ</div>
-                </div>
-
-                <!-- VNPay -->
-                <div class="form-check payment-method-item mt-3">
-                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                           id="paymentMethodVNPay" value="VNPay">
-                    <label class="form-check-label" for="paymentMethodVNPay">
-                        <i class="bi bi-credit-card me-2 text-primary"></i>Thanh toán VNPay
-                    </label>
-                    <div class="text-muted small mt-2">
-                        Thanh toán qua cổng VNPay (ATM, Internet Banking, QR VNPay)
-                    </div>
-                </div>
-
-                <!-- MoMo -->
-                <div class="form-check payment-method-item mt-3">
-                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                           id="paymentMethodMomo" value="MoMo">
-                    <label class="form-check-label" for="paymentMethodMomo">
-                        <i class="bi bi-wallet2 me-2 text-danger"></i>Thanh toán MoMo
-                    </label>
-                    <div class="text-muted small mt-2">
-                        Thanh toán nhanh qua ví điện tử MoMo
-                    </div>
-                </div>
-            </div>
+    <div class="payment-method-grid">
+        <div class="form-check payment-method-item payment-method-card">
+            <input class="form-check-input" type="radio" name="paymentMethod"
+                   id="paymentMethodCash" value="Thanh toán tại tiệm" checked>
+            <label class="form-check-label" for="paymentMethodCash">
+                <span class="payment-method-title-line">
+                    <i class="bi bi-cash-coin text-success"></i>
+                    <span>Thanh toán tại tiệm</span>
+                </span>
+                <span class="payment-method-desc">
+                    Thanh toán trực tiếp bằng tiền mặt khi đến cửa hàng.
+                </span>
+            </label>
         </div>
-        
-        <!-- CỘT 2: Hiển thị thông tin thanh toán -->
-        <div class="col-md-6">
-            <!-- ✅ CONTAINER 1: QR MoMo (ẩn mặc định) -->
-            <div id="momoQRContainer" class="payment-info" style="display: none;">
-                <h5 class="text-danger mb-3">
-                    <i class="bi bi-qr-code-scan me-2"></i>QR MoMo thanh toán
-                </h5>
-                
-                <div class="text-center">
-                    <img id="momoQRImage" src="" class="img-fluid" 
-                         style="max-width:250px; border: 2px solid #dc3545; border-radius: 8px;">
-                    <p class="fw-bold text-danger mt-3" id="momoQRAmount">0 ₫</p>
-                    <a id="momoPayLink" href="#" target="_blank" class="btn btn-danger mt-3">
-                        <i class="bi bi-wallet2 me-2"></i>Mở MoMo để thanh toán
-                    </a>
-                    <p class="text-muted small mt-2">Hoặc quét mã QR bằng điện thoại</p>
-                </div>
-            </div>
 
-            <!-- ✅ CONTAINER 2: Thông tin chuyển khoản (ẩn mặc định) -->
-            <div id="bankTransferInfo" class="payment-info" style="display: none;">
-                <h5 class="text-primary mb-3">
-                    <i class="bi bi-info-circle me-2"></i>Thông tin chuyển khoản
-                </h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><strong>Ngân hàng:</strong> Vietcombank</li>
-                    <li class="mb-2"><strong>Số tài khoản:</strong> 1234567890</li>
-                    <li class="mb-2"><strong>Chủ tài khoản:</strong> CÔNG TY TNHH SỬA XE VQTBIKE</li>
-                    <li class="mb-2"><strong>Số tiền:</strong> <span id="paymentAmount">0 ₫</span></li>
-                    <li class="mb-2"><strong>Nội dung chuyển khoản:</strong> <span id="paymentNote">Tên khách hàng + Mã đơn hàng</span></li>
-                </ul>
-                <div class="alert alert-warning mt-3 mb-0">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    Vui lòng ghi đúng nội dung chuyển khoản để chúng tôi có thể xác nhận thanh toán của bạn.
-                </div>
-            </div>
+        <div class="form-check payment-method-item payment-method-card">
+            <input class="form-check-input" type="radio" name="paymentMethod"
+                   id="paymentMethodTransfer" value="Chuyển khoản ngân hàng">
+            <label class="form-check-label" for="paymentMethodTransfer">
+                <span class="payment-method-title-line">
+                    <i class="bi bi-qr-code-scan text-primary"></i>
+                    <span>Quét mã QR thanh toán</span>
+                </span>
+                <span class="payment-method-desc">
+                    Sau khi bấm qua trang thanh toán, hệ thống sẽ hiện mã QR và thông tin chuyển khoản.
+                </span>
+            </label>
+        </div>
+
+        <div class="form-check payment-method-item payment-method-card">
+            <input class="form-check-input" type="radio" name="paymentMethod"
+                   id="paymentMethodVNPay" value="VNPay">
+            <label class="form-check-label" for="paymentMethodVNPay">
+                <span class="payment-method-title-line">
+                    <i class="bi bi-credit-card text-primary"></i>
+                    <span>Thanh toán VNPay</span>
+                </span>
+                <span class="payment-method-desc">
+                    Thanh toán qua cổng VNPay bằng ATM, Internet Banking hoặc QR VNPay.
+                </span>
+            </label>
+        </div>
+
+        <div class="form-check payment-method-item payment-method-card">
+            <input class="form-check-input" type="radio" name="paymentMethod"
+                   id="paymentMethodMomo" value="MoMo">
+            <label class="form-check-label" for="paymentMethodMomo">
+                <span class="payment-method-title-line">
+                    <i class="bi bi-wallet2 text-danger"></i>
+                    <span>Thanh toán MoMo</span>
+                </span>
+                <span class="payment-method-desc">
+                    Thanh toán nhanh qua ví điện tử MoMo.
+                </span>
+            </label>
         </div>
     </div>
     
@@ -448,7 +420,7 @@
     <div class="alert alert-danger mt-4" id="bookingErrorAlert" style="display: none;"></div>
     
     <!-- Nút Action -->
-    <div class="d-flex justify-content-between mt-4">
+    <div class="payment-step-actions mt-4">
         <!-- Nút quay lại -->
         <button type="button" class="btn btn-outline-secondary" id="backToStep4">
             <i class="bi bi-arrow-left me-2"></i>Quay lại
@@ -507,6 +479,9 @@
             <a href="/" class="btn btn-outline-secondary me-2 w-100">Về trang chủ</a>
         </div>
     </div>
+</div>
+</div>
+</div>
 </div>
 
 

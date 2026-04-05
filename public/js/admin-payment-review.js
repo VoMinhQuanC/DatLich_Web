@@ -624,9 +624,36 @@ const AdminPaymentReview = {
         return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
     },
 
+    parseServerDate(dateInput) {
+        if (!dateInput) return null;
+
+        if (dateInput instanceof Date) {
+            return Number.isNaN(dateInput.getTime()) ? null : dateInput;
+        }
+
+        if (typeof dateInput === 'string') {
+            const trimmed = dateInput.trim();
+
+            if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(trimmed)) {
+                return new Date(trimmed.replace(' ', 'T') + 'Z');
+            }
+
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(trimmed)) {
+                return new Date(trimmed + 'Z');
+            }
+
+            const parsed = new Date(trimmed);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        const parsed = new Date(dateInput);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    },
+
     getWaitTime(dateStr) {
         if (!dateStr) return 'N/A';
-        const date = new Date(dateStr);
+        const date = this.parseServerDate(dateStr);
+        if (!date) return 'N/A';
         const now = new Date();
         const diff = Math.floor((now - date) / 60000); // minutes
         
@@ -645,8 +672,19 @@ const AdminPaymentReview = {
 
     formatDateTime(dateStr) {
         if (!dateStr) return 'N/A';
-        const date = new Date(dateStr);
-        return date.toLocaleString('vi-VN');
+        const date = this.parseServerDate(dateStr);
+        if (!date) return 'N/A';
+
+        return new Intl.DateTimeFormat('vi-VN', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            hour12: false,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }).format(date);
     },
 
     showAlert(type, message) {

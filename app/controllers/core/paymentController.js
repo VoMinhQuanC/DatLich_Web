@@ -1,4 +1,3 @@
-// File: app/controllers/core/paymentController.js
 const { pool } = require('../../../config/db');
 const axios = require('axios');
 
@@ -109,7 +108,7 @@ const createVNPayPayment = async (req, res) => {
         
         if (amount === 0) {
             return res.status(400).json({ success: false, message: 'Số tiền không hợp lệ' });
-        }    // 👉 TODO: lấy từ DB giống QR
+        }
 
         const vnp_TmnCode = process.env.VNP_TMN_CODE;
         const vnp_HashSecret = process.env.VNP_HASH_SECRET;
@@ -123,7 +122,7 @@ const createVNPayPayment = async (req, res) => {
         const orderId = appointmentId;
         const orderInfo = `Thanh toan don ${appointmentId}`;
 
-        let vnp_Params = {
+        const vnp_Params = {
             vnp_Version: "2.1.0",
             vnp_Command: "pay",
             vnp_TmnCode,
@@ -274,10 +273,11 @@ const createMomoPayment = async (req, res) => {
         const partnerCode = "MOMO";
         const accessKey = "F8BBA842ECF85";
         const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+        const bookingCode = `BK${appointmentId}`;
 
         const requestId = `REQ_${Date.now()}`;
-        const orderId = `${appointmentId}_${Date.now()}`;
-        const orderInfo = `Thanh toán lịch hẹn ${appointmentId}`;
+        const orderId = bookingCode;
+        const orderInfo = `Thanh toan dat lich ${bookingCode} - VQTBike`;
         const redirectUrl = "http://localhost:3001/payment-success";
         const ipnUrl = process.env.MOMO_IPN_URL || "http://localhost:3001/api/payment/momo-ipn";
         const extraData = "";
@@ -302,6 +302,8 @@ const createMomoPayment = async (req, res) => {
         const requestBody = {
             partnerCode,
             accessKey,
+            partnerName: "VQTBike",
+            storeId: "VQTBIKE",
             requestId,
             amount: amount.toString(),  // ✅ An toàn: amount là số, convert sang string
             orderId,
@@ -345,9 +347,8 @@ const momoIPN = async (req, res) => {
     const { orderId, resultCode, amount, transId } = req.body;
 
     try {
-        // 🔥 PARSE appointmentId đúng cách
-        // orderId format: "123_timestamp"
-        const appointmentId = orderId ? orderId.split("_")[0] : null;
+        // orderId format hiện tại: BK{AppointmentID}
+        const appointmentId = orderId ? orderId.replace(/^BK/i, '').trim() : null;
 
         if (!appointmentId || isNaN(appointmentId)) {
             console.error('❌ Invalid appointmentId from MoMo:', appointmentId);

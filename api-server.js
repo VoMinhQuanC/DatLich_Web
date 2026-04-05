@@ -122,7 +122,7 @@ app.use((req, res) => {
     res.status(404).render('404');
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
     console.log(`
     🚀 ============================================

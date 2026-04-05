@@ -275,24 +275,38 @@
         <div id="errorSection" class="alert alert-danger" style="display: none;">
             <h5><i class="bi bi-x-circle me-2"></i>Lỗi</h5>
             <p id="errorMessage"></p>
+            <button type="button" class="btn btn-outline-secondary me-2" onclick="goBackToBookingStep()">
+                Quay lại bước thanh toán
+            </button>
             <a href="/booking" class="btn btn-primary">Quay lại đặt lịch</a>
         </div>
+
     </div>
     
-    <script src="js/config.js"></script>
-    <script>
-        //<!-- const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'http://localhost:3001/api'; -->
+<script src="js/config.js"></script>
+<script>
+        const paymentApiBaseUrl = window.API_BASE_URL || (window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'http://localhost:3001/api');
         
         let countdownTimer = null;
         let paymentExpiresAt = null;
         let appointmentId = null;
         let proofId = null;
+        const PENDING_APPOINTMENT_ID_KEY = 'pendingAppointmentId';
+        const PENDING_TOTAL_AMOUNT_KEY = 'pendingTotalAmount';
+        const PENDING_BOOKING_FINGERPRINT_KEY = 'pendingBookingFingerprint';
         
         // Lấy appointmentId từ URL
         const urlParams = new URLSearchParams(window.location.search);
         appointmentId = urlParams.get('appointmentId');
-        
-        if (!appointmentId) {
+        const paymentStatus = urlParams.get('paymentStatus');
+        const paymentGateway = urlParams.get('gateway');
+        const paymentError = urlParams.get('error');
+
+        if (paymentStatus === 'failed') {
+            const gatewayLabel = paymentGateway ? ` ${paymentGateway.toUpperCase()}` : '';
+            const errorSuffix = paymentError ? ` (${paymentError})` : '';
+            showError(`Thanh toán${gatewayLabel} không thành công${errorSuffix}. Vui lòng thử lại.`);
+        } else if (!appointmentId) {
             showError('Thiếu thông tin đơn hàng. Vui lòng đặt lịch lại.');
         } else {
             initPaymentPage();
@@ -308,7 +322,7 @@
                 }
                 
                 // Tạo payment proof
-                const createRes = await fetch(`${API_BASE_URL}/payment-proof/create`, {
+                const createRes = await fetch(`${paymentApiBaseUrl}/payment-proof/create`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -349,7 +363,7 @@
         async function loadQRCode() {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE_URL}/payments/qr/${appointmentId}`, {
+                const res = await fetch(`${paymentApiBaseUrl}/payment/qr/${appointmentId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -362,11 +376,7 @@
                 const data = result.data;
                 
                 // Hiển thị QR
-<<<<<<< Updated upstream
                 document.getElementById('qrCodeImage').src = data.qrUrl || data.qrString;
-=======
-                document.getElementById('qrCodeImage').src = data.qrString;
->>>>>>> Stashed changes
                 document.getElementById('bookingCode').textContent = data.bookingCode;
                 document.getElementById('bankName').textContent = data.bankInfo.bankName;
                 document.getElementById('accountNo').textContent = data.bankInfo.accountNo;
@@ -416,7 +426,7 @@
             
             // Gọi API dọn dẹp hệ thống 
             const token = localStorage.getItem('token');
-            await fetch(`${API_BASE_URL}/payment-proof/process-expired`, {
+            await fetch(`${paymentApiBaseUrl}/payment-proof/process-expired`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -464,7 +474,7 @@
                 formData.append('appointmentId', appointmentId);
                 
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE_URL}/payment-proof/upload`, {
+                const res = await fetch(`${paymentApiBaseUrl}/payment-proof/upload`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
@@ -479,6 +489,7 @@
                 
                 // Dừng countdown
                 clearInterval(countdownTimer);
+                clearPendingPaymentSession();
                 
                 // Hiện success
                 document.getElementById('successMessage').style.display = 'block';
@@ -514,26 +525,37 @@
 
         // momo va VNPay
         async function payVNPay() {
-            const res = await fetch(`${API_BASE_URL}/payment/vnpay`, {
+            const res = await fetch(`${paymentApiBaseUrl}/payment/vnpay`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ appointmentId })
             });
 
             const data = await res.json();
-            if (data.success) window.location.href = data.paymentUrl;
+            if (data.success && data.paymentUrl) {
+                window.location.href = data.paymentUrl;
+                return;
+            }
+
+            showError(data.message || 'Không thể khởi tạo thanh toán VNPay');
         }
 
 
         async function payMomo() {
-            const res = await fetch(`${API_BASE_URL}/payment/momo`, {
+            const res = await fetch(`${paymentApiBaseUrl}/payment/momo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ appointmentId })
             });
 
             const data = await res.json();
-            if (data.success) window.location.href = data.paymentUrl;
+            const momoRedirectUrl = data.payUrl || data.qrCodeUrl || data.paymentUrl;
+            if (data.success && momoRedirectUrl) {
+                window.location.href = momoRedirectUrl;
+                return;
+            }
+
+            showError(data.message || 'Không thể khởi tạo thanh toán MoMo');
         }        
 
         
@@ -542,6 +564,20 @@
             document.getElementById('paymentContent').style.display = 'none';
             document.getElementById('errorSection').style.display = 'block';
             document.getElementById('errorMessage').textContent = message;
+        }
+
+        function clearPendingPaymentSession() {
+            localStorage.removeItem(PENDING_APPOINTMENT_ID_KEY);
+            localStorage.removeItem(PENDING_TOTAL_AMOUNT_KEY);
+            localStorage.removeItem(PENDING_BOOKING_FINGERPRINT_KEY);
+        }
+
+        function goBackToBookingStep() {
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+            window.location.href = '/booking';
         }
     </script>
 </body>

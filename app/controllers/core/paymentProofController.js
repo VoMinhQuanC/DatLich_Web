@@ -64,6 +64,11 @@ const createPaymentRequest = async (req, res) => {
             [appointmentId, amount, transferContent, expiresAt]
         );
 
+        await pool.query(
+            'UPDATE Appointments SET Status = "PendingPayment", PaymentMethod = "Chuyển khoản ngân hàng" WHERE AppointmentID = ?',
+            [appointmentId]
+        );
+
         res.json({ success: true, data: { proofId: result.insertId, transferContent, expiresAt, remainingSeconds: PAYMENT_EXPIRY_MINUTES * 60 } });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -204,7 +209,25 @@ const rejectProof = async (req, res) => {
         const reviewNote = `${reason} - ${note}`;
         await connection.query('UPDATE PaymentProofs SET Status = "Rejected", ReviewedBy = ?, ReviewedAt = NOW(), ReviewNote = ? WHERE ProofID = ?', [adminId, reviewNote, proofId]);
         
-        await connection.query('UPDATE Appointments SET Status = "Chờ thanh toán" WHERE AppointmentID = ?', [proofs[0].AppointmentID]);
+        const [appointments] = await connection.query(
+            'SELECT Notes FROM Appointments WHERE AppointmentID = ?',
+            [proofs[0].AppointmentID]
+        );
+
+        const existingNotes = appointments[0]?.Notes ? `${appointments[0].Notes}\n` : '';
+        const rejectionMessage = `Ly do huy thanh toan: ${reviewNote}`;
+
+        // Khi chung tu bi tu choi, dong lich hen de phia khach hien "Da huy" va thay duoc ly do.
+        await connection.query(
+            'UPDATE Appointments SET Status = "Canceled", Notes = ? WHERE AppointmentID = ?',
+            [`${existingNotes}${rejectionMessage}`.trim(), proofs[0].AppointmentID]
+        );
+
+        // Dong bo trang thai thanh toan neu da co ban ghi Payments.
+        await connection.query(
+            'UPDATE Payments SET Status = "Cancelled" WHERE AppointmentID = ?',
+            [proofs[0].AppointmentID]
+        );
         
         await connection.commit();
         res.json({ success: true, message: 'Từ chối thành công' });
@@ -219,7 +242,7 @@ const processExpired = async (req, res) => {
     try {
         const [result] = await pool.query('UPDATE PaymentProofs SET Status = "Expired" WHERE Status = "Pending" AND ExpiresAt < NOW()');
         if (result.affectedRows > 0) {
-            await pool.query('UPDATE Appointments a JOIN PaymentProofs pp ON a.AppointmentID = pp.AppointmentID SET a.Status = "Đã hủy" WHERE pp.Status = "Expired" AND a.Status = "Chờ thanh toán"');
+            await pool.query('UPDATE Appointments a JOIN PaymentProofs pp ON a.AppointmentID = pp.AppointmentID SET a.Status = "Canceled" WHERE pp.Status = "Expired" AND a.Status IN ("PendingApproval", "PendingPayment")');
         }
         res.json({ success: true, expiredCount: result.affectedRows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }

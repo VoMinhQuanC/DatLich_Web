@@ -38,7 +38,8 @@
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "sharp": "^0.32.5",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "vnpay": "^2.5.0"
   },
   "engines": {
     "node": ">=20.0.0",
