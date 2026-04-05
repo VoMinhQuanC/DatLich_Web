@@ -54,6 +54,32 @@ const buildPaymentResultUrl = (status, appointmentId, extraParams = {}) => {
     return `${frontendBaseUrl}/payment-result?${query.toString()}`;
 };
 
+const maskSecret = (value, visible = 4) => {
+    if (!value) return null;
+    if (value.length <= visible) return '*'.repeat(value.length);
+    return `${'*'.repeat(Math.max(0, value.length - visible))}${value.slice(-visible)}`;
+};
+
+const buildVietnamDateString = (inputDate = new Date()) => {
+    const vietnamDate = new Date(inputDate.getTime() + 7 * 60 * 60 * 1000);
+    const year = vietnamDate.getUTCFullYear();
+    const month = String(vietnamDate.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(vietnamDate.getUTCDate()).padStart(2, '0');
+    const hours = String(vietnamDate.getUTCHours()).padStart(2, '0');
+    const minutes = String(vietnamDate.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(vietnamDate.getUTCSeconds()).padStart(2, '0');
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+};
+
+const getVnpayRuntimeConfig = () => ({
+    frontendBaseUrl: getFrontendBaseUrl(),
+    backendBaseUrl: getBackendBaseUrl(),
+    vnpUrl: process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
+    vnpReturnUrl: `${getBackendBaseUrl()}/api/payment/vnpay-return`,
+    vnpTmnCode: process.env.VNP_TMN_CODE || '',
+    vnpHashSecret: process.env.VNP_HASH_SECRET || ''
+});
+
 
 // Helper: Lấy tên ngân hàng từ mã BIN
 const getBankName = (bankId) => {
@@ -165,10 +191,11 @@ const createVNPayPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Số tiền không hợp lệ' });
         }
 
-        const vnp_TmnCode = process.env.VNP_TMN_CODE;
-        const vnp_HashSecret = process.env.VNP_HASH_SECRET;
-        const vnp_Url = process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-        const vnp_ReturnUrl = `${getBackendBaseUrl()}/api/payment/vnpay-return`;
+        const runtimeConfig = getVnpayRuntimeConfig();
+        const vnp_TmnCode = runtimeConfig.vnpTmnCode;
+        const vnp_HashSecret = runtimeConfig.vnpHashSecret;
+        const vnp_Url = runtimeConfig.vnpUrl;
+        const vnp_ReturnUrl = runtimeConfig.vnpReturnUrl;
 
         if (!vnp_TmnCode || !vnp_HashSecret) {
             return res.status(500).json({ success: false, message: 'Thiếu cấu hình VNPay trên server' });
@@ -176,18 +203,6 @@ const createVNPayPayment = async (req, res) => {
 
         const date = new Date();
         const expireDate = new Date(date.getTime() + 15 * 60 * 1000);
-        const formatVnpDate = (inputDate) => {
-            // VNPay expects Vietnam local time (UTC+7), while Railway often runs in UTC.
-            const vietnamDate = new Date(inputDate.getTime() + 7 * 60 * 60 * 1000);
-            const year = vietnamDate.getUTCFullYear();
-            const month = String(vietnamDate.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(vietnamDate.getUTCDate()).padStart(2, '0');
-            const hours = String(vietnamDate.getUTCHours()).padStart(2, '0');
-            const minutes = String(vietnamDate.getUTCMinutes()).padStart(2, '0');
-            const seconds = String(vietnamDate.getUTCSeconds()).padStart(2, '0');
-            return `${year}${month}${day}${hours}${minutes}${seconds}`;
-        };
-
         const orderId = `${numericAppointmentId}_${Date.now()}`;
         const orderInfo = `Thanh toan don ${numericAppointmentId}`;
 
@@ -202,8 +217,8 @@ const createVNPayPayment = async (req, res) => {
             vnp_OrderType: 'billpayment',
             vnp_Locale: 'vn',
             vnp_ReturnUrl,
-            vnp_CreateDate: formatVnpDate(date),
-            vnp_ExpireDate: formatVnpDate(expireDate),
+            vnp_CreateDate: buildVietnamDateString(date),
+            vnp_ExpireDate: buildVietnamDateString(expireDate),
             vnp_IpAddr: getClientIp(req)
         };
 
@@ -222,6 +237,166 @@ const createVNPayPayment = async (req, res) => {
 
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+const debugVNPayConfig = async (req, res) => {
+    try {
+        const appointmentId = Number.parseInt(req.params.appointmentId || req.query.appointmentId, 10);
+        const runtimeConfig = getVnpayRuntimeConfig();
+        const issues = [];
+        const warnings = [];
+        let appointment = null;
+        let totalAmount = 0;
+        let existingPayments = [];
+
+        if (!appointmentId) {
+            issues.push('appointmentId không hợp lệ hoặc bị thiếu');
+        }
+
+        if (!runtimeConfig.vnpTmnCode) {
+            issues.push('Thiếu VNP_TMN_CODE');
+        }
+
+        if (!runtimeConfig.vnpHashSecret) {
+            issues.push('Thiếu VNP_HASH_SECRET');
+        }
+
+        if (!/^https?:\/\//.test(runtimeConfig.frontendBaseUrl)) {
+            issues.push('FRONTEND_BASE_URL không phải URL hợp lệ');
+        }
+
+        if (!/^https?:\/\//.test(runtimeConfig.backendBaseUrl)) {
+            issues.push('BACKEND_BASE_URL không phải URL hợp lệ');
+        }
+
+        if (!/^https?:\/\/.*\/api\/payment\/vnpay-return$/.test(runtimeConfig.vnpReturnUrl)) {
+            warnings.push('Return URL không kết thúc bằng /api/payment/vnpay-return');
+        }
+
+        if (process.env.NODE_ENV !== 'production') {
+            warnings.push(`NODE_ENV hiện là "${process.env.NODE_ENV || 'undefined'}", Railway nên để production`);
+        }
+
+        if (runtimeConfig.frontendBaseUrl.includes('localhost') || runtimeConfig.backendBaseUrl.includes('localhost')) {
+            issues.push('Base URL đang trỏ về localhost, deploy Railway sẽ callback sai');
+        }
+
+        if (runtimeConfig.vnpUrl.includes('sandbox') && runtimeConfig.vnpTmnCode && runtimeConfig.vnpHashSecret) {
+            warnings.push('Đang dùng sandbox VNPay, cần đảm bảo TMN Code và Hash Secret cũng là bộ sandbox cùng cặp');
+        }
+
+        if (appointmentId) {
+            const [appointments] = await pool.query(`
+                SELECT AppointmentID, UserID, Status, PaymentStatus, PaymentMethod, AppointmentDate
+                FROM Appointments
+                WHERE AppointmentID = ?
+            `, [appointmentId]);
+
+            if (appointments.length === 0) {
+                issues.push('Không tìm thấy appointment trong database');
+            } else {
+                appointment = appointments[0];
+
+                const [services] = await pool.query(`
+                    SELECT COALESCE(SUM(s.Price * aps.Quantity), 0) as TotalAmount
+                    FROM AppointmentServices aps
+                    JOIN Services s ON aps.ServiceID = s.ServiceID
+                    WHERE aps.AppointmentID = ?
+                `, [appointmentId]);
+
+                totalAmount = Number(services[0]?.TotalAmount || 0);
+
+                if (totalAmount <= 0) {
+                    issues.push('Tổng tiền dịch vụ bằng 0, VNPay sẽ từ chối tạo giao dịch');
+                }
+
+                const [payments] = await pool.query(`
+                    SELECT PaymentID, Status, PaymentMethod, PaymentDate
+                    FROM Payments
+                    WHERE AppointmentID = ?
+                    ORDER BY PaymentDate DESC, PaymentID DESC
+                    LIMIT 5
+                `, [appointmentId]);
+
+                existingPayments = payments;
+
+                if (appointment.Status === 'Confirmed' && appointment.PaymentStatus === 'Paid') {
+                    warnings.push('Appointment này đã Paid/Confirmed, không nên test VNPay lại trên cùng đơn');
+                }
+
+                if (appointment.Status === 'Cancelled' || appointment.Status === 'Canceled') {
+                    warnings.push('Appointment đang ở trạng thái đã hủy');
+                }
+            }
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 15 * 60 * 1000);
+        const sampleParams = {
+            vnp_Version: '2.1.0',
+            vnp_Command: 'pay',
+            vnp_TmnCode: runtimeConfig.vnpTmnCode || 'MISSING',
+            vnp_Amount: Math.max(totalAmount, 1000) * 100,
+            vnp_CurrCode: 'VND',
+            vnp_TxnRef: `${appointmentId || 9999}_${Date.now()}`,
+            vnp_OrderInfo: `Thanh toan don ${appointmentId || 9999}`,
+            vnp_OrderType: 'billpayment',
+            vnp_Locale: 'vn',
+            vnp_ReturnUrl: runtimeConfig.vnpReturnUrl,
+            vnp_CreateDate: buildVietnamDateString(now),
+            vnp_ExpireDate: buildVietnamDateString(expiresAt),
+            vnp_IpAddr: getClientIp(req)
+        };
+
+        const sampleSignData = buildVnpQueryString(sampleParams);
+        const sampleSecureHash = runtimeConfig.vnpHashSecret
+            ? crypto.createHmac('sha512', runtimeConfig.vnpHashSecret)
+                .update(Buffer.from(sampleSignData, 'utf-8'))
+                .digest('hex')
+            : null;
+
+        res.json({
+            success: issues.length === 0,
+            message: issues.length === 0 ? 'VNPay debug check completed' : 'VNPay debug found issues',
+            debug: {
+                serverTimeUtc: now.toISOString(),
+                serverTimeVietnam: new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19),
+                environment: {
+                    nodeEnv: process.env.NODE_ENV || null,
+                    railwayStaticUrl: process.env.RAILWAY_STATIC_URL || null,
+                    railwayPublicDomain: process.env.RAILWAY_PUBLIC_DOMAIN || null,
+                    port: process.env.PORT || null
+                },
+                config: {
+                    frontendBaseUrl: runtimeConfig.frontendBaseUrl,
+                    backendBaseUrl: runtimeConfig.backendBaseUrl,
+                    vnpUrl: runtimeConfig.vnpUrl,
+                    vnpReturnUrl: runtimeConfig.vnpReturnUrl,
+                    vnpTmnCodeMasked: maskSecret(runtimeConfig.vnpTmnCode),
+                    vnpHashSecretMasked: maskSecret(runtimeConfig.vnpHashSecret)
+                },
+                appointment,
+                totalAmount,
+                existingPayments,
+                sampleSigning: {
+                    signData: sampleSignData,
+                    secureHashPreview: sampleSecureHash ? `${sampleSecureHash.slice(0, 12)}...${sampleSecureHash.slice(-12)}` : null
+                },
+                issues,
+                warnings,
+                possibleErrorCodes: [
+                    { code: '15', meaning: 'Giao dịch quá thời gian chờ thanh toán', likelyCauses: ['Sai timezone create/expire date', 'Client mở lại URL cũ', 'Expire date quá ngắn'] },
+                    { code: '70', meaning: 'Sai chữ ký', likelyCauses: ['Hash secret sai', 'Chuỗi ký sai format', 'Encode tham số sai', 'TMN code và secret không cùng cặp'] },
+                    { code: '24', meaning: 'Khách hàng hủy giao dịch', likelyCauses: ['User bấm quay lại hoặc đóng VNPay'] },
+                    { code: '07', meaning: 'Trừ tiền thành công nhưng giao dịch nghi ngờ', likelyCauses: ['Phản hồi từ ngân hàng cần đối soát thêm'] },
+                    { code: '09', meaning: 'Thẻ/tài khoản chưa đăng ký Internet Banking', likelyCauses: ['Lỗi phía người dùng ngân hàng'] }
+                ]
+            }
+        });
+    } catch (error) {
+        console.error('❌ VNPay debug error:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -608,6 +783,7 @@ const createMomoTestQR = async (req, res) => {
 module.exports = {
     generatePaymentQR,
     createVNPayPayment,
+    debugVNPayConfig,
     createMomoPayment,
     vnpayReturn,
     momoIPN,

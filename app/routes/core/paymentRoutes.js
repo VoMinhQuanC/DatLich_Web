@@ -4,6 +4,7 @@
         const {
             generatePaymentQR,
             createVNPayPayment,
+            debugVNPayConfig,
             createMomoPayment,
             vnpayReturn,
             momoIPN,
@@ -15,6 +16,7 @@
 
         // ✅ VNPay
         router.post('/vnpay', createVNPayPayment);
+        router.get('/vnpay/debug/:appointmentId', debugVNPayConfig);
 
         // ✅ VNPay return (redirect từ VNPay)
         router.get('/vnpay-return', vnpayReturn);
