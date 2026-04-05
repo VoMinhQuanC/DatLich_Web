@@ -558,3 +558,154 @@
   background: #e7f3ff;
   color: #0866ff;
 }
+
+/* Dashboard calendar refresh */
+#calendar {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+#calendar .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 1rem;
+  padding: 0.25rem 0.25rem 0.75rem;
+  border-bottom: 1px solid #e5edf7;
+}
+
+#calendar .fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: capitalize;
+}
+
+#calendar .fc-button-primary {
+  background: #ffffff;
+  border: 1px solid #d7e3f4;
+  color: #334155;
+  border-radius: 12px;
+  padding: 0.45rem 0.8rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+#calendar .fc-button-primary:hover {
+  background: #eef5ff;
+  border-color: #9fc1f5;
+  color: #0f172a;
+}
+
+#calendar .fc-button-primary:not(:disabled).fc-button-active,
+#calendar .fc-button-primary:not(:disabled):active,
+#calendar .fc-today-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+#calendar .fc-daygrid-day-frame {
+  min-height: 118px;
+  background: #ffffff;
+}
+
+#calendar .fc-theme-standard td,
+#calendar .fc-theme-standard th {
+  border-color: #e5edf7;
+}
+
+#calendar .fc-col-header-cell {
+  background: #f8fbff;
+}
+
+#calendar .fc-col-header-cell-cushion {
+  color: #475569;
+  font-weight: 700;
+  padding: 0.85rem 0;
+  text-decoration: none;
+}
+
+#calendar .fc-daygrid-day-number {
+  color: #1e293b;
+  font-weight: 700;
+  padding: 0.7rem 0.75rem 0;
+  text-decoration: none;
+}
+
+#calendar .fc-day-today {
+  background: #edf4ff !important;
+}
+
+#calendar .fc-day-today .fc-daygrid-day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #ffffff;
+  margin: 0.45rem 0 0 0.45rem;
+  padding: 0;
+}
+
+#calendar .fc-day-other {
+  background: #f8fafc;
+}
+
+#calendar .fc-day-other .fc-daygrid-day-number {
+  color: #94a3b8;
+}
+
+#calendar .fc-daygrid-event {
+  border: none;
+  border-radius: 10px;
+  padding: 0.3rem 0.45rem;
+  margin: 0.15rem 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.25;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.12);
+}
+
+#calendar .fc-daygrid-event-dot {
+  display: none;
+}
+
+#calendar .fc-list {
+  border-color: #e5edf7;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+#calendar .fc-list-day-cushion {
+  background: #f8fbff;
+}
+
+#calendar .fc-list-event:hover td {
+  background: #eff6ff;
+}
+
+@media (max-width: 768px) {
+  #calendar {
+    padding: 0.75rem;
+    border-radius: 14px;
+  }
+
+  #calendar .fc-toolbar.fc-header-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  #calendar .fc-toolbar-title {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  #calendar .fc-daygrid-day-frame {
+    min-height: 92px;
+  }
+}

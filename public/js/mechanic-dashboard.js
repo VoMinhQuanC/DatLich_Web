@@ -78,6 +78,8 @@ function initializeWorkCalendar() {
         locale: 'vi',
         firstDay: 1,
         height: 'auto',
+        dayMaxEvents: 2,
+        eventDisplay: 'block',
         buttonText: {
             today: 'Hôm nay',
             month: 'Tháng',
@@ -89,6 +91,9 @@ function initializeWorkCalendar() {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
+        },
+        moreLinkContent(args) {
+            return `+${args.num} ca`;
         },
         eventClick(info) {
             if (info.jsEvent) {
@@ -223,21 +228,20 @@ function normalizeTimeValue(timeValue) {
 
 function getScheduleTitle(schedule) {
     const status = schedule.Status || '';
-    const timeText = `${formatTimeLabel(schedule.StartTime)} - ${formatTimeLabel(schedule.EndTime)}`;
 
     if (status === 'ApprovedLeave' || schedule.Type === 'unavailable') {
-        return `Nghỉ ${timeText}`;
+        return 'Nghỉ';
     }
 
     if (status === 'PendingLeave') {
-        return `Chờ duyệt nghỉ ${timeText}`;
+        return 'Chờ duyệt nghỉ';
     }
 
     if (status === 'PendingEdit') {
-        return `Chờ duyệt sửa ${timeText}`;
+        return 'Chờ duyệt sửa';
     }
 
-    return `Ca làm ${timeText}`;
+    return 'Ca làm';
 }
 
 function formatTimeLabel(timeValue) {

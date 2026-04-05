@@ -13,6 +13,8 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/mechanic-schedule.css">
+    <link rel="stylesheet" href="css/mechanic-dashboard.css">
+    <link rel="stylesheet" href="css/notification.css">
     
     <script src="js/common-header.js"></script>
 </head>
@@ -60,17 +62,63 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Quản lý lịch làm việc</h1>
-                    <div class="user-info d-flex align-items-center">
-                        <span class="me-2" id="mechanicName">Kỹ thuật viên</span>
-                        <div class="dropdown">
-                            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="avatar-placeholder" id="avatarPlaceholder">K</div>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
-                                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Hồ sơ</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" id="logout-link"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-                            </ul>
+                    <div class="d-flex align-items-center">
+                        <div class="mechanic-notification-bell me-3">
+                            <button class="bell-button" id="mechanicNotificationBell">
+                                <svg class="bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                                <span class="notification-badge" id="mechanicNotificationBadge" style="display: none;">0</span>
+                            </button>
+
+                            <div class="notification-dropdown" id="mechanicNotificationDropdown">
+                                <div class="dropdown-header">
+                                    <h3>Thông báo</h3>
+                                </div>
+
+                                <div class="notification-tabs">
+                                    <button class="mechanic-tab-button active" data-tab="all">Tất cả</button>
+                                    <button class="mechanic-tab-button" data-tab="unread">
+                                        Chưa đọc <span class="tab-count" id="mechanicUnreadTabCount"></span>
+                                    </button>
+                                </div>
+
+                                <div class="notifications-list" id="mechanicNotificationsList">
+                                    <div class="loading" id="mechanicLoadingState">
+                                        <div class="spinner"></div>
+                                        <p>Đang tải...</p>
+                                    </div>
+
+                                    <div class="empty-state" id="mechanicEmptyState" style="display: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                        </svg>
+                                        <p>Không có thông báo</p>
+                                    </div>
+                                </div>
+
+                                <div class="dropdown-footer">
+                                    <button class="mark-all-read" id="mechanicMarkAllRead">
+                                        Đánh dấu tất cả đã đọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="user-info d-flex align-items-center">
+                            <span class="me-2" id="mechanicName">Kỹ thuật viên</span>
+                            <div class="dropdown">
+                                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="avatar-placeholder" id="avatarPlaceholder">K</div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
+                                    <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Hồ sơ</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="logout-link"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -856,6 +904,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
     <!-- Custom JS -->
     <script src="js/config.js"></script>
+    <script src="js/notification-mechanic.js"></script>
     <script src="js/mechanic-schedule.js?v=perfect"></script>
 </body>
 </html>
