@@ -457,7 +457,7 @@ const vnpayReturn = async (req, res) => {
             // 🔥 UPDATE 1: Pending → Confirmed
             await pool.query(`
                 UPDATE Appointments 
-                SET Status = 'Confirmed', PaymentMethod = 'VNPay', UpdatedAt = NOW()
+                SET Status = 'Confirmed', PaymentMethod = 'VNPay'
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
@@ -490,7 +490,7 @@ const vnpayReturn = async (req, res) => {
             // 🔥 UPDATE: Pending → Cancelled (giải phóng lịch)
             await pool.query(`
                 UPDATE Appointments 
-                SET Status = 'Cancelled', PaymentMethod = 'VNPay', UpdatedAt = NOW()
+                SET Status = 'Cancelled', PaymentMethod = 'VNPay'
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
@@ -656,7 +656,7 @@ const momoIPN = async (req, res) => {
             // 🔥 UPDATE 1: Pending → Confirmed
             await pool.query(`
                 UPDATE Appointments 
-                SET Status = 'Confirmed', PaymentMethod = 'MoMo', UpdatedAt = NOW()
+                SET Status = 'Confirmed', PaymentMethod = 'MoMo'
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
@@ -686,7 +686,7 @@ const momoIPN = async (req, res) => {
             // 🔥 UPDATE: Pending → Cancelled (giải phóng lịch)
             await pool.query(`
                 UPDATE Appointments 
-                SET Status = 'Cancelled', PaymentMethod = 'MoMo', UpdatedAt = NOW()
+                SET Status = 'Cancelled', PaymentMethod = 'MoMo'
                 WHERE AppointmentID = ?
             `, [appointmentId]);
 
