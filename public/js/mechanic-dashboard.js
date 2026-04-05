@@ -3,11 +3,13 @@
 
 // ✅ PRODUCTION API URL
 const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'https://suaxeweb-production.up.railway.app/api';
+let dashboardCalendar = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
     loadDashboardStats();
-    loadNotifications();
+    initializeWorkCalendar();
+    loadWorkSchedules();
     loadUpcomingAppointments();
     
     document.getElementById('logout-link')?.addEventListener('click', logout);
@@ -57,6 +59,210 @@ function checkAuth() {
 
 function getToken() {
     return localStorage.getItem('token');
+}
+
+function initializeWorkCalendar() {
+    const calendarEl = document.getElementById('calendar');
+
+    if (!calendarEl || typeof FullCalendar === 'undefined') {
+        return;
+    }
+
+    dashboardCalendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        locale: 'vi',
+        firstDay: 1,
+        height: 'auto',
+        buttonText: {
+            today: 'Hôm nay',
+            month: 'Tháng',
+            week: 'Tuần',
+            list: 'Danh sách'
+        },
+        noEventsContent: 'Chưa có lịch làm việc',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        eventClick(info) {
+            if (info.jsEvent) {
+                info.jsEvent.preventDefault();
+            }
+            window.location.href = '/mechanic-schedule';
+        }
+    });
+
+    dashboardCalendar.render();
+}
+
+async function loadWorkSchedules() {
+    const calendarEl = document.getElementById('calendar');
+
+    if (!calendarEl) {
+        return;
+    }
+
+    if (dashboardCalendar) {
+        dashboardCalendar.removeAllEvents();
+    } else {
+        calendarEl.innerHTML = `
+            <div class="text-center text-muted py-4">
+                Không thể khởi tạo lịch làm việc
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const token = getToken();
+        const response = await fetch(`${API_BASE_URL}/mechanics/schedules/all`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        const schedules = result.data || result.schedules || [];
+
+        if (!result.success || !Array.isArray(schedules)) {
+            throw new Error(result.message || 'Không thể tải lịch làm việc');
+        }
+
+        const events = schedules
+            .map(mapScheduleToCalendarEvent)
+            .filter(Boolean);
+
+        dashboardCalendar.addEventSource(events);
+        console.log('✅ Work schedules loaded:', events.length);
+    } catch (error) {
+        console.error('❌ Error loading work schedules:', error);
+        calendarEl.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Không thể tải lịch làm việc. Vui lòng thử lại.
+            </div>
+        `;
+    }
+}
+
+function mapScheduleToCalendarEvent(schedule) {
+    if (!schedule || !schedule.WorkDate) {
+        return null;
+    }
+
+    const startDateTime = buildLocalDateTime(schedule.WorkDate, schedule.StartTime);
+    const endDateTime = buildLocalDateTime(schedule.WorkDate, schedule.EndTime);
+
+    return {
+        id: String(schedule.ScheduleID || ''),
+        title: getScheduleTitle(schedule),
+        start: startDateTime,
+        end: endDateTime,
+        allDay: false,
+        backgroundColor: getScheduleColor(schedule.Status, schedule.Type),
+        borderColor: getScheduleColor(schedule.Status, schedule.Type),
+        textColor: '#ffffff',
+        extendedProps: {
+            status: schedule.Status,
+            notes: schedule.Notes || ''
+        }
+    };
+}
+
+function buildLocalDateTime(dateValue, timeValue) {
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const normalizedTime = normalizeTimeValue(timeValue);
+
+    return `${year}-${month}-${day}T${normalizedTime}`;
+}
+
+function normalizeTimeValue(timeValue) {
+    if (!timeValue) {
+        return '08:00:00';
+    }
+
+    if (typeof timeValue === 'string') {
+        if (/^\d{2}:\d{2}$/.test(timeValue)) {
+            return `${timeValue}:00`;
+        }
+
+        if (/^\d{2}:\d{2}:\d{2}$/.test(timeValue)) {
+            return timeValue;
+        }
+
+        const parsed = new Date(timeValue);
+        if (!Number.isNaN(parsed.getTime())) {
+            const hours = String(parsed.getHours()).padStart(2, '0');
+            const minutes = String(parsed.getMinutes()).padStart(2, '0');
+            const seconds = String(parsed.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+    }
+
+    return '08:00:00';
+}
+
+function getScheduleTitle(schedule) {
+    const status = schedule.Status || '';
+    const timeText = `${formatTimeLabel(schedule.StartTime)} - ${formatTimeLabel(schedule.EndTime)}`;
+
+    if (status === 'ApprovedLeave' || schedule.Type === 'unavailable') {
+        return `Nghỉ ${timeText}`;
+    }
+
+    if (status === 'PendingLeave') {
+        return `Chờ duyệt nghỉ ${timeText}`;
+    }
+
+    if (status === 'PendingEdit') {
+        return `Chờ duyệt sửa ${timeText}`;
+    }
+
+    return `Ca làm ${timeText}`;
+}
+
+function formatTimeLabel(timeValue) {
+    const normalized = normalizeTimeValue(timeValue);
+    return normalized.substring(0, 5);
+}
+
+function getScheduleColor(status, type) {
+    if (status === 'ApprovedLeave' || type === 'unavailable') {
+        return '#f59e0b';
+    }
+
+    if (status === 'PendingLeave') {
+        return '#f97316';
+    }
+
+    if (status === 'PendingEdit') {
+        return '#0ea5e9';
+    }
+
+    if (status === 'Rejected' || status === 'RejectedLeave' || status === 'RejectedEdit') {
+        return '#dc2626';
+    }
+
+    return '#2563eb';
 }
 
 async function loadDashboardStats() {
