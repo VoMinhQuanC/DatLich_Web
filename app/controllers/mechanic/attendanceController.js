@@ -34,6 +34,8 @@ const calculateScheduledHours = (startTime, endTime) => {
     return parseFloat(((endMinutes - startMinutes) / 60).toFixed(2));
 };
 
+const getDateParamOrToday = (inputDate) => inputDate || getCurrentVietnamDate();
+
 // --- CÁC HÀM XỬ LÝ CHÍNH (CONTROLLERS) ---
 
 // 1. Tạo QR Code (Admin/System)
@@ -159,12 +161,68 @@ const getAttendanceHistory = async (req, res) => {
 const adminGetAttendance = async (req, res) => {
     try {
         if (req.user.role !== 1) return res.status(403).json({ success: false, message: 'Chỉ Admin' });
-        const date = req.query.date || getCurrentVietnamDate();
-        const [rows] = await pool.query(`SELECT a.*, u.FullName FROM Attendance a JOIN Users u ON a.MechanicID = u.UserID WHERE a.AttendanceDate = ?`, [date]);
+        const date = getDateParamOrToday(req.query.date);
+        const [rows] = await pool.query(
+            `SELECT a.*, u.FullName, u.PhoneNumber
+             FROM Attendance a
+             JOIN Users u ON a.MechanicID = u.UserID
+             WHERE a.AttendanceDate = ?
+             ORDER BY a.CheckInTime DESC, u.FullName ASC`,
+            [date]
+        );
         res.json({ success: true, attendance: rows, date });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
-module.exports = { generateQRCode, checkIn, checkOut, getAttendanceHistory, adminGetAttendance };
+const adminGetAttendanceStats = async (req, res) => {
+    try {
+        if (req.user.role !== 1) {
+            return res.status(403).json({ success: false, message: 'Chỉ Admin' });
+        }
+
+        const date = getDateParamOrToday(req.query.date);
+
+        const [attendanceRows] = await pool.query(
+            `SELECT
+                COUNT(CASE WHEN CheckInTime IS NOT NULL THEN 1 END) AS checkedIn,
+                COUNT(CASE WHEN CheckOutTime IS NOT NULL THEN 1 END) AS checkedOut,
+                COUNT(CASE WHEN Status = 'Late' THEN 1 END) AS late
+             FROM Attendance
+             WHERE AttendanceDate = ?`,
+            [date]
+        );
+
+        const [scheduledRows] = await pool.query(
+            `SELECT COUNT(DISTINCT MechanicID) AS scheduledCount
+             FROM StaffSchedule
+             WHERE WorkDate = ?
+             AND (Status IS NULL OR Status NOT IN ('ApprovedLeave', 'PendingLeave'))
+             AND (Type IS NULL OR Type != 'unavailable')`,
+            [date]
+        );
+
+        const checkedIn = Number(attendanceRows[0]?.checkedIn || 0);
+        const checkedOut = Number(attendanceRows[0]?.checkedOut || 0);
+        const late = Number(attendanceRows[0]?.late || 0);
+        const scheduledCount = Number(scheduledRows[0]?.scheduledCount || 0);
+        const absent = Math.max(0, scheduledCount - checkedIn);
+
+        res.json({
+            success: true,
+            date,
+            stats: {
+                checkedIn,
+                checkedOut,
+                late,
+                absent,
+                scheduled: scheduledCount
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+module.exports = { generateQRCode, checkIn, checkOut, getAttendanceHistory, adminGetAttendance, adminGetAttendanceStats };

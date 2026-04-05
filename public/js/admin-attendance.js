@@ -10,6 +10,13 @@ let currentQRToken = '';
 let countdown = 30;
 let countdownInterval;
 
+function getLocalDateInputValue(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 console.log('📅 [ATTENDANCE] Module loading with API:', API_URL);
 
 // ================================================
@@ -29,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUserInfo();
     
     // Set today's date
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalDateInputValue();
     const dateFilter = document.getElementById('dateFilter');
     if (dateFilter) {
         dateFilter.value = today;
@@ -104,8 +111,19 @@ function loadUserInfo() {
 async function generateQRCode() {
     try {
         console.log('🔄 [QR] Fetching...');
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            console.warn('⚠️ [QR] No token');
+            return;
+        }
         
-        const response = await fetch(`${API_URL}/attendance/qr/image`);
+        const response = await fetch(`${API_URL}/attendance/qr/image`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -176,7 +194,7 @@ async function loadStats() {
     try {
         const token = localStorage.getItem('token');
         const dateFilter = document.getElementById('dateFilter');
-        const date = dateFilter ? dateFilter.value : new Date().toISOString().split('T')[0];
+        const date = dateFilter ? dateFilter.value : getLocalDateInputValue();
         
         if (!token) {
             console.warn('⚠️ [STATS] No token');
@@ -223,7 +241,7 @@ async function loadAttendance() {
         }
         
         const dateFilter = document.getElementById('dateFilter');
-        const date = dateFilter ? dateFilter.value : new Date().toISOString().split('T')[0];
+        const date = dateFilter ? dateFilter.value : getLocalDateInputValue();
         
         console.log('📋 [ATTENDANCE] Loading for:', date);
         
@@ -511,7 +529,7 @@ function updateDateDisplay(dateStr) {
 function goToToday() {
     const dateFilter = document.getElementById('dateFilter');
     if (dateFilter) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalDateInputValue();
         dateFilter.value = today;
         loadStats();
         loadAttendance();
@@ -522,9 +540,9 @@ function goToToday() {
 function previousDay() {
     const dateFilter = document.getElementById('dateFilter');
     if (dateFilter) {
-        const currentDate = new Date(dateFilter.value);
+        const currentDate = new Date(`${dateFilter.value}T00:00:00`);
         currentDate.setDate(currentDate.getDate() - 1);
-        dateFilter.value = currentDate.toISOString().split('T')[0];
+        dateFilter.value = getLocalDateInputValue(currentDate);
         loadStats();
         loadAttendance();
     }
@@ -533,9 +551,9 @@ function previousDay() {
 function nextDay() {
     const dateFilter = document.getElementById('dateFilter');
     if (dateFilter) {
-        const currentDate = new Date(dateFilter.value);
+        const currentDate = new Date(`${dateFilter.value}T00:00:00`);
         currentDate.setDate(currentDate.getDate() + 1);
-        dateFilter.value = currentDate.toISOString().split('T')[0];
+        dateFilter.value = getLocalDateInputValue(currentDate);
         loadStats();
         loadAttendance();
     }

@@ -27,6 +27,7 @@ router.post('/check-out', authenticateToken, checkMechanicAccess, attendanceCont
 router.get('/history', authenticateToken, checkMechanicAccess, attendanceController.getAttendanceHistory);
 
 // Admin APIs
+router.get('/admin/stats', authenticateToken, checkAdminAccess, attendanceController.adminGetAttendanceStats);
 router.get('/admin/today', authenticateToken, checkAdminAccess, attendanceController.adminGetAttendance);
 
 module.exports = router;

@@ -1431,6 +1431,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
+            clearPendingPaymentSession();
+
+            if (paymentMethod === 'Thanh toán tại tiệm') {
+                window.location.href = `/booking-history?paymentStatus=success&paymentMethod=cod&appointmentId=${appointmentId}`;
+                return { success: true, appointmentId, redirected: true };
+            }
+
             // Ẩn form đặt lịch và hiển thị trang thành công
             const bookingFormContainer = document.getElementById('bookingFormContainer');
             const bookingSuccess = document.getElementById('bookingSuccess');
@@ -1439,8 +1446,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (bookingFormContainer) bookingFormContainer.style.display = 'none';
             if (bookingSuccess) bookingSuccess.style.display = 'block';
             if (bookingIdElement) bookingIdElement.textContent = `BK${appointmentId}`;
-
-            clearPendingPaymentSession();
             
             return { success: true, appointmentId };
             
@@ -1474,9 +1479,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Luôn ẩn spinner và enable nút submit
             const submitSpinner = document.getElementById('submitSpinner');
             const submitBookingBtn = document.getElementById('submitBooking');
+            const submitSpinnerCash = document.getElementById('submitSpinnerCash');
+            const submitBookingCashBtn = document.getElementById('submitBookingCash');
             
             if (submitSpinner) submitSpinner.style.display = 'none';
             if (submitBookingBtn) submitBookingBtn.disabled = false;
+            if (submitSpinnerCash) submitSpinnerCash.style.display = 'none';
+            if (submitBookingCashBtn) submitBookingCashBtn.disabled = false;
         }
     }
 
