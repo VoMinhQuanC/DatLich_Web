@@ -1253,7 +1253,7 @@ async function saveSchedule() {
             const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
         
             const response = await fetch(
-                `${API_BASE_URL}/mechanics/schedules/all?startDate=${formatDateForInput(startDate)}&endDate=${formatDateForInput(endDate)}`,
+                `${API_BASE_URL}/schedules/all?startDate=${formatDateForInput(startDate)}&endDate=${formatDateForInput(endDate)}`,
                 {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }
@@ -1264,11 +1264,11 @@ async function saveSchedule() {
             const data = await response.json();
         
             if (data.success) {
-                allMechanicSchedules = data.data;
+                allMechanicSchedules = data.data || data.schedules || [];
             
                 // Đếm số KTV theo ngày
                 mechanicCountByDate = {};
-                data.data.forEach(schedule => {
+                allMechanicSchedules.forEach(schedule => {
                     const dateKey = schedule.WorkDate.split('T')[0];
                     if (!mechanicCountByDate[dateKey]) {
                         mechanicCountByDate[dateKey] = {
@@ -1290,7 +1290,7 @@ async function saveSchedule() {
                     }
                 });
             
-                console.log('✅ Đã load lịch tất cả KTV:', data.data.length);
+                console.log('✅ Đã load lịch tất cả KTV:', allMechanicSchedules.length);
                 console.log('📊 Số KTV theo ngày:', mechanicCountByDate);
             }
         } catch (error) {

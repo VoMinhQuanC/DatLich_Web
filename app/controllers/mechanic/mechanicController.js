@@ -12,6 +12,31 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const buildMechanicAppointmentsWhere = (mechanicId, filters = {}) => {
+    const conditions = ['a.MechanicID = ?', 'a.IsDeleted = 0'];
+    const params = [mechanicId];
+
+    if (filters.status) {
+        conditions.push('a.Status = ?');
+        params.push(filters.status);
+    }
+
+    if (filters.dateFrom) {
+        conditions.push('DATE(a.AppointmentDate) >= ?');
+        params.push(filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        conditions.push('DATE(a.AppointmentDate) <= ?');
+        params.push(filters.dateTo);
+    }
+
+    return {
+        whereClause: conditions.join(' AND '),
+        params
+    };
+};
+
 // --- DASHBOARD ---
 const getDashboardStats = async (req, res) => {
     try {
@@ -25,6 +50,12 @@ const getDashboardStats = async (req, res) => {
 
         res.json({
             success: true,
+            data: {
+                todayAppointments: todayAppointments[0].count,
+                pendingAppointments: pendingAppointments[0].count,
+                weeklyCompleted: weeklyCompleted[0].count,
+                averageRating: averageRating[0].avgRating ? parseFloat(averageRating[0].avgRating).toFixed(1) : 0
+            },
             stats: {
                 todayAppointments: todayAppointments[0].count,
                 pendingAppointments: pendingAppointments[0].count,
@@ -46,7 +77,77 @@ const getUpcomingAppointments = async (req, res) => {
              FROM Appointments a LEFT JOIN Users u ON a.UserID = u.UserID LEFT JOIN Vehicles v ON a.VehicleID = v.VehicleID
              WHERE a.MechanicID = ? AND a.Status IN ('Pending', 'Confirmed') AND a.AppointmentDate >= CURDATE() AND a.IsDeleted = 0
              ORDER BY a.AppointmentDate ASC LIMIT 10`, [mechanicId]);
-        res.json({ success: true, appointments });
+        res.json({ success: true, appointments, data: { appointments } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+const getAppointments = async (req, res) => {
+    try {
+        const mechanicId = req.user.userId;
+        const { status, dateFrom, dateTo } = req.query;
+        const { whereClause, params } = buildMechanicAppointmentsWhere(mechanicId, { status, dateFrom, dateTo });
+
+        const [appointments] = await pool.query(
+            `SELECT a.*, u.FullName as CustomerName, u.Email, u.PhoneNumber as CustomerPhone, u.PhoneNumber,
+                    v.LicensePlate, v.Brand, v.Model, v.Year,
+                    CONCAT_WS(' - ', CONCAT_WS(' ', NULLIF(v.Brand, ''), NULLIF(v.Model, '')), NULLIF(v.LicensePlate, '')) AS VehicleInfo,
+                    (SELECT GROUP_CONCAT(s.ServiceName SEPARATOR ', ')
+                     FROM AppointmentServices aps
+                     JOIN Services s ON aps.ServiceID = s.ServiceID
+                     WHERE aps.AppointmentID = a.AppointmentID) AS Services
+             FROM Appointments a
+             LEFT JOIN Users u ON a.UserID = u.UserID
+             LEFT JOIN Vehicles v ON a.VehicleID = v.VehicleID
+             WHERE ${whereClause}
+             ORDER BY a.AppointmentDate DESC`,
+            params
+        );
+
+        res.json({ success: true, appointments, data: { appointments } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+const getAppointmentDetail = async (req, res) => {
+    try {
+        const appointmentId = req.params.id;
+        const mechanicId = req.user.userId;
+
+        const [appointments] = await pool.query(
+            `SELECT a.*, u.FullName as CustomerName, u.Email, u.PhoneNumber as CustomerPhone, u.PhoneNumber,
+                    v.LicensePlate, v.Brand, v.Model, v.Year,
+                    CONCAT_WS(' - ', CONCAT_WS(' ', NULLIF(v.Brand, ''), NULLIF(v.Model, '')), NULLIF(v.LicensePlate, '')) AS VehicleInfo,
+                    (SELECT GROUP_CONCAT(s.ServiceName SEPARATOR ', ')
+                     FROM AppointmentServices aps
+                     JOIN Services s ON aps.ServiceID = s.ServiceID
+                     WHERE aps.AppointmentID = a.AppointmentID) AS Services
+             FROM Appointments a
+             LEFT JOIN Users u ON a.UserID = u.UserID
+             LEFT JOIN Vehicles v ON a.VehicleID = v.VehicleID
+             WHERE a.AppointmentID = ? AND a.MechanicID = ? AND a.IsDeleted = 0
+             LIMIT 1`,
+            [appointmentId, mechanicId]
+        );
+
+        if (appointments.length === 0) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy lịch hẹn' });
+        }
+
+        const appointment = appointments[0];
+        const [services] = await pool.query(
+            `SELECT s.ServiceID, s.ServiceName, s.Price, aps.Quantity
+             FROM AppointmentServices aps
+             JOIN Services s ON aps.ServiceID = s.ServiceID
+             WHERE aps.AppointmentID = ?`,
+            [appointmentId]
+        );
+
+        appointment.services = services;
+
+        res.json({ success: true, appointment, data: appointment });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -58,7 +159,7 @@ const getNotifications = async (req, res) => {
         const mechanicId = req.user.userId;
         const limit = parseInt(req.query.limit) || 10;
         const [notifications] = await pool.query('SELECT * FROM Notifications WHERE UserID = ? ORDER BY CreatedAt DESC LIMIT ?', [mechanicId, limit]);
-        res.json({ success: true, notifications });
+        res.json({ success: true, notifications, data: notifications });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -82,7 +183,7 @@ const getTeamSchedules = async (req, res) => {
             `SELECT ss.*, u.FullName as MechanicName, u.PhoneNumber as MechanicPhone
              FROM StaffSchedule ss JOIN Users u ON ss.MechanicID = u.UserID
              WHERE ss.WorkDate BETWEEN ? AND ? ORDER BY ss.WorkDate ASC, ss.StartTime ASC`, [startDate, endDate]);
-        res.json({ success: true, schedules });
+        res.json({ success: true, schedules, data: schedules });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -112,6 +213,7 @@ const updateAppointmentStatus = async (req, res, targetStatus) => {
 };
 
 const confirmAppointment = (req, res) => updateAppointmentStatus(req, res, 'Confirmed');
+const startAppointment = (req, res) => updateAppointmentStatus(req, res, 'InProgress');
 const completeAppointment = (req, res) => updateAppointmentStatus(req, res, 'Completed');
 
 // --- LEAVE REQUESTS (ADMIN SIDE) ---
@@ -131,10 +233,13 @@ const getLeaveRequestStats = async (req, res) => {
 module.exports = {
     getDashboardStats,
     getUpcomingAppointments,
+    getAppointments,
+    getAppointmentDetail,
     getNotifications,
     markNotificationRead,
     getTeamSchedules,
     confirmAppointment,
+    startAppointment,
     completeAppointment,
     getLeaveRequestStats
     // Bạn có thể thêm tiếp các hàm request-edit, reject... từ file gốc vào đây nhé

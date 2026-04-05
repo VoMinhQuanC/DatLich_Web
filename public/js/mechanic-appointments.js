@@ -3,7 +3,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // ✅ UPDATED: Production API URL
-    const API_BASE_URL = 'https://suaxeweb-production.up.railway.app/api';
+    const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'https://suaxeweb-production.up.railway.app/api';
     
     // Lưu trữ dữ liệu
     let mechanicData = {};
@@ -463,7 +463,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                const appointment = data.data;
+                const appointment = data.appointment || data.data;
+                if (!appointment) {
+                    throw new Error('Dữ liệu chi tiết lịch hẹn không hợp lệ');
+                }
                 
                 // Điền thông tin vào modal
                 document.getElementById('detailAppointmentId').textContent = appointment.AppointmentID;
@@ -485,8 +488,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('detailStatus').innerHTML = getStatusBadge(appointment.Status);
                 
                 // Services
-                if (appointment.services && appointment.services.length > 0) {
-                    const servicesHTML = appointment.services.map(service => `
+                const services = appointment.services || appointment.ServicesDetails || [];
+                if (services.length > 0) {
+                    const servicesHTML = services.map(service => `
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             ${service.ServiceName}
                             <span class="badge bg-primary rounded-pill">${formatCurrency(service.Price)}</span>
@@ -495,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     document.getElementById('detailServicesList').innerHTML = servicesHTML;
                     
-                    const totalPrice = appointment.services.reduce((sum, s) => sum + (s.Price * (s.Quantity || 1)), 0);
+                    const totalPrice = services.reduce((sum, s) => sum + ((s.Price || 0) * (s.Quantity || 1)), 0);
                     document.getElementById('detailTotalPrice').textContent = formatCurrency(totalPrice);
                 } else {
                     document.getElementById('detailServicesList').innerHTML = '<li class="list-group-item">Không có dịch vụ</li>';

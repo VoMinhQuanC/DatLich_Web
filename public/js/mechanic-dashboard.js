@@ -2,7 +2,7 @@
 // Handles all API response structures
 
 // ✅ PRODUCTION API URL
-const API_BASE_URL = 'https://suaxeweb-production.up.railway.app/api';
+const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'https://suaxeweb-production.up.railway.app/api';
 
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
@@ -76,8 +76,8 @@ async function loadDashboardStats() {
         
         const data = await response.json();
         
-        if (data.success && data.data) {
-            const stats = data.data;
+        if (data.success) {
+            const stats = data.data || data.stats || {};
             
             document.getElementById('todayAppointments').textContent = stats.todayAppointments || 0;
             document.getElementById('pendingCount').textContent = stats.pendingCount || stats.pendingAppointments || 0;
@@ -117,8 +117,9 @@ async function loadNotifications() {
         const data = await response.json();
         console.log('📋 Notifications response:', data);
         
-        if (data.success && data.data) {
-            if (data.data.length === 0) {
+        const notifications = data.data || data.notifications || [];
+        if (data.success) {
+            if (notifications.length === 0) {
                 notificationsList.innerHTML = `
                     <div class="text-center text-muted py-4">
                         <i class="bi bi-bell-slash fs-1"></i>
@@ -129,7 +130,7 @@ async function loadNotifications() {
             }
             
             let html = '';
-            data.data.forEach(notification => {
+            notifications.forEach(notification => {
                 const isRead = notification.IsRead ? '' : 'unread';
                 const iconClass = getNotificationIcon(notification.Type || notification.IconType);
                 const timeAgo = formatTimeAgo(notification.CreatedAt);
@@ -152,7 +153,7 @@ async function loadNotifications() {
             });
             
             notificationsList.innerHTML = html;
-            console.log('✅ Notifications loaded:', data.data.length);
+            console.log('✅ Notifications loaded:', notifications.length);
         } else {
             notificationsList.innerHTML = `
                 <div class="text-center text-muted py-4">

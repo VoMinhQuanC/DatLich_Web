@@ -22,11 +22,27 @@ const checkAdminAccess = (req, res, next) => {
 };
 
 // Định tuyến
+router.get('/all', checkMechanicAccess, (req, res) => {
+    if (req.query.startDate && req.query.endDate) {
+        return scheduleController.getSchedulesByRange(req, res);
+    }
+    return scheduleController.getAllSchedules(req, res);
+});
 router.get('/available-slots', scheduleController.getAvailableSlots);
+router.get('/count-by-date', checkMechanicAccess, scheduleController.getMechanicCountByDate);
+router.get('/check-can-edit/:id', checkMechanicAccess, scheduleController.getCanEditStatus);
 router.get('/mechanics/list', checkMechanicAccess, scheduleController.getMechanicsList);
 router.get('/by-date-range/:startDate/:endDate', checkMechanicAccess, scheduleController.getSchedulesByRange);
-router.get('/', checkMechanicAccess, scheduleController.getAllSchedules);
-router.post('/', checkAdminAccess, scheduleController.createSchedule);
+router.get('/', checkMechanicAccess, (req, res) => {
+    if (req.query.startDate && req.query.endDate) {
+        return scheduleController.getSchedulesByRange(req, res);
+    }
+    return scheduleController.getAllSchedules(req, res);
+});
+router.post('/check-overlap', checkMechanicAccess, scheduleController.checkOverlap);
+router.post('/:id/request-edit', checkMechanicAccess, scheduleController.requestEdit);
+router.post('/', checkMechanicAccess, scheduleController.createSchedule);
+router.put('/:id', checkMechanicAccess, scheduleController.updateSchedule);
 router.delete('/:id', checkAdminAccess, scheduleController.deleteSchedule);
 
 module.exports = router;

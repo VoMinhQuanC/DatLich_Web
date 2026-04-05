@@ -21,7 +21,9 @@ const checkAdminAccess = (req, res, next) => {
 
 // Dashboard & Thông báo
 router.get('/dashboard/stats', authenticateToken, checkMechanicAccess, mechanicController.getDashboardStats);
+router.get('/appointments', authenticateToken, checkMechanicAccess, mechanicController.getAppointments);
 router.get('/appointments/upcoming', authenticateToken, checkMechanicAccess, mechanicController.getUpcomingAppointments);
+router.get('/appointments/:id', authenticateToken, checkMechanicAccess, mechanicController.getAppointmentDetail);
 router.get('/notifications', authenticateToken, checkMechanicAccess, mechanicController.getNotifications);
 router.put('/notifications/:id/read', authenticateToken, checkMechanicAccess, mechanicController.markNotificationRead);
 
@@ -30,6 +32,7 @@ router.get('/schedules/team/by-date-range/:startDate/:endDate', authenticateToke
 
 // Thao tác với lịch hẹn
 router.put('/appointments/:id/confirm', authenticateToken, checkMechanicAccess, mechanicController.confirmAppointment);
+router.put('/appointments/:id/start', authenticateToken, checkMechanicAccess, mechanicController.startAppointment);
 router.put('/appointments/:id/complete', authenticateToken, checkMechanicAccess, mechanicController.completeAppointment);
 
 // Admin Quản lý đơn nghỉ

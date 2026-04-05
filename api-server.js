@@ -95,9 +95,12 @@ app.use('/api/users/vehicles', require('./app/routes/client/vehicleRoutes'));
 
 // Nhóm 3: Dành cho Thợ máy (Mechanic)
 app.use('/api/mechanic', require('./app/routes/mechanic/mechanicsRoutes'));
+app.use('/api/mechanics', require('./app/routes/mechanic/mechanicsRoutes'));
 app.use('/api/attendance', require('./app/routes/mechanic/attendanceRoutes'));
 app.use('/api/schedule', require('./app/routes/mechanic/schedulesRoutes'));   // alias cũ
 app.use('/api/schedules', require('./app/routes/mechanic/schedulesRoutes'));  // alias mới (admin dùng)
+app.use('/api/mechanics/schedules', require('./app/routes/mechanic/schedulesRoutes'));
+app.use('/api/mechanics/attendance', require('./app/routes/mechanic/attendanceRoutes'));
 
 // Nhóm 4: Dành cho Quản trị (Admin)
 app.use('/api/admin/dashboard', require('./app/routes/admin/dashboardRoutes'));
