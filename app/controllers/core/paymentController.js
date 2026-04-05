@@ -80,6 +80,8 @@ const getVnpayRuntimeConfig = () => ({
     vnpHashSecret: process.env.VNP_HASH_SECRET || ''
 });
 
+const PAYMENT_RECORD_METHOD = 'Bank Transfer';
+
 
 // Helper: Lấy tên ngân hàng từ mã BIN
 const getBankName = (bankId) => {
@@ -442,7 +444,7 @@ const vnpayReturn = async (req, res) => {
 
         const appointment = appointmentCheck[0];
         const [completedPayments] = await pool.query(
-            `SELECT PaymentID FROM Payments WHERE AppointmentID = ? AND PaymentMethod = 'VNPay' AND Status = 'Completed' LIMIT 1`,
+            `SELECT PaymentID, PaymentMethod FROM Payments WHERE AppointmentID = ? AND Status = 'Completed' LIMIT 1`,
             [appointmentId]
         );
 
@@ -471,14 +473,14 @@ const vnpayReturn = async (req, res) => {
                         a.UserID,
                         a.AppointmentID,
                         COALESCE(? / 100, SUM(s.Price * aps.Quantity), 0),
-                        'VNPay',
+                        ?,
                         'Completed',
                         NOW()
                     FROM Appointments a
                     LEFT JOIN AppointmentServices aps ON a.AppointmentID = aps.AppointmentID
                     LEFT JOIN Services s ON aps.ServiceID = s.ServiceID
                     WHERE a.AppointmentID = ?
-                `, [amount, appointmentId]);
+                `, [amount, PAYMENT_RECORD_METHOD, appointmentId]);
             }
 
             console.log('✅ VNPay payment successful:', appointmentId, 'Amount:', amount);
@@ -641,7 +643,7 @@ const momoIPN = async (req, res) => {
 
         const appointment = appointmentCheck[0];
         const [completedPayments] = await pool.query(
-            `SELECT PaymentID FROM Payments WHERE AppointmentID = ? AND PaymentMethod = 'MoMo' AND Status = 'Completed' LIMIT 1`,
+            `SELECT PaymentID, PaymentMethod FROM Payments WHERE AppointmentID = ? AND Status = 'Completed' LIMIT 1`,
             [appointmentId]
         );
 
@@ -668,7 +670,7 @@ const momoIPN = async (req, res) => {
                         a.UserID,
                         a.AppointmentID,
                         COALESCE(? / 100, SUM(s.Price * aps.Quantity), 0),
-                        'MoMo',
+                        ?,
                         'Completed',
                         ?,
                         NOW()
@@ -676,7 +678,7 @@ const momoIPN = async (req, res) => {
                     LEFT JOIN AppointmentServices aps ON a.AppointmentID = aps.AppointmentID
                     LEFT JOIN Services s ON aps.ServiceID = s.ServiceID
                     WHERE a.AppointmentID = ?
-                `, [amount, transId, appointmentId]);
+                `, [amount, PAYMENT_RECORD_METHOD, transId, appointmentId]);
             }
 
             console.log('✅ MoMo payment successful:', appointmentId, 'Amount:', amount);
