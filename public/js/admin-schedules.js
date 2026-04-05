@@ -17,9 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initDateTimePickers();
     
     // Tải dữ liệu ban đầu
-    loadMechanics();
-    loadSchedules();
-    loadWeeklySchedule();
+    initializePage();
     
     // Thêm event listeners cho các nút
     document.getElementById('addScheduleBtn').addEventListener('click', openAddScheduleModal);
@@ -35,6 +33,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Thêm event listener cho nút xem tất cả kỹ thuật viên
     document.getElementById('viewAllMechanicsBtn').addEventListener('click', showAllMechanicsModal);
+
+    async function initializePage() {
+        currentWeekDays = getWeekDays();
+        updateWeeklyScheduleHeader();
+        updateCurrentWeekDisplay();
+
+        await Promise.all([
+            loadMechanics(),
+            loadSchedules()
+        ]);
+
+        await loadSchedulesForWeek();
+    }
     
 
      /*
@@ -547,6 +558,9 @@ function editScheduleFromModal(id) {
             if (data.success) {
                 mechanics = data.mechanics || [];
                 populateMechanicDropdowns();
+                if (currentWeekDays.length > 0) {
+                    renderWeeklyScheduleCompact({});
+                }
             } else {
                 throw new Error(data.message || 'Không thể tải danh sách kỹ thuật viên');
             }
@@ -727,11 +741,11 @@ function editScheduleFromModal(id) {
     /**
      * Tải và hiển thị lịch trình tuần
      */
-    function loadWeeklySchedule() {
+    async function loadWeeklySchedule() {
         currentWeekDays = getWeekDays();
         updateWeeklyScheduleHeader();
         updateCurrentWeekDisplay();
-        loadSchedulesForWeek();
+        await loadSchedulesForWeek();
     }
     
     /**

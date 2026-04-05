@@ -1244,10 +1244,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const pendingFiltered = filterRequestsByType(leaveRequests.pending);
         const approvedFiltered = filterRequestsByType(leaveRequests.approved);
         const rejectedFiltered = filterRequestsByType(leaveRequests.rejected);
+        const allRequests = [
+            ...leaveRequests.pending,
+            ...leaveRequests.approved,
+            ...leaveRequests.rejected
+        ];
+        const totalEditRequests = allRequests.filter((req) => isEditRequest(req)).length;
+        const totalLeaveRequests = allRequests.filter((req) => !isEditRequest(req)).length;
         
         document.getElementById('pendingTabCount').textContent = pendingFiltered.length;
         document.getElementById('approvedTabCount').textContent = approvedFiltered.length;
         document.getElementById('rejectedTabCount').textContent = rejectedFiltered.length;
+        
+        const editCountEl = document.getElementById('editRequestCount');
+        const leaveCountEl = document.getElementById('leaveRequestCount');
+        if (editCountEl) editCountEl.textContent = totalEditRequests;
+        if (leaveCountEl) leaveCountEl.textContent = totalLeaveRequests;
         
         // Cập nhật thống kê theo filter
         updateStats(pendingFiltered.length, approvedFiltered.length, rejectedFiltered.length);
