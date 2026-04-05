@@ -23,12 +23,15 @@ const getBackendBaseUrl = () => normalizeBaseUrl(
     getFrontendBaseUrl()
 );
 
-const sortObject = (input) => Object.keys(input)
+const buildVnpParamObject = (input) => Object.keys(input)
     .sort()
     .reduce((result, key) => {
-        result[key] = input[key];
+        const stringValue = input[key] == null ? '' : String(input[key]);
+        result[key] = encodeURIComponent(stringValue).replace(/%20/g, '+');
         return result;
     }, {});
+
+const buildVnpQueryString = (input) => qs.stringify(buildVnpParamObject(input), { encode: false });
 
 const getClientIp = (req) => {
     const forwardedFor = req.headers['x-forwarded-for'];
@@ -188,7 +191,7 @@ const createVNPayPayment = async (req, res) => {
         const orderId = `${numericAppointmentId}_${Date.now()}`;
         const orderInfo = `Thanh toan don ${numericAppointmentId}`;
 
-        const vnp_Params = sortObject({
+        const vnp_Params = {
             vnp_Version: '2.1.0',
             vnp_Command: 'pay',
             vnp_TmnCode,
@@ -202,18 +205,18 @@ const createVNPayPayment = async (req, res) => {
             vnp_CreateDate: formatVnpDate(date),
             vnp_ExpireDate: formatVnpDate(expireDate),
             vnp_IpAddr: getClientIp(req)
-        });
+        };
 
-        const sortedParams = qs.stringify(vnp_Params, { encode: false });
+        const signData = buildVnpQueryString(vnp_Params);
 
-        const signData = crypto.createHmac('sha512', vnp_HashSecret)
-            .update(Buffer.from(sortedParams, 'utf-8'))
+        const secureHash = crypto.createHmac('sha512', vnp_HashSecret)
+            .update(Buffer.from(signData, 'utf-8'))
             .digest('hex');
 
-        vnp_Params['vnp_SecureHash'] = signData;
+        vnp_Params.vnp_SecureHash = secureHash;
         vnp_Params['vnp_SecureHashType'] = 'SHA512';
 
-        const paymentUrl = vnp_Url + '?' + qs.stringify(vnp_Params, { encode: false });
+        const paymentUrl = `${vnp_Url}?${buildVnpQueryString(vnp_Params)}`;
 
         res.json({ success: true, paymentUrl });
 
@@ -228,8 +231,7 @@ const vnpayReturn = async (req, res) => {
     delete vnpParams.vnp_SecureHash;
     delete vnpParams.vnp_SecureHashType;
 
-    const sortedParams = sortObject(vnpParams);
-    const signData = qs.stringify(sortedParams, { encode: false });
+    const signData = buildVnpQueryString(vnpParams);
     const expectedHash = crypto
         .createHmac('sha512', process.env.VNP_HASH_SECRET || '')
         .update(Buffer.from(signData, 'utf-8'))
